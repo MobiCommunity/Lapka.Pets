@@ -16,11 +16,11 @@ namespace Lapka.Pets.Infrastructure.Exceptions
 
                 AppException ex => ex switch
                 {
-                    ValueNotFoundException valueNotFoundException => 
+                    PetNotFoundException petNotFoundException => 
                         new ExceptionResponse (new
                         {
-                            code = valueNotFoundException.Code,
-                            reason = valueNotFoundException.Message
+                            code = petNotFoundException.Code,
+                            reason = petNotFoundException.Message
                         },HttpStatusCode.NotFound),
                     _ => new ExceptionResponse(
                         new

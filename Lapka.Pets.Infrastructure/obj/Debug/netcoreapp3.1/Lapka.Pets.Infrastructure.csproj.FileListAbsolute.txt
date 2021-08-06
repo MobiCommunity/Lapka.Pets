@@ -1,0 +1,16 @@
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.deps.json
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.dll
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.pdb
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Application.dll
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Core.dll
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Application.pdb
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Application.xml
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Core.pdb
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\bin\Debug\netcoreapp3.1\Lapka.Pets.Core.xml
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.csprojAssemblyReference.cache
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.AssemblyInfoInputs.cache
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.AssemblyInfo.cs
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.csproj.CopyComplete
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.dll
+D:\Lapka.Pets\Lapka.Pets.Infrastructure\obj\Debug\netcoreapp3.1\Lapka.Pets.Infrastructure.pdb

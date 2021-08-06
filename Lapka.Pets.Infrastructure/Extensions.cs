@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Services;
 
@@ -27,7 +29,8 @@ namespace Lapka.Pets.Infrastructure
                 .AddErrorHandler<ExceptionToResponseMapper>()
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
                 // .AddRabbitMq()
-                // .AddMongo()
+                 .AddMongo()
+                .AddMongoRepository<PetDocument, Guid>("Pets")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()
@@ -46,7 +49,6 @@ namespace Lapka.Pets.Infrastructure
 
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 
-            services.AddSingleton<IValueRepository, ValueRepository>();
             services.AddTransient<IEventProcessor, EventProcessor>();
             services.AddTransient<IMessageBroker, DummyMessageBroker>();
 

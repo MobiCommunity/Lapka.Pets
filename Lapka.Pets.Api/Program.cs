@@ -14,7 +14,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Lapka.Pets.Api.Attributes;
 using Lapka.Pets.Application;
+using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure;
+using Lapka.Pets.Infrastructure.Services;
 
 namespace Lapka.Pets.Api
 {
@@ -36,6 +38,9 @@ namespace Lapka.Pets.Api
                         .AddConvey()
                         .AddInfrastructure()
                         .AddApplication();
+
+                    services.AddSingleton<IPetRepository, PetRepository>();
+                    services.AddSingleton<IPetQueryService, PetQueryService>();
 
                     services.AddSwaggerGen(c =>
                     {

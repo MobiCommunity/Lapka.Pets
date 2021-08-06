@@ -1,10 +1,10 @@
 ﻿namespace Lapka.Pets.Application.Exceptions
 {
-    public class ValueNotFoundException : AppException
+    public class PetNotFoundException : AppException
     {
-        public override string Code => "value_not_found";
+        public override string Code => "pet_not_found";
 
-        public ValueNotFoundException() : base("value not exists in database")
+        public PetNotFoundException() : base("Pet not exists in database")
         {
             
         }
