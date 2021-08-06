@@ -5,9 +5,9 @@ using Lapka.Pets.Core.Entities;
 
 namespace Lapka.Pets.Application.Services
 {
-    public interface IValueRepository
+    public interface IPetRepository
     {
-        Task AddValue(Value value);
-        Task<ValueDto> GetById(Guid id);
+        Task DeleteAsync(Pet pet);
+        Task UpdateAsync(Pet pet);
     }
 }

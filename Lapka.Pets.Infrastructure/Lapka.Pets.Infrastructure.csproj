@@ -26,4 +26,8 @@
       <ProjectReference Include="..\Lapka.Pets.Application\Lapka.Pets.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Queries\Handlers" />
+    </ItemGroup>
+
 </Project>

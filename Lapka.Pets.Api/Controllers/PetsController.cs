@@ -10,7 +10,7 @@ using Lapka.Pets.Application.Queries;
 namespace Lapka.Pets.Api.Controllers
 {
     [ApiController]
-    [Route("api/values")]
+    [Route("api/pets")]
     public class ValuesController : ControllerBase
     {
         private readonly ICommandDispatcher _commandDispatcher;
@@ -22,22 +22,12 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            return Ok(await _queryDispatcher.QueryAsync(new GetValue
-            {
-                Id = id
-            }));
-        }
+            await _commandDispatcher.SendAsync(new DeletePet(id));
 
-        [HttpPost]
-        public async Task<ActionResult> Add(CreateValueRequest valueRequest)
-        {
-            Guid id = Guid.NewGuid();
-            await _commandDispatcher.SendAsync(new CreateValue(valueRequest.Name,valueRequest.Description,id));
-
-            return Created($"api/lapka.pets/values/{id}", null);
+            return NoContent();
         }
     }
 }

@@ -5,12 +5,12 @@ using Lapka.Pets.Core.Events.Concrete;
 
 namespace Lapka.Pets.Application.Events.Concrete
 {
-    public class ValueCreatedHandler : IDomainEventHandler<ValueCreated>
+    public class PetUpdatedHandler : IDomainEventHandler<PetUpdated>
     {
 
-        public Task HandleAsync(ValueCreated @event)
+        public Task HandleAsync(PetUpdated @event)
         {
-            Console.WriteLine($"i caught {@event.Value.Name}");
+            Console.WriteLine($"i caught {@event.Pet.Name}");
             return Task.CompletedTask;
         }
     }

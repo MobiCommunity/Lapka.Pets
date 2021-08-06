@@ -46,7 +46,7 @@ namespace Lapka.Pets.Infrastructure
 
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 
-            services.AddSingleton<IValueRepository, ValueRepository>();
+            services.AddSingleton<IPetRepository, PetRepository>();
             services.AddTransient<IEventProcessor, EventProcessor>();
             services.AddTransient<IMessageBroker, DummyMessageBroker>();
 

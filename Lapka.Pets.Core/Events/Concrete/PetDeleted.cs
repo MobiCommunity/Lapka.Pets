@@ -3,13 +3,13 @@ using Lapka.Pets.Core.Events.Abstract;
 
 namespace Lapka.Pets.Core.Events.Concrete
 {
-    public class ValueCreated : IDomainEvent
+    public class PetDeleted : IDomainEvent
     {
-        public Value Value { get; }
+        public Pet Pet { get; }
 
-        public ValueCreated(Value value)
+        public PetDeleted(Pet pet)
         {
-            Value = value;
+            Pet = pet;
         }
     }
 }
