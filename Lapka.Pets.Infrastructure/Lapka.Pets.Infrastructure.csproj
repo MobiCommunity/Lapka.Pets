@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <ProjectGuid>{3ECBCBD3-AF0F-40C5-9435-01BF16878495}</ProjectGuid>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Convey" Version="0.4.360" />
+        <PackageReference Include="Convey.CQRS.Queries" Version="0.4.360" />
+        <PackageReference Include="Convey.Discovery.Consul" Version="0.4.360" />
+        <PackageReference Include="Convey.HTTP" Version="0.4.360" />
+        <PackageReference Include="Convey.LoadBalancing.Fabio" Version="0.4.360" />
+        <PackageReference Include="Convey.Logging" Version="0.4.360" />
+        <PackageReference Include="Convey.MessageBrokers.CQRS" Version="0.4.360" />
+        <PackageReference Include="Convey.MessageBrokers.Outbox" Version="0.4.360" />
+        <PackageReference Include="Convey.MessageBrokers.RabbitMQ" Version="0.4.360" />
+        <PackageReference Include="Convey.Metrics.AppMetrics" Version="0.4.360" />
+        <PackageReference Include="Convey.Persistence.MongoDB" Version="0.4.360" />
+        <PackageReference Include="Convey.WebApi.CQRS" Version="0.4.360" />
+
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lapka.Pets.Application\Lapka.Pets.Application.csproj" />
+      <ProjectReference Include="..\Lapka.Pets.Application\Lapka.Pets.Application.csproj" />
+    </ItemGroup>
+
+</Project>
