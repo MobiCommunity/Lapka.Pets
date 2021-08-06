@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <ProjectGuid>{77F86D24-CA1D-4DDF-A02B-8BE9688E831C}</ProjectGuid>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Convey" Version="0.4.360" />
+        <PackageReference Include="Convey.CQRS.Commands" Version="0.4.360" />
+        <PackageReference Include="Convey.CQRS.Events" Version="0.4.360" />
+        <PackageReference Include="Convey.CQRS.Queries" Version="0.4.360" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Lapka.Pets.Core\Lapka.Pets.Core.csproj" />
+      <ProjectReference Include="..\Lapka.Pets.Core\Lapka.Pets.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\Responses\" />
+    </ItemGroup>
+
+</Project>

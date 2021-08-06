@@ -1,0 +1,68 @@
+version: '3.7'
+
+services:
+  consul:
+    image: consul:latest
+    container_name: consul
+    restart: unless-stopped
+    ports:
+      - 8500:8500
+    networks:
+      - template
+
+  fabio:
+    image: fabiolb/fabio:latest
+    container_name: fabio
+    restart: unless-stopped
+    environment:
+      - FABIO_REGISTRY_CONSUL_ADDR=consul:8500
+    ports:
+      - 9998:9998
+      - 9999:9999
+    networks:
+      - template
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data/db
+    networks:
+      - template
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+      - 15692:15692
+    networks:
+      - template
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:80
+
+networks:
+  amzn:
+    name: template
+
+volumes:
+  consul:
+    driver: local
+  mongo:
+    driver: local
+  rabbitmq:
+    driver: local
+  seq:
+    driver: local
