@@ -1,3 +1,5 @@
+using Lapka.Pets.Core.Exceptions;
+
 namespace Lapka.Pets.Core.ValueObjects
 {
     public class Address
@@ -13,6 +15,35 @@ namespace Lapka.Pets.Core.ValueObjects
             City = city;
             Street = street;
             GeoLocation = geoLocation;
+
+            Validate();
+        }
+
+        private void Validate()
+        {
+            ValidateName();
+            ValidateCity();
+            ValidateStreet();
+        }
+
+        private void ValidateName()
+        {
+            if (string.IsNullOrEmpty(Name))
+                throw new InvalidAdressNameException(Name);
+        }
+        
+        private void ValidateCity()
+        {
+            if (string.IsNullOrEmpty(City))
+                throw new InvalidCityValueException(City);
+            
+        }
+        
+        private void ValidateStreet()
+        {
+            if (string.IsNullOrEmpty(Street))
+                throw new InvalidStreetValueException(Street);
+            
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Lapka.Pets.Core.Entities
 {
     public class Pet : AggregateRoot
     {
+        private const double MiniumumWeight = 0;
+        
         public string Name { get; }
         public Sex Sex { get; }
         public Species Species { get; }
@@ -20,7 +22,8 @@ namespace Lapka.Pets.Core.Entities
         public string Description { get; }
 
 
-        public Pet(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress, string description)
+        public Pet(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay,
+            string color, double weight, bool sterilization, Address shelterAddress, string description)
         {
             Id = new AggregateId(id);
             Name = name;
@@ -35,22 +38,10 @@ namespace Lapka.Pets.Core.Entities
             Description = description;
         }
         
-        public static Pet Create(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress, string description)
+        public static Pet Create(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay,
+            string color, double weight, bool sterilization, Address shelterAddress,  string description)
         {
-            if (IsNameValid(name))
-                throw new InvalidPetNameException(name);
-            
-            if (IsRaceValid(race))
-                throw new InvalidRaceValueException(race);
-            
-            if (IsBirthDayValid(birthDay))
-                throw new InvalidBirtDayValueException(birthDay);
-            
-            if (IsColorValid(color))
-                throw new InvalidColorValueException(color);
-
-            if (IsDescriptionValid(description))
-                throw new InvalidDescriptionValueException(description);
+            ValidateCreation(name, race, birthDay, color, weight, description);
                 
             Pet pet = new Pet(id, name, sex, species, race, birthDay, color, weight, sterilization, shelterAddress, description);
             
@@ -58,13 +49,46 @@ namespace Lapka.Pets.Core.Entities
             return pet;
         }
 
-        private static bool IsDescriptionValid(string description) => string.IsNullOrEmpty(description);
-        private static bool IsColorValid(string color) => string.IsNullOrEmpty(color);
+        private static void ValidateCreation(string name, string race, DateTime birthDay, string color, double weight, string description)
+        {
+            ValidateName(name);
+            ValidateRace(race);
+            ValidateBirthDay(birthDay);
+            ValidateColor(color);
+            ValidateWeight(weight);
+            ValidateDescription(description);
+        }
 
-        private static bool IsBirthDayValid(DateTime birthDate) => birthDate > DateTime.Now;
-
-        private static bool IsRaceValid(string race) => string.IsNullOrEmpty(race);
-
-        private static bool IsNameValid(string name) => string.IsNullOrEmpty(name);
+        private static void ValidateName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new InvalidPetNameException(name);
+        }
+        private static void ValidateRace(string race)
+        {
+            if (string.IsNullOrEmpty(race))
+                throw new InvalidRaceValueException(race);
+        }
+        private static void ValidateBirthDay(DateTime birthDate)
+        {
+            if (birthDate >= DateTime.Now)
+                throw new InvalidBirthDayValueException(birthDate);
+        }
+        private static void ValidateColor(string color)
+        {
+            if (string.IsNullOrEmpty(color))
+                throw new InvalidColorValueException(color);
+        }
+        private static void ValidateWeight(double weight)
+        {
+            if (weight <= MiniumumWeight)
+                throw new WeightBelowMinimumValueException(weight);
+        }
+        private static void ValidateDescription(string description)
+        {
+            if (string.IsNullOrEmpty(description))
+                throw new InvalidDescriptionValueException(description);
+        }
+        
     }
 }

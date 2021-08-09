@@ -660,3 +660,35 @@ Lapka.Pets.Core.Exceptions.Pet.InvalidDescriptionValueException: Invalid descrip
    at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
    at Convey.WebApi.Exceptions.ErrorHandlerMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
 2021-08-06 15:23:41.480 +02:00 [INF] Request finished in 90.6477ms 400 application/json
+2021-08-06 15:29:39.513 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/lapka.pets/swagger/index.html  
+2021-08-06 15:29:39.702 +02:00 [INF] Request finished in 193.9633ms 200 text/html;charset=utf-8
+2021-08-06 15:29:39.849 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/lapka.pets/swagger/v1/swagger.json  
+2021-08-06 15:29:39.999 +02:00 [INF] Request finished in 150.9713ms 200 application/json;charset=utf-8
+2021-08-06 15:29:42.767 +02:00 [INF] Request starting HTTP/1.1 POST http://localhost:5000/api/pet application/json 289
+2021-08-06 15:29:42.776 +02:00 [INF] Executing endpoint 'Lapka.Pets.Api.Controllers.PetController.Add (Lapka.Pets.Api)'
+2021-08-06 15:29:42.826 +02:00 [INF] Route matched with {action = "Add", controller = "Pet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Add(Lapka.Pets.Api.Models.Request.CreatePetRequest) on controller Lapka.Pets.Api.Controllers.PetController (Lapka.Pets.Api).
+2021-08-06 15:29:43.651 +02:00 [INF] Executing ObjectResult, writing value of type 'null'.
+2021-08-06 15:29:43.661 +02:00 [INF] Executed action Lapka.Pets.Api.Controllers.PetController.Add (Lapka.Pets.Api) in 822.4672ms
+2021-08-06 15:29:43.669 +02:00 [INF] Executed endpoint 'Lapka.Pets.Api.Controllers.PetController.Add (Lapka.Pets.Api)'
+2021-08-06 15:29:43.676 +02:00 [INF] Request finished in 909.2578ms 201 
+2021-08-06 15:29:49.064 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/pet  
+2021-08-06 15:29:49.070 +02:00 [INF] Executing endpoint 'Lapka.Pets.Api.Controllers.PetController.GetPets (Lapka.Pets.Api)'
+2021-08-06 15:29:49.081 +02:00 [INF] Route matched with {action = "GetPets", controller = "Pet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[Lapka.Pets.Application.Dto.PetBasicDto]]] GetPets() on controller Lapka.Pets.Api.Controllers.PetController (Lapka.Pets.Api).
+2021-08-06 15:29:49.243 +02:00 [INF] Executing ObjectResult, writing value of type 'System.Linq.Enumerable+SelectListIterator`2[[Lapka.Pets.Infrastructure.Documents.PetDocument, Lapka.Pets.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[Lapka.Pets.Application.Dto.PetBasicDto, Lapka.Pets.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2021-08-06 15:29:49.268 +02:00 [INF] Executed action Lapka.Pets.Api.Controllers.PetController.GetPets (Lapka.Pets.Api) in 182.142ms
+2021-08-06 15:29:49.271 +02:00 [INF] Executed endpoint 'Lapka.Pets.Api.Controllers.PetController.GetPets (Lapka.Pets.Api)'
+2021-08-06 15:29:49.273 +02:00 [INF] Request finished in 209.3797ms 200 application/json; charset=utf-8
+2021-08-06 15:30:20.520 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/pet/60a8451f-c924-4b8b-ba01-5cde5849cf1d  
+2021-08-06 15:30:20.523 +02:00 [INF] Executing endpoint 'Lapka.Pets.Api.Controllers.PetController.GetById (Lapka.Pets.Api)'
+2021-08-06 15:30:20.532 +02:00 [INF] Route matched with {action = "GetById", controller = "Pet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetById(System.Guid) on controller Lapka.Pets.Api.Controllers.PetController (Lapka.Pets.Api).
+2021-08-06 15:30:20.624 +02:00 [INF] Executing ObjectResult, writing value of type 'Lapka.Pets.Application.Dto.PetDetailsDto'.
+2021-08-06 15:30:20.633 +02:00 [INF] Executed action Lapka.Pets.Api.Controllers.PetController.GetById (Lapka.Pets.Api) in 98.4044ms
+2021-08-06 15:30:20.636 +02:00 [INF] Executed endpoint 'Lapka.Pets.Api.Controllers.PetController.GetById (Lapka.Pets.Api)'
+2021-08-06 15:30:20.637 +02:00 [INF] Request finished in 117.3698ms 200 application/json; charset=utf-8
+2021-08-06 15:30:33.551 +02:00 [INF] Request starting HTTP/1.1 GET http://localhost:5000/api/pet/aa  
+2021-08-06 15:30:33.554 +02:00 [INF] Executing endpoint 'Lapka.Pets.Api.Controllers.PetController.GetPetsByRace (Lapka.Pets.Api)'
+2021-08-06 15:30:33.561 +02:00 [INF] Route matched with {action = "GetPetsByRace", controller = "Pet"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[Lapka.Pets.Application.Dto.PetBasicDto]]] GetPetsByRace(System.String) on controller Lapka.Pets.Api.Controllers.PetController (Lapka.Pets.Api).
+2021-08-06 15:30:33.592 +02:00 [INF] Executing ObjectResult, writing value of type 'System.Linq.Enumerable+SelectListIterator`2[[Lapka.Pets.Infrastructure.Documents.PetDocument, Lapka.Pets.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[Lapka.Pets.Application.Dto.PetBasicDto, Lapka.Pets.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2021-08-06 15:30:33.595 +02:00 [INF] Executed action Lapka.Pets.Api.Controllers.PetController.GetPetsByRace (Lapka.Pets.Api) in 31.05ms
+2021-08-06 15:30:33.597 +02:00 [INF] Executed endpoint 'Lapka.Pets.Api.Controllers.PetController.GetPetsByRace (Lapka.Pets.Api)'
+2021-08-06 15:30:33.599 +02:00 [INF] Request finished in 48.3883ms 200 application/json; charset=utf-8

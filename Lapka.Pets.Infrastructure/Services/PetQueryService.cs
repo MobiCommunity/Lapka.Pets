@@ -16,7 +16,7 @@ namespace Lapka.Pets.Infrastructure.Services
         public PetQueryService(IMongoRepository<PetDocument, Guid> mongoRepository)
         {
             _repository = mongoRepository;
-        }
+        } 
         
         public async Task<Pet> GetPetByIdAsync(Guid id)
         {
