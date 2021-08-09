@@ -5,17 +5,15 @@ namespace Lapka.Pets.Api.Models.Request
 {
     public class UpdatePetRequest
     {
-        public Guid Id { get; }
-        public string Name { get; }
-        public string Race { get; }
-        public Sex Sex { get; }
-        public DateTime DateOfBirth { get; }
-        public string Description { get; }
-        public Location Geolocation { get; }
-        public Address ShelterAddress { get; }
-        public bool Sterilization { get; }
-        public double Weight { get; }
-        public string Color { get; }
-        public Species Species { get; }
+        public string Name { get; set; }
+        public string Race { get; set; }
+        public Sex Sex { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string Description { get; set; }
+        public UpdateAddressRequest ShelterAddress { get; set; }
+        public bool Sterilization { get; set; }
+        public double Weight { get; set; }
+        public string Color { get; set;}
+        public Species Species { get; set; }
     }
 }

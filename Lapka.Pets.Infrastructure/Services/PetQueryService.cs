@@ -21,7 +21,7 @@ namespace Lapka.Pets.Infrastructure.Services
         public async Task<Pet> GetByIdAsync(Guid id)
         {
             PetDocument petFromDb = await _repository.GetAsync(id);
-            if (petFromDb == null) return null;
+            if (petFromDb is null) return null;
 
             return petFromDb.AsBusiness();
         } 

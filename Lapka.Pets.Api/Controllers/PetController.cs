@@ -35,13 +35,13 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetPets()
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
         {
             return Ok(await _queryDispatcher.QueryAsync(new GetPets()));
         }
         
         [HttpGet("{race}")]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetPetsByRace(string race)
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race)
         {
             return Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
             {
@@ -63,16 +63,16 @@ namespace Lapka.Pets.Api.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _commandDispatcher.SendAsync(new DeletePet(id));
-
+    
             return NoContent();
         }
 
-        [HttpPut("id:guid")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, UpdatePetRequest petUpdate)
         {
-            await _commandDispatcher.SendAsync(new UpdatePet(petUpdate.Id, petUpdate.Name, petUpdate.Race,
+            await _commandDispatcher.SendAsync(new UpdatePet(id, petUpdate.Name, petUpdate.Race,
                 petUpdate.Sex, petUpdate.DateOfBirth,
-                petUpdate.Description, petUpdate.ShelterAddress, petUpdate.Sterilization, petUpdate.Weight,
+                petUpdate.Description, petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
                 petUpdate.Color,
                 petUpdate.Species));
 

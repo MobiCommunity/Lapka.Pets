@@ -40,15 +40,33 @@ namespace Lapka.Pets.Core.Entities
         public static Pet Create(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay,
             string color, double weight, bool sterilization, Address shelterAddress,  string description)
         {
-            ValidateCreation(name, race, birthDay, color, weight, description);
+            Validate(name, race, birthDay, color, weight, description);
                 
             Pet pet = new Pet(id, name, sex, species, race, birthDay, color, weight, sterilization, shelterAddress, description);
             
             pet.AddEvent(new PetCreated(pet));
             return pet;
         }
+        
+        public void Update(string name, string race, Sex sex, DateTime birthDay, string description,
+            Address shelterAddress, bool sterilization, double weight, string color)
+        {
+            Validate(name, race, birthDay, color, weight, description);
 
-        private static void ValidateCreation(string name, string race, DateTime birthDay, string color, double weight, string description)
+            Name = name;
+            Race = race;
+            Sex = sex;
+            BirthDay = birthDay;
+            Description = description;
+            ShelterAddress = shelterAddress;
+            Sterilization = sterilization;
+            Weight = weight;
+            Color = color;
+
+            AddEvent(new PetUpdated(this));
+        }
+
+        private static void Validate(string name, string race, DateTime birthDay, string color, double weight, string description)
         {
             ValidateName(name);
             ValidateRace(race);
@@ -94,22 +112,5 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new PetDeleted(this));
         }
 
-        public void Update(string name, string race, Sex sex, DateTime dateOfBirth, string description,
-            Address shelterAddress, bool sterilization, double weight,
-            string color)
-        {
-            Name = name;
-            Race = race;
-            Sex = sex;
-            BirthDay = dateOfBirth;
-            Description = description;
-            ShelterAddress = shelterAddress;
-            Sterilization = sterilization;
-            Weight = weight;
-            Color = color;
-
-            AddEvent(new PetUpdated(this));
-        }
-        
     }
 }

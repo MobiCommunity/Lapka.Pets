@@ -39,11 +39,8 @@ namespace Lapka.Pets.Api
                         .AddInfrastructure()
                         .AddApplication();
 
-                    services.AddSingleton<IPetRepository, PetRepository>();
-                    services.AddSingleton<IPetQueryService, PetQueryService>();
-
-                    services.AddSingleton<IPetRepository, PetRepository>();
-                    services.AddSingleton<IPetQueryService, PetQueryService>();
+                    services.AddTransient<IPetRepository, PetRepository>();
+                    services.AddTransient<IPetQueryService, PetQueryService>();
 
                     services.AddSwaggerGen(c =>
                     {

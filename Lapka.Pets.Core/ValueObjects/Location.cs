@@ -25,13 +25,20 @@ namespace Lapka.Pets.Core.ValueObjects
             {
                 throw new InvalidLongitudeValueException(Longitude);
             }
+
+            bool isDouble = double.TryParse(Longitude, out double doubleLongitude);
+
+            if (!isDouble)
+            {
+                throw new LongitudeIncorrectDataTypeException(Longitude);
+            }
                 
-            if (double.Parse(Longitude) <= MinLongitudeValue)
+            if (doubleLongitude <= MinLongitudeValue)
             {
                 throw new LongitudeTooLowException(Longitude);
             }
 
-            if (double.Parse(Longitude) >= MaxLongitudeValue)
+            if (doubleLongitude >= MaxLongitudeValue)
             {
                 throw new LongitudeTooBigException(Longitude);
             }
@@ -44,12 +51,19 @@ namespace Lapka.Pets.Core.ValueObjects
                 throw new InvalidLatitudeValueException(Latitude);
             }
             
-            if (double.Parse(Latitude) <= MinLatitudeValue)
+            bool isDouble = double.TryParse(Longitude, out double doubleLongitude);
+
+            if (!isDouble)
+            {
+                throw new LongitudeIncorrectDataTypeException(Longitude);
+            }
+            
+            if (doubleLongitude <= MinLatitudeValue)
             {
                 throw new LatitudeTooLowException(Latitude);
             }
 
-            if (double.Parse(Latitude) >= MaxLatitudeValue)
+            if (doubleLongitude >= MaxLatitudeValue)
             {
                 throw new LatitudeTooBigException(Latitude);
             }
