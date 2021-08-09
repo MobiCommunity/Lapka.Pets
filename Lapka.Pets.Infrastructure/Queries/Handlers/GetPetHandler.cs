@@ -19,7 +19,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
         }
         public async Task<PetDetailsDto> HandleAsync(GetPet query)
         {
-            Pet pet = await _petQueryService.GetPetByIdAsync(query.Id);
+            Pet pet = await _petQueryService.GetByIdAsync(query.Id);
             if (pet == null) throw new PetNotFoundException();
             
             return pet.AsDetailsDto();

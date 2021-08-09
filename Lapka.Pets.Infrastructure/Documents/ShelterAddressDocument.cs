@@ -1,4 +1,4 @@
-using Lapka.Pets.Core.ValueObject;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Infrastructure.Documents
 {

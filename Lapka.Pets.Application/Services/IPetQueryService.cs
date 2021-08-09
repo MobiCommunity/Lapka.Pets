@@ -8,8 +8,9 @@ namespace Lapka.Pets.Application.Services
 {
     public interface IPetQueryService
     {
-        Task<Pet> GetPetByIdAsync(Guid id);
-        Task<IEnumerable<Pet>> GetAllPetsAsync();
-        Task<IEnumerable<Pet>> GetAllPetsByRaceAsync(string race);
+        Task<Pet> GetByIdAsync(Guid id);
+        Task<IEnumerable<Pet>> GetAllAsync();
+        Task<IEnumerable<Pet>> GetAllByRaceAsync(string race);
+        
     }
 }

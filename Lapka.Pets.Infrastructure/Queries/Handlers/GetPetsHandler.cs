@@ -21,7 +21,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<IEnumerable<PetBasicDto>> HandleAsync(GetPets query)
         {
-            IEnumerable<Pet> pets = await _petQueryService.GetAllPetsAsync();
+            IEnumerable<Pet> pets = await _petQueryService.GetAllAsync();
             
             return pets.Select(x => x.AsBasicDto());
             

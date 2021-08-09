@@ -95,7 +95,7 @@ namespace Lapka.Pets.Core.Entities
         }
 
         public void Update(string name, string race, Sex sex, DateTime dateOfBirth, string description,
-            Location geoLocation, Address shelterAddress, bool sterilization, bool isLiked, double weight,
+            Address shelterAddress, bool sterilization, double weight,
             string color)
         {
             Name = name;

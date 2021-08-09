@@ -23,7 +23,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
             if (string.IsNullOrEmpty(query.Race))
                 return new List<PetBasicDto>();
             
-            IEnumerable<Pet> pets = await _petQueryService.GetAllPetsByRaceAsync(query.Race);
+            IEnumerable<Pet> pets = await _petQueryService.GetAllByRaceAsync(query.Race);
             
             return pets.Select(x => x.AsBasicDto());
         }
