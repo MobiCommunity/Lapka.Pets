@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
@@ -10,16 +9,16 @@ namespace Lapka.Pets.Core.Entities
     {
         private const double MiniumumWeight = 0;
         
-        public string Name { get; }
-        public Sex Sex { get; }
-        public Species Species { get; }
-        public string Race { get; }
-        public DateTime BirthDay { get; }
-        public string Color { get; }
-        public double Weight { get; }
-        public bool Sterilization { get; }
-        public Address ShelterAddress { get; }
-        public string Description { get; }
+        public string Name { get; private set; }
+        public Sex Sex { get;private set; }
+        public Species Species { get;private set; }
+        public string Race { get; private set;}
+        public DateTime BirthDay { get;private set; }
+        public string Color { get; private set;}
+        public double Weight { get; private set;}
+        public bool Sterilization { get; private set;}
+        public Address ShelterAddress { get; private set;}
+        public string Description { get;private set; }
 
 
         public Pet(Guid id, string name, Sex sex, Species species, string race, DateTime birthDay,
@@ -88,6 +87,28 @@ namespace Lapka.Pets.Core.Entities
         {
             if (string.IsNullOrEmpty(description))
                 throw new InvalidDescriptionValueException(description);
+        }
+        
+        public void Delete()
+        {
+            AddEvent(new PetDeleted(this));
+        }
+
+        public void Update(string name, string race, Sex sex, DateTime dateOfBirth, string description,
+            Location geoLocation, Address shelterAddress, bool sterilization, bool isLiked, double weight,
+            string color)
+        {
+            Name = name;
+            Race = race;
+            Sex = sex;
+            BirthDay = dateOfBirth;
+            Description = description;
+            ShelterAddress = shelterAddress;
+            Sterilization = sterilization;
+            Weight = weight;
+            Color = color;
+
+            AddEvent(new PetUpdated(this));
         }
         
     }

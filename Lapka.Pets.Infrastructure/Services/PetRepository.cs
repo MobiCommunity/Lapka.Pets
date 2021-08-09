@@ -19,10 +19,14 @@ namespace Lapka.Pets.Infrastructure.Services
         }
         
         public async Task AddAsync(Pet shelter)
-        {
-            await _repository.AddAsync(shelter.AsDocument());
-        }
+            => await _repository.AddAsync(shelter.AsDocument());
+        
         
 
+        public async Task DeleteAsync(Pet pet)
+            => await _repository.DeleteAsync(pet.AsDocument().Id);
+
+        public async Task UpdateAsync(Pet pet)
+            => await _repository.UpdateAsync(pet.AsDocument());
     }
 }

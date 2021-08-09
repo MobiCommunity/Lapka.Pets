@@ -59,12 +59,6 @@ namespace Lapka.Pets.Api.Controllers
             return Created($"api/pet/{id}", null);
         }
         
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            await _commandDispatcher.SendAsync(new DeletePet(id));
-
-            return NoContent();
-        }
+        
     }
 }
