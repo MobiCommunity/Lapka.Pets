@@ -2,10 +2,10 @@ using Lapka.Pets.Core.Exceptions.Abstract;
 
 namespace Lapka.Pets.Core.Exceptions
 {
-    public class InvalidAdressNameException : DomainException
+    public class InvalidAddressNameException : DomainException
     {
         public string Value { get; }
-        public InvalidAdressNameException(string message) : base($"Invalid address name value: {message}")
+        public InvalidAddressNameException(string message) : base($"Invalid address name value: {message}")
         {
             Value = message;
         }

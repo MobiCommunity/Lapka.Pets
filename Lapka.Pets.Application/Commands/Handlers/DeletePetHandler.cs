@@ -10,26 +10,24 @@ namespace Lapka.Pets.Application.Commands.Handlers
     public class DeletePetHandler : ICommandHandler<DeletePet>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetQueryService _petQueryService;
         private readonly IPetRepository _petRepository;
-        
 
-        public DeletePetHandler(IEventProcessor eventProcessor, IPetQueryService petQueryService, IPetRepository petRepository)
+
+        public DeletePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository)
         {
             _eventProcessor = eventProcessor;
-            _petQueryService = petQueryService;
             _petRepository = petRepository;
         }
 
         public async Task HandleAsync(DeletePet command)
         {
-            Pet pet = await _petQueryService.GetByIdAsync(command.Id);
-             if (pet is null) throw new PetNotFoundException();
-            
-             pet.Delete();
-            
-             await _petRepository.DeleteAsync(pet);
-             await _eventProcessor.ProcessAsync(pet.Events);
+            Pet pet = await _petRepository.GetByIdAsync(command.Id);
+            if (pet is null) throw new PetNotFoundException(command.Id);
+
+            pet.Delete();
+
+            await _petRepository.DeleteAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);
         }
     }
 }

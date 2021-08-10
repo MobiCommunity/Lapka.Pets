@@ -53,7 +53,7 @@ namespace Lapka.Pets.Api.Controllers
         public async Task<IActionResult> Add(CreatePetRequest pet)
         {
             var id = Guid.NewGuid();
-            await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Species, pet.Race,
+            await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Race,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsValueObject(), pet.Description));
 
             return Created($"api/pet/{id}", null);
@@ -71,10 +71,9 @@ namespace Lapka.Pets.Api.Controllers
         public async Task<IActionResult> Update(Guid id, UpdatePetRequest petUpdate)
         {
             await _commandDispatcher.SendAsync(new UpdatePet(id, petUpdate.Name, petUpdate.Race,
-                petUpdate.Sex, petUpdate.DateOfBirth,
-                petUpdate.Description, petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
-                petUpdate.Color,
-                petUpdate.Species));
+                petUpdate.Sex, petUpdate.DateOfBirth, petUpdate.Description,
+                petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
+                petUpdate.Color));
 
             return NoContent();
         }

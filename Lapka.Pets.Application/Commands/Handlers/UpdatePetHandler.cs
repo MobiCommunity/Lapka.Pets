@@ -11,19 +11,17 @@ namespace Lapka.Pets.Application.Commands.Handlers
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository _petRepository;
-        private readonly IPetQueryService _queryService;
 
-        public UpdatePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository, IPetQueryService queryService)
+        public UpdatePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
-            _queryService = queryService;
         }
 
         public async Task HandleAsync(UpdatePet command)
         {
-            Pet pet = await _queryService.GetByIdAsync(command.Id);
-            if (pet is null) throw new PetNotFoundException();
+            Pet pet = await _petRepository.GetByIdAsync(command.Id);
+            if (pet is null) throw new PetNotFoundException(command.Id);
             
             pet.Update(command.Name, command.Race, command.Sex, command.DateOfBirth, command.Description,
                 command.ShelterAddress, command.Sterilization, command.Weight, command.Color);

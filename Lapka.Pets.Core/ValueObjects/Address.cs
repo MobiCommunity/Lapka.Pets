@@ -29,7 +29,7 @@ namespace Lapka.Pets.Core.ValueObjects
         private void ValidateName()
         {
             if (string.IsNullOrEmpty(Name))
-                throw new InvalidAdressNameException(Name);
+                throw new InvalidAddressNameException(Name);
         }
         
         private void ValidateCity()

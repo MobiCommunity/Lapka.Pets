@@ -16,11 +16,9 @@ namespace Lapka.Pets.Application.Commands
         public bool Sterilization { get; }
         public double Weight { get; }
         public string Color { get; }
-        public Species Species { get; }
 
         public UpdatePet(Guid id, string name, string race, Sex sex, DateTime dateOfBirth, string description
-            , Address shelterAddress, bool sterilization, double weight, string color,
-            Species species)
+            , Address shelterAddress, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;
@@ -32,7 +30,6 @@ namespace Lapka.Pets.Application.Commands
             Sterilization = sterilization;
             Weight = weight;
             Color = color;
-            Species = species;
         }
     }
 }

@@ -12,16 +12,16 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetPetsHandler : IQueryHandler<GetPets, IEnumerable<PetBasicDto>>
     {
-        private readonly IPetQueryService _petQueryService;
+        private readonly IPetRepository _petRepository;
 
-        public GetPetsHandler(IPetQueryService petQueryService)
+        public GetPetsHandler(IPetRepository petRepository)
         {
-            _petQueryService = petQueryService;
+            _petRepository = petRepository;
         }
 
         public async Task<IEnumerable<PetBasicDto>> HandleAsync(GetPets query)
         {
-            IEnumerable<Pet> pets = await _petQueryService.GetAllAsync();
+            IEnumerable<Pet> pets = await _petRepository.GetAllAsync();
             
             return pets.Select(x => x.AsBasicDto());
             

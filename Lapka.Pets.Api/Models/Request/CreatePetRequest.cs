@@ -8,7 +8,6 @@ namespace Lapka.Pets.Api.Models.Request
     {
         public string Name { get; set; }
         public Sex Sex { get; set; }
-        public Species Species { get; set; }
         public string Race { get; set; }
         public DateTime BirthDay { get; set; }
         public string Color { get; set; }

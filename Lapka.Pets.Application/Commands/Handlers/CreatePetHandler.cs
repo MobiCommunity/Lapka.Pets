@@ -18,7 +18,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
         
         public async Task HandleAsync(CreatePet command)
         {
-            Pet value = Pet.Create(command.Id, command.Name, command.Sex, command.Species, command.Race, command.BirthDay, command.Color,
+            Pet value = Pet.Create(command.Id, command.Name, command.Sex, command.Race, command.BirthDay, command.Color,
                 command.Weight, command.Sterilization, command.ShelterAddress, command.Description);
             
             await _petRepository.AddAsync(value);

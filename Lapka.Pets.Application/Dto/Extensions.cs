@@ -35,8 +35,7 @@ namespace Lapka.Pets.Application.Dto
                 Sex = pet.Sex,
                 Race = pet.Race,
                 BirthDay = pet.BirthDay,
-                ShelterAddress = pet.ShelterAddress.AsDto(),
-                Species = pet.Species
+                ShelterAddress = pet.ShelterAddress.AsDto()
             };
         }
         
@@ -53,7 +52,6 @@ namespace Lapka.Pets.Application.Dto
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
                 Sterilization = pet.Sterilization,
-                Species = pet.Species,
                 Weight = pet.Weight
             };
         }

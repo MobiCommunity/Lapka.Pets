@@ -22,6 +22,12 @@ namespace Lapka.Pets.Infrastructure.Exceptions
                             code = petNotFoundException.Code,
                             reason = petNotFoundException.Message
                         },HttpStatusCode.NotFound),
+                    PetsNotFoundException petsNotFoundException => 
+                        new ExceptionResponse (new
+                        {
+                            code = petsNotFoundException.Code,
+                            reason = petsNotFoundException.Message
+                        },HttpStatusCode.NotFound),
                     _ => new ExceptionResponse(
                         new
                         {

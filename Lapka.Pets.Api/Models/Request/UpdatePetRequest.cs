@@ -14,6 +14,5 @@ namespace Lapka.Pets.Api.Models.Request
         public bool Sterilization { get; set; }
         public double Weight { get; set; }
         public string Color { get; set;}
-        public Species Species { get; set; }
     }
 }

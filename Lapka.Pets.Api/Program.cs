@@ -40,15 +40,13 @@ namespace Lapka.Pets.Api
                         .AddApplication();
 
                     services.AddTransient<IPetRepository, PetRepository>();
-                    services.AddTransient<IPetQueryService, PetQueryService>();
 
                     services.AddSwaggerGen(c =>
                     {
-
                         c.SwaggerDoc("v1", new OpenApiInfo
                         {
                             Version = "v1",
-                            Title = "lapka.pets Microservice",
+                            Title = "Pets Microservice",
                             Description = ""
                         });
                         string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -67,11 +65,11 @@ namespace Lapka.Pets.Api
                         .UseConvey()
                         .UseInfrastructure()
                         .UseRouting()
-                        .UseSwagger(c => { c.RouteTemplate = "api/lapka.pets/swagger/{documentname}/swagger.json"; })
+                        .UseSwagger(c => { c.RouteTemplate = "api/pets/swagger/{documentname}/swagger.json"; })
                         .UseSwaggerUI(c =>
                         {
-                            c.SwaggerEndpoint("/api/lapka.pets/swagger/v1/swagger.json", "My API V1");
-                            c.RoutePrefix = "api/lapka.pets/swagger";
+                            c.SwaggerEndpoint("/api/pets/swagger/v1/swagger.json", "My API V1");
+                            c.RoutePrefix = "api/pets/swagger";
                         })
                         .UseEndpoints(e =>
                         {

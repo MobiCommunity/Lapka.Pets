@@ -10,6 +10,7 @@ namespace Lapka.Pets.Core.ValueObjects
         private const int MinLatitudeValue = -90;
         public string Latitude { get; }
         public string Longitude { get; }
+
         public Location(string latitude, string longitude)
         {
             Latitude = latitude;
@@ -18,7 +19,7 @@ namespace Lapka.Pets.Core.ValueObjects
             ValidateLongitude();
             ValidateLatitude();
         }
-        
+
         private void ValidateLongitude()
         {
             if (string.IsNullOrWhiteSpace(Longitude))
@@ -32,7 +33,7 @@ namespace Lapka.Pets.Core.ValueObjects
             {
                 throw new LongitudeIncorrectDataTypeException(Longitude);
             }
-                
+
             if (doubleLongitude <= MinLongitudeValue)
             {
                 throw new LongitudeTooLowException(Longitude);
@@ -50,14 +51,14 @@ namespace Lapka.Pets.Core.ValueObjects
             {
                 throw new InvalidLatitudeValueException(Latitude);
             }
-            
+
             bool isDouble = double.TryParse(Longitude, out double doubleLongitude);
 
             if (!isDouble)
             {
                 throw new LongitudeIncorrectDataTypeException(Longitude);
             }
-            
+
             if (doubleLongitude <= MinLatitudeValue)
             {
                 throw new LatitudeTooLowException(Latitude);

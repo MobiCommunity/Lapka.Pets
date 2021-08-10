@@ -6,7 +6,7 @@ namespace Lapka.Pets.Application.Exceptions
     {
         public abstract string Code { get; }
 
-        protected AppException(string message) : base(message)
+        protected AppException(string race) : base(race)
         {
         }
     }

@@ -14,8 +14,6 @@ namespace Lapka.Pets.Application.Dto
         [Required]
         public Sex Sex { get; set; }
         [Required]
-        public Species Species { get; set; }
-        [Required]
         public string Race { get; set; }
         [Required]
         public DateTime BirthDay { get; set; }
