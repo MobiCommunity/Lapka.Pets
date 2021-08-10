@@ -23,7 +23,10 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
         public async Task<PetDetailsDto> HandleAsync(GetPet query)
         {
             PetDocument pet = await _mongoRepository.GetAsync(query.Id);
-            if (pet == null) throw new PetNotFoundException(query.Id);
+            if (pet is null)
+            {
+                throw new PetNotFoundException(query.Id);
+            }
             
             return pet.AsDetailDto();
         }

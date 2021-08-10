@@ -27,43 +27,40 @@ namespace Lapka.Pets.Api.Controllers
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPet
+            => Ok(await _queryDispatcher.QueryAsync(new GetPet
             {
                 Id = id
             }));
-        }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPets()));
-        }
-        
+            => Ok(await _queryDispatcher.QueryAsync(new GetPets()));
+
         [HttpGet("{race}")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race)
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
+            => Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
             {
                 Race = race
             }));
-        }
+
 
         [HttpPost]
         public async Task<IActionResult> Add(CreatePetRequest pet)
         {
-            var id = Guid.NewGuid();
+            Guid id = Guid.NewGuid();
             await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Race,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsValueObject(), pet.Description));
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsValueObject(),
+                pet.Description));
 
             return Created($"api/pet/{id}", null);
         }
-        
+
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _commandDispatcher.SendAsync(new DeletePet(id));
-    
+
             return NoContent();
         }
 
@@ -78,5 +75,4 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
     }
-    
 }

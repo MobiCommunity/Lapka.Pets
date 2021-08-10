@@ -17,8 +17,8 @@ namespace Lapka.Pets.Application.Commands
         public double Weight { get; }
         public string Color { get; }
 
-        public UpdatePet(Guid id, string name, string race, Sex sex, DateTime dateOfBirth, string description
-            , Address shelterAddress, bool sterilization, double weight, string color)
+        public UpdatePet(Guid id, string name, string race, Sex sex, DateTime dateOfBirth, string description,
+            Address shelterAddress, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;

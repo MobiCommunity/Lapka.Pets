@@ -4,10 +4,10 @@ namespace Lapka.Pets.Core.Exceptions
 {
     public class InvalidAddressNameException : DomainException
     {
-        public string Value { get; }
-        public InvalidAddressNameException(string message) : base($"Invalid address name value: {message}")
+        public string Address { get; }
+        public InvalidAddressNameException(string address) : base($"Invalid address name value: {address}")
         {
-            Value = message;
+            Address = address;
         }
 
         public override string Code => "invalid_address_name_value";

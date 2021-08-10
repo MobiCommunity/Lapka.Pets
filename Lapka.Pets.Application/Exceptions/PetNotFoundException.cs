@@ -8,7 +8,7 @@ namespace Lapka.Pets.Application.Exceptions
         public Guid Id { get; }
         public override string Code => "pet_not_found";
 
-        public PetNotFoundException(Guid id) : base($"Pet not exists in database: {id}")
+        public PetNotFoundException(Guid id) : base($"Pet does not exists: {id}")
         {
             Id = id;
         }
