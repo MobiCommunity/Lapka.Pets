@@ -10,7 +10,9 @@ namespace Lapka.Pets.Core.Entities
         private const double MinimumWeight = 0;
 
         public string Name { get; private set; }
+        public Species Species { get; private set; }
         public Sex Sex { get; private set; }
+        public byte[] Photo { get; private set; }
         public string Race { get; private set; }
         public DateTime BirthDay { get; private set; }
         public string Color { get; private set; }
@@ -20,13 +22,15 @@ namespace Lapka.Pets.Core.Entities
         public string Description { get; private set; }
 
 
-        public Pet(Guid id, string name, Sex sex, string race, DateTime birthDay,
+        public Pet(Guid id, string name, Sex sex, string race, Species species, byte[] photo, DateTime birthDay,
             string color, double weight, bool sterilization, Address shelterAddress, string description)
         {
             Id = new AggregateId(id);
             Name = name;
             Sex = sex;
             Race = race;
+            Species = species;
+            Photo = photo;
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
@@ -35,24 +39,26 @@ namespace Lapka.Pets.Core.Entities
             Description = description;
         }
 
-        public static Pet Create(Guid id, string name, Sex sex, string race, DateTime birthDay,
+        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, byte[] photo, DateTime birthDay,
             string color, double weight, bool sterilization, Address shelterAddress, string description)
         {
             Validate(name, race, birthDay, color, weight, description);
 
-            Pet pet = new Pet(id, name, sex, race, birthDay, color, weight, sterilization, shelterAddress, description);
+            Pet pet = new Pet(id, name, sex, race, species, photo, birthDay, color, weight, sterilization, shelterAddress, description);
 
             pet.AddEvent(new PetCreated(pet));
             return pet;
         }
 
-        public void Update(string name, string race, Sex sex, DateTime birthDay, string description,
+        public void Update(string name, string race, Species species, byte[] photo, Sex sex, DateTime birthDay, string description,
             Address shelterAddress, bool sterilization, double weight, string color)
         {
             Validate(name, race, birthDay, color, weight, description);
 
             Name = name;
             Race = race;
+            Species = species;
+            Photo = photo;
             Sex = sex;
             BirthDay = birthDay;
             Description = description;

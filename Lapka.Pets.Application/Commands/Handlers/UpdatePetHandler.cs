@@ -23,7 +23,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             Pet pet = await _petRepository.GetByIdAsync(command.Id);
             if (pet is null) throw new PetNotFoundException(command.Id);
             
-            pet.Update(command.Name, command.Race, command.Sex, command.DateOfBirth, command.Description,
+            pet.Update(command.Name, command.Race, command.Species, command.Photo, command.Sex, command.DateOfBirth, command.Description,
                 command.ShelterAddress, command.Sterilization, command.Weight, command.Color);
 
             await _petRepository.UpdateAsync(pet);

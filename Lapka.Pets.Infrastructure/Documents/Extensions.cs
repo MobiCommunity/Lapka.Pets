@@ -45,7 +45,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         }
         public static Pet AsBusiness(this PetDocument pet)
         {
-            return new Pet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.BirthDay, pet.Color,
+            return new Pet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species,null, pet.BirthDay, pet.Color,
                 pet.Weight, pet.Sterilization, pet.ShelterAddress.AsBusiness(), pet.Description);
         }
         public static Location AsBusiness(this LocationDocument location)

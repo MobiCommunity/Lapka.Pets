@@ -9,6 +9,8 @@ namespace Lapka.Pets.Application.Commands
         public Guid Id { get; }
         public string Name { get; }
         public string Race { get; }
+        public Species Species { get; }
+        public byte[] Photo { get; }
         public Sex Sex { get; }
         public DateTime DateOfBirth { get; }
         public string Description { get; }
@@ -17,12 +19,14 @@ namespace Lapka.Pets.Application.Commands
         public double Weight { get; }
         public string Color { get; }
 
-        public UpdatePet(Guid id, string name, string race, Sex sex, DateTime dateOfBirth, string description,
+        public UpdatePet(Guid id, string name, string race, Species species, byte[] photo, Sex sex, DateTime dateOfBirth, string description,
             Address shelterAddress, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;
             Race = race;
+            Species = species;
+            Photo = photo;
             Sex = sex;
             DateOfBirth = dateOfBirth;
             Description = description;
