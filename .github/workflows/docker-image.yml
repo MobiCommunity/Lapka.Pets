@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build -t mobicommunity/lapka/pets:1.0 .
+    - name: Docker login
+      run: docker login -u mobicommunity
+    - name: Publish the Docker image
+      run: docker push -t mobicommunity/lapka/pets:1.0 .
