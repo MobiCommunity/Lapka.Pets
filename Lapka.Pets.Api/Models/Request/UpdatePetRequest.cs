@@ -1,5 +1,6 @@
 using System;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Api.Models.Request
 {
@@ -8,7 +9,7 @@ namespace Lapka.Pets.Api.Models.Request
         public string Name { get; set; }
         public string Race { get; set; }
         public Species Species { get; set; }
-        public byte[] Photo { get; set; }
+        public IFormFile File { get; set; }
         public Sex Sex { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string Description { get; set; }

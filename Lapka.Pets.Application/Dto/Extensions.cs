@@ -1,6 +1,7 @@
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Application.Dto
 {
@@ -55,5 +56,9 @@ namespace Lapka.Pets.Application.Dto
                 Weight = pet.Weight
             };
         }
+
+        public static string GetFileExtension(this File file) =>
+            file.Name.Contains('.') ? file.Name.Split('.')[1] : string.Empty;
+
     }
 }

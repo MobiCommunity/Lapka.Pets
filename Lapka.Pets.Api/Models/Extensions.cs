@@ -1,5 +1,6 @@
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Identity.Api.Models
 {
@@ -16,5 +17,8 @@ namespace Lapka.Identity.Api.Models
         
         public static Location AsValueObject(this UpdateLocationRequest location) =>
             new Location(location.Latitude, location.Longitude);
+        
+        public static File AsValueObject(this IFormFile file) =>
+            new File(file.FileName, file.OpenReadStream(), file.ContentType);
     }
 }

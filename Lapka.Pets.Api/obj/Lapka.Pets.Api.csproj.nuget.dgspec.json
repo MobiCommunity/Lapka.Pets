@@ -334,6 +334,14 @@
             "Convey.WebApi.CQRS": {
               "target": "Package",
               "version": "[0.4.360, )"
+            },
+            "Google.Protobuf": {
+              "target": "Package",
+              "version": "[3.17.3, )"
+            },
+            "Grpc.AspNetCore": {
+              "target": "Package",
+              "version": "[2.38.0, )"
             }
           },
           "imports": [

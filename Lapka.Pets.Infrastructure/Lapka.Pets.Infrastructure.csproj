@@ -18,6 +18,8 @@
         <PackageReference Include="Convey.Metrics.AppMetrics" Version="0.4.360" />
         <PackageReference Include="Convey.Persistence.MongoDB" Version="0.4.360" />
         <PackageReference Include="Convey.WebApi.CQRS" Version="0.4.360" />
+        <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
 
     </ItemGroup>
 
@@ -28,6 +30,10 @@
 
     <ItemGroup>
       <Folder Include="Queries\Handlers" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="gRPC\Protos\photo.proto" GrpcServices="Client" />
     </ItemGroup>
 
 </Project>

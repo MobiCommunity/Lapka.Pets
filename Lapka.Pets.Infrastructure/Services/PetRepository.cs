@@ -26,7 +26,7 @@ namespace Lapka.Pets.Infrastructure.Services
             {
                 throw new PetNotFoundException(id);
             }
-
+            
             return petFromDb.AsBusiness();
         } 
         public async Task<IEnumerable<Pet>> GetAllAsync()
@@ -42,14 +42,20 @@ namespace Lapka.Pets.Infrastructure.Services
 
             return petsFromDb.Select(x => x.AsBusiness());
         }
-        
-        public async Task AddAsync(Pet shelter)
-            => await _repository.AddAsync(shelter.AsDocument());
-        
+
+        public async Task AddAsync(Pet pet)
+        {
+            await _repository.AddAsync(pet.AsDocument());
+        }
+
         public async Task DeleteAsync(Pet pet)
-            => await _repository.DeleteAsync(pet.AsDocument().Id);
+        {
+            await _repository.DeleteAsync(pet.AsDocument().Id);
+        }
 
         public async Task UpdateAsync(Pet pet)
-            => await _repository.UpdateAsync(pet.AsDocument());
+        {
+            await _repository.UpdateAsync(pet.AsDocument());
+        }
     }
 }
