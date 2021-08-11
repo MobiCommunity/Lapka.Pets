@@ -26,4 +26,12 @@
       <ProjectReference Include="..\Lapka.Pets.Application\Lapka.Pets.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Queries\Handlers" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="obj\Debug\netcoreapp3.1" />
+    </ItemGroup>
+
 </Project>

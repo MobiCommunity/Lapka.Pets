@@ -1,3 +1,4 @@
+using System;
 using Convey;
 using Convey.CQRS.Queries;
 using Convey.HTTP;
@@ -13,6 +14,17 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Services;
 
+using Convey.Persistence.MongoDB;
+using Convey.WebApi;
+using Convey.WebApi.Exceptions;
+using Lapka.Pets.Application.Events.Abstract;
+using Lapka.Pets.Application.Services;
+using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Exceptions;
+using Lapka.Pets.Infrastructure.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lapka.Pets.Infrastructure
 {
@@ -27,7 +39,8 @@ namespace Lapka.Pets.Infrastructure
                 .AddErrorHandler<ExceptionToResponseMapper>()
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
                 // .AddRabbitMq()
-                // .AddMongo()
+                .AddMongo()
+                .AddMongoRepository<PetDocument, Guid>("Pets")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()
@@ -39,14 +52,13 @@ namespace Lapka.Pets.Infrastructure
 
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
-            IServiceCollection services = builder.Services;
+            var services = builder.Services;
 
 
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
 
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 
-            services.AddSingleton<IValueRepository, ValueRepository>();
             services.AddTransient<IEventProcessor, EventProcessor>();
             services.AddTransient<IMessageBroker, DummyMessageBroker>();
 
@@ -69,7 +81,5 @@ namespace Lapka.Pets.Infrastructure
 
             return app;
         }
-
-
     }
 }

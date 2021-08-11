@@ -30,6 +30,7 @@
 
     <ItemGroup>
       <Folder Include="Models\Response\" />
+      <Folder Include="obj\Debug\netcoreapp3.1" />
     </ItemGroup>
 
 
