@@ -6,4 +6,8 @@
         <NoWarn>$(NoWarn);1591</NoWarn>
         <ProjectGuid>{362FBACC-6646-4541-B966-47BDBD7D5D79}</ProjectGuid>
     </PropertyGroup>
+
+       <ItemGroup>
+         <Folder Include="obj\Debug\netcoreapp3.1" />
+       </ItemGroup>
 </Project>
