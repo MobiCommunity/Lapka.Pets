@@ -14,7 +14,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Lapka.Pets.Api.Attributes;
 using Lapka.Pets.Application;
+using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure;
+using Lapka.Pets.Infrastructure.Services;
 
 namespace Lapka.Pets.Api
 {
@@ -37,13 +39,22 @@ namespace Lapka.Pets.Api
                         .AddInfrastructure()
                         .AddApplication();
 
+                    services.AddTransient<IPetRepository, PetRepository>();
+                    services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
+                    
+                    AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+                    
+                    services.AddGrpcClient<Photo.PhotoClient>(o =>
+                    {
+                        o.Address = new Uri("http://localhost:5011");
+                    });
+                    
                     services.AddSwaggerGen(c =>
                     {
-
                         c.SwaggerDoc("v1", new OpenApiInfo
                         {
                             Version = "v1",
-                            Title = "lapka.pets Microservice",
+                            Title = "Pets Microservice",
                             Description = ""
                         });
                         string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -62,11 +73,11 @@ namespace Lapka.Pets.Api
                         .UseConvey()
                         .UseInfrastructure()
                         .UseRouting()
-                        .UseSwagger(c => { c.RouteTemplate = "api/lapka.pets/swagger/{documentname}/swagger.json"; })
+                        .UseSwagger(c => { c.RouteTemplate = "api/pets/swagger/{documentname}/swagger.json"; })
                         .UseSwaggerUI(c =>
                         {
-                            c.SwaggerEndpoint("/api/lapka.pets/swagger/v1/swagger.json", "My API V1");
-                            c.RoutePrefix = "api/lapka.pets/swagger";
+                            c.SwaggerEndpoint("/api/pets/swagger/v1/swagger.json", "My API V1");
+                            c.RoutePrefix = "api/pets/swagger";
                         })
                         .UseEndpoints(e =>
                         {

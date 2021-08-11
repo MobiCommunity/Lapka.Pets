@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+service Photo{
+  rpc UploadPhoto (UploadPhotoRequest) returns (UploadPhotoReply);
+  rpc DeletePhoto (DeletePhotoRequest) returns (DeletePhotoReply);
+}
+
+message DeletePhotoRequest{
+  string photoPath = 1;
+}
+
+message UploadPhotoRequest{
+  string photoPath = 1;
+  bytes photo = 2;
+}
+
+message UploadPhotoReply{}
+
+message DeletePhotoReply{}
