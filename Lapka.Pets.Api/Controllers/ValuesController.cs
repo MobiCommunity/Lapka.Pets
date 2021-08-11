@@ -21,7 +21,7 @@ namespace Lapka.Pets.Api.Controllers
             _commandDispatcher = commandDispatcher;
             _queryDispatcher = queryDispatcher;
         }
-
+ 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
