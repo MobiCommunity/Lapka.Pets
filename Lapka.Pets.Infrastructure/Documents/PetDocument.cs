@@ -10,6 +10,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         public string Name { get; set; }
         public Sex Sex { get; set; }
         public string Race { get; set; }
+        public string MainPhotoPath { get; set; }
         public Species Species { get; set; }
         public DateTime BirthDay { get; set; }
         public string Color { get; set; }

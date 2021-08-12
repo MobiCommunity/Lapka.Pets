@@ -1,6 +1,7 @@
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Application.Dto
 {
@@ -33,6 +34,7 @@ namespace Lapka.Pets.Application.Dto
                 Id = pet.Id.Value,
                 Name = pet.Name,
                 Sex = pet.Sex,
+                MainPhotoPath = pet.MainPhotoPath,
                 Race = pet.Race,
                 BirthDay = pet.BirthDay,
                 ShelterAddress = pet.ShelterAddress.AsDto()
@@ -51,9 +53,14 @@ namespace Lapka.Pets.Application.Dto
                 BirthDay = pet.BirthDay,
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
+                MainPhotoPath = pet.MainPhotoPath,
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight
             };
         }
+
+        public static string GetFileExtension(this File file) =>
+            file.Name.Contains('.') ? file.Name.Split('.')[1] : string.Empty;
+
     }
 }

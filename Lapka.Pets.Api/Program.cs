@@ -40,7 +40,15 @@ namespace Lapka.Pets.Api
                         .AddApplication();
 
                     services.AddTransient<IPetRepository, PetRepository>();
-
+                    services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
+                    
+                    AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+                    
+                    services.AddGrpcClient<Photo.PhotoClient>(o =>
+                    {
+                        o.Address = new Uri("http://localhost:5011");
+                    });
+                    
                     services.AddSwaggerGen(c =>
                     {
                         c.SwaggerDoc("v1", new OpenApiInfo

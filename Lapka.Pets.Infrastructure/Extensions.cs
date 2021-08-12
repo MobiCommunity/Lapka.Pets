@@ -3,17 +3,6 @@ using Convey;
 using Convey.CQRS.Queries;
 using Convey.HTTP;
 using Convey.MessageBrokers.RabbitMQ;
-using Convey.WebApi;
-using Convey.WebApi.Exceptions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using Lapka.Pets.Application.Events.Abstract;
-using Lapka.Pets.Application.Services;
-using Lapka.Pets.Infrastructure.Exceptions;
-using Lapka.Pets.Infrastructure.Services;
-
 using Convey.Persistence.MongoDB;
 using Convey.WebApi;
 using Convey.WebApi.Exceptions;
@@ -52,7 +41,7 @@ namespace Lapka.Pets.Infrastructure
 
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
-            var services = builder.Services;
+            IServiceCollection services = builder.Services;
 
 
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
