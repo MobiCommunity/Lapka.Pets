@@ -46,7 +46,7 @@ namespace Lapka.Pets.Api
                     
                     services.AddGrpcClient<Photo.PhotoClient>(o =>
                     {
-                        o.Address = new Uri("http://localhost:5011");
+                        o.Address = new Uri("http://localhost:5013");
                     });
                     
                     services.AddSwaggerGen(c =>
