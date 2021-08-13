@@ -1,7 +1,6 @@
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
-using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Application.Dto
 {

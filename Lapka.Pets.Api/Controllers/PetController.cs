@@ -32,11 +32,13 @@ namespace Lapka.Pets.Api.Controllers
                 Id = id
             }));
         
-
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll() =>
-            Ok(await _queryDispatcher.QueryAsync(new GetPets()));
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race) 
+            => Ok(await _queryDispatcher.QueryAsync(new GetPets
+            {
+                Name = name,
+                Race = race
+            }));
         
 
         [HttpGet("{race}")]
@@ -46,8 +48,6 @@ namespace Lapka.Pets.Api.Controllers
                 Race = race
             }));
         
-
-
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
         {
