@@ -10,9 +10,11 @@ using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
+using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lapka.Pets.Infrastructure
@@ -41,9 +43,19 @@ namespace Lapka.Pets.Infrastructure
 
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
-            var services = builder.Services;
+            IServiceCollection services = builder.Services;
+            
+            ServiceProvider provider = services.BuildServiceProvider();
+            IConfiguration configuration = provider.GetService<IConfiguration>();
 
+            FilesMicroserviceOptions filesMicroserviceOptions = new FilesMicroserviceOptions();
+            configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
 
+            services.AddGrpcClient<Photo.PhotoClient>(o =>
+            {
+                o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
+            });
+            
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
 
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();

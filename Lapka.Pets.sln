@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lapka.Pets.Core", "Lapka.Pe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lapka.Pets.Infrastructure", "Lapka.Pets.Infrastructure\Lapka.Pets.Infrastructure.csproj", "{3ECBCBD3-AF0F-40C5-9435-01BF16878495}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{48653ADE-9460-4CF4-86B3-A682E4A0FA2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lapka.Pets.Tests.Unit", "Lapka.Pets.Tests.Unit\Lapka.Pets.Tests.Unit.csproj", "{77CB42FD-7BA6-49C2-8B8D-36A4A649C357}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,11 +37,18 @@ Global
 		{3ECBCBD3-AF0F-40C5-9435-01BF16878495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3ECBCBD3-AF0F-40C5-9435-01BF16878495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3ECBCBD3-AF0F-40C5-9435-01BF16878495}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77CB42FD-7BA6-49C2-8B8D-36A4A649C357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77CB42FD-7BA6-49C2-8B8D-36A4A649C357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77CB42FD-7BA6-49C2-8B8D-36A4A649C357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77CB42FD-7BA6-49C2-8B8D-36A4A649C357}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C7121D3-78FA-4771-AFFF-87CE15331426}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{77CB42FD-7BA6-49C2-8B8D-36A4A649C357} = {48653ADE-9460-4CF4-86B3-A682E4A0FA2E}
 	EndGlobalSection
 EndGlobal

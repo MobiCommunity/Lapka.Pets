@@ -31,13 +31,21 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.Id);
             }
             
-            pet.Update(command.Name, command.Race, command.Species, mainPhotoPath, command.Sex, command.DateOfBirth, command.Description,
+            pet.Update(command.Name, command.Race, command.Species, pet.MainPhotoPath, command.Sex, command.DateOfBirth, command.Description,
                 command.ShelterAddress, command.Sterilization, command.Weight, command.Color);
-
-            await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath);
-            await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content);
-
+            
             await _petRepository.UpdateAsync(pet);
+
+            try
+            {
+                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath);
+                await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content);
+            }
+            catch(Exception ex)
+            {
+                //TODO: Microservice not responded or crashed, log here.
+            }
+            
             await _eventProcessor.ProcessAsync(pet.Events);
         }
     }
