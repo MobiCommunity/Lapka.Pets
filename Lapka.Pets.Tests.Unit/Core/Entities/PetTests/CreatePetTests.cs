@@ -10,7 +10,7 @@ using Lapka.Pets.Core.ValueObjects;
 using Shouldly;
 using Xunit;
 
-namespace Lapka.Pets.Tests.Unit.Core.Entities
+namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 {
     public class CreatePetTests
     {
@@ -22,26 +22,26 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities
         [Fact]
         public void given_valid_pet_should_be_created()
         {
-            Pet pet = ArrangePet();
+            Pet arrangePet = ArrangePet();
             
-            Pet resource = Act(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoPath, pet.BirthDay,
-                pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description);
+            Pet pet = Act(arrangePet.Id, arrangePet.Name, arrangePet.Sex, arrangePet.Race, arrangePet.Species, arrangePet.MainPhotoPath, arrangePet.BirthDay,
+                arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description);
             
-            resource.ShouldNotBeNull();
-            resource.Id.ShouldBe(pet.Id);
-            resource.Name.ShouldBe(pet.Name);
-            resource.Sex.ShouldBe(pet.Sex);
-            resource.Race.ShouldBe(pet.Race);
-            resource.Species.ShouldBe(pet.Species);
-            resource.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
-            resource.BirthDay.ShouldBe(pet.BirthDay);
-            resource.Color.ShouldBe(pet.Color);
-            resource.Weight.ShouldBe(pet.Weight);
-            resource.Sterilization.ShouldBe(pet.Sterilization);
-            resource.ShelterAddress.ShouldBe(pet.ShelterAddress);
-            resource.Description.ShouldBe(pet.Description);
-            resource.Events.Count().ShouldBe(1);
-            IDomainEvent @event = resource.Events.Single();
+            pet.ShouldNotBeNull();
+            pet.Id.ShouldBe(arrangePet.Id);
+            pet.Name.ShouldBe(arrangePet.Name);
+            pet.Sex.ShouldBe(arrangePet.Sex);
+            pet.Race.ShouldBe(arrangePet.Race);
+            pet.Species.ShouldBe(arrangePet.Species);
+            pet.MainPhotoPath.ShouldBe(arrangePet.MainPhotoPath);
+            pet.BirthDay.ShouldBe(arrangePet.BirthDay);
+            pet.Color.ShouldBe(arrangePet.Color);
+            pet.Weight.ShouldBe(arrangePet.Weight);
+            pet.Sterilization.ShouldBe(arrangePet.Sterilization);
+            pet.ShelterAddress.ShouldBe(arrangePet.ShelterAddress);
+            pet.Description.ShouldBe(arrangePet.Description);
+            pet.Events.Count().ShouldBe(1);
+            IDomainEvent @event = pet.Events.Single();
             @event.ShouldBeOfType<PetCreated>();
         }
         
@@ -144,7 +144,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities
         public void given_too_big_shelter_address_location_latitude_should_throw_an_exception()
         {
             Exception exception = Record.Exception(() =>
-                ArrangePet(shelterAddress: ArrangeShelterAddress(location: ArrangeShelterAddressLocation(latitude: "180"))));
+                ArrangePet(shelterAddress: ArrangeShelterAddress(location:
+                    ArrangeShelterAddressLocation(latitude: "180"))));
             
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<LatitudeTooBigException>();
@@ -154,7 +155,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities
         public void given_too_low_shelter_address_location_latitude_should_throw_an_exception()
         {            
             Exception exception = Record.Exception(() =>
-                ArrangePet(shelterAddress: ArrangeShelterAddress(location: ArrangeShelterAddressLocation(latitude: "-90"))));
+                ArrangePet(shelterAddress: ArrangeShelterAddress(location: 
+                    ArrangeShelterAddressLocation(latitude: "-90"))));
             
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<LatitudeTooLowException>();
@@ -164,7 +166,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities
         public void given_too_big_shelter_address_location_longitude_should_throw_an_exception()
         {
             Exception exception = Record.Exception(() =>
-                ArrangePet(shelterAddress: ArrangeShelterAddress(location: ArrangeShelterAddressLocation(longitude: "180"))));
+                ArrangePet(shelterAddress: ArrangeShelterAddress(location:
+                    ArrangeShelterAddressLocation(longitude: "180"))));
             
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<LongitudeTooBigException>();
@@ -173,7 +176,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities
         [Fact]
         public void given_too_low_shelter_address_location_longitude_should_throw_an_exception()
         {
-            Exception exception = Record.Exception(() => ArrangePet(shelterAddress: ArrangeShelterAddress(location: ArrangeShelterAddressLocation(longitude: "-180"))));
+            Exception exception = Record.Exception(() => ArrangePet(shelterAddress:
+                ArrangeShelterAddress(location: ArrangeShelterAddressLocation(longitude: "-180"))));
             
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<LongitudeTooLowException>();

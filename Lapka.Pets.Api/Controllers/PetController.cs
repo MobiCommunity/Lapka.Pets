@@ -70,14 +70,23 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdatePetRequest petUpdate)
         {
             await _commandDispatcher.SendAsync(new UpdatePet(id, petUpdate.Name, petUpdate.Race,
-                petUpdate.Species, petUpdate.File.AsValueObject(), petUpdate.Sex, petUpdate.DateOfBirth,
-                petUpdate.Description,
-                petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
+                petUpdate.Species, petUpdate.Sex, petUpdate.DateOfBirth,
+                petUpdate.Description, petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
                 petUpdate.Color));
+
+            return NoContent();
+        }
+        
+        [HttpPatch("photo/{id:guid}")]
+        public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
+        {
+            Guid photoId = Guid.NewGuid();
+            
+            await _commandDispatcher.SendAsync(new UpdatePetPhoto(id, petUpdate.File.AsValueObject(), photoId));
 
             return NoContent();
         }

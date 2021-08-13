@@ -50,7 +50,7 @@ namespace Lapka.Pets.Core.Entities
             return pet;
         }
 
-        public void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay, string description,
+        public void Update(string name, string race, Species species,  Sex sex, DateTime birthDay, string description,
             Address shelterAddress, bool sterilization, double weight, string color)
         {
             Validate(name, race, birthDay, color, weight, description);
@@ -58,7 +58,6 @@ namespace Lapka.Pets.Core.Entities
             Name = name;
             Race = race;
             Species = species;
-            MainPhotoPath = photoPath;
             Sex = sex;
             BirthDay = birthDay;
             Description = description;
@@ -68,6 +67,13 @@ namespace Lapka.Pets.Core.Entities
             Color = color;
 
             AddEvent(new PetUpdated(this));
+        }
+        
+        public void UpdatePhoto(string mainPhotoPath)
+        {
+            MainPhotoPath = mainPhotoPath;
+
+            AddEvent(new PetPhotoUpdated(MainPhotoPath));
         }
 
         private static void Validate(string name, string race, DateTime birthDay, string color, double weight,

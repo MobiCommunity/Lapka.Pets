@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
 using Lapka.Pets.Core.Events.Concrete;
-using Lapka.Pets.Core.Exceptions;
-using Lapka.Pets.Core.Exceptions.Location;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
@@ -27,8 +24,8 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly CreatePetHandler _handler;
-        private readonly IPetRepository _petRepository;
         private readonly ILogger<CreatePetHandler> _logger;
+        private readonly IPetRepository _petRepository;
 
         public CreatePetHandlerTests()
         {
@@ -39,10 +36,13 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             _handler = new CreatePetHandler(_logger, _eventProcessor, _petRepository, _grpcPhotoService);
         }
 
-        private Task Act(CreatePet command) => _handler.HandleAsync(command);
+        private Task Act(CreatePet command)
+        {
+            return _handler.HandleAsync(command);
+        }
 
         [Fact]
-        public async Task given_valid_pet_should_succeed()
+        public async Task given_valid_pet_should_create()
         {
             Pet pet = ArrangePet();
             File file = ArrangeFile();
@@ -90,7 +90,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
-            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidPetNameException>();
@@ -106,7 +106,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
-            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            Exception exception = await Record.ExceptionAsync(async () => await Act(command));
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidRaceValueException>();
         }
@@ -121,7 +121,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
-            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidBirthDayValueException>();
@@ -137,7 +137,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
-            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidColorValueException>();
@@ -153,7 +153,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
-            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<WeightBelowMinimumValueException>();

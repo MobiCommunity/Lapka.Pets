@@ -1,13 +1,15 @@
-﻿namespace Lapka.Pets.Application.Exceptions
+﻿using System;
+
+namespace Lapka.Pets.Application.Exceptions
 {
     public class CannotRequestFilesMicroserviceException : AppException
     {
-        public string ErrorMessage { get; }
+        public Exception Exception { get; }
         
-        public CannotRequestFilesMicroserviceException(string errorMessage) 
-            : base($"Cannot request files microservice: {errorMessage}")
+        public CannotRequestFilesMicroserviceException(Exception exception) 
+            : base($"Cannot request files microservice: {exception.Message}")
         {
-            ErrorMessage = errorMessage;
+            Exception = exception;
         }
 
         public override string Code => "cannot_request_files_microservice";
