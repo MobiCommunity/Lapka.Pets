@@ -26,29 +26,26 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPet
+        public async Task<IActionResult> GetById(Guid id) 
+            => Ok(await _queryDispatcher.QueryAsync(new GetPet
             {
                 Id = id
             }));
-        }
+        
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPets()));
-        }
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll() =>
+            Ok(await _queryDispatcher.QueryAsync(new GetPets()));
+        
 
         [HttpGet("{race}")]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race)
-        {
-            return Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race) 
+            => Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
             {
                 Race = race
             }));
-        }
+        
 
 
         [HttpPost]

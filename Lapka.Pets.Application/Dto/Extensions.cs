@@ -34,6 +34,7 @@ namespace Lapka.Pets.Application.Dto
                 Id = pet.Id.Value,
                 Name = pet.Name,
                 Sex = pet.Sex,
+                MainPhotoPath = pet.MainPhotoPath,
                 Race = pet.Race,
                 MainPhotoPath = pet.MainPhotoPath,
                 BirthDay = pet.BirthDay,
@@ -53,6 +54,7 @@ namespace Lapka.Pets.Application.Dto
                 BirthDay = pet.BirthDay,
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
+                MainPhotoPath = pet.MainPhotoPath,
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight
             };
