@@ -52,10 +52,12 @@ namespace Lapka.Pets.Api.Controllers
         public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
         {
             Guid id = Guid.NewGuid();
+            Guid photoId = Guid.NewGuid();
+            
             await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.File.AsValueObject(),
                 pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsValueObject(),
-                pet.Description));
+                pet.Description, photoId));
 
             return Created($"api/pet/{id}", null);
         }

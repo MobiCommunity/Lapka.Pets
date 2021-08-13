@@ -5,19 +5,22 @@ using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Microsoft.AspNetCore.Routing.Matching;
+using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class DeletePetHandler : ICommandHandler<DeletePet>
     {
+        private readonly ILogger<DeletePetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
 
-        public DeletePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository,
+        public DeletePetHandler(ILogger<DeletePetHandler> logger, IEventProcessor eventProcessor, IPetRepository petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
+            _logger = logger;
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
@@ -38,7 +41,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             }
             catch(Exception ex)
             {
-                //TODO: Microservice not responded or crashed, log here.
+                _logger.LogError(ex, ex.Message);
             }
             
             await _eventProcessor.ProcessAsync(pet.Events);

@@ -6,18 +6,21 @@ using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class CreatePetHandler : ICommandHandler<CreatePet>
     {
+        private readonly ILogger<CreatePetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public CreatePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository,
+        public CreatePetHandler(ILogger<CreatePetHandler> logger, IEventProcessor eventProcessor, IPetRepository petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
+            _logger = logger;
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
@@ -25,7 +28,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
         
         public async Task HandleAsync(CreatePet command)
         {
-            string mainPhotoPath = $"{Guid.NewGuid():N}.{command.Photo.GetFileExtension()}"; 
+            string mainPhotoPath = $"{command.PhotoId:N}.{command.Photo.GetFileExtension()}"; 
             
             Pet pet = Pet.Create(command.Id, command.Name, command.Sex, command.Race, command.Species, mainPhotoPath,
                 command.BirthDay, command.Color, command.Weight, command.Sterilization, command.ShelterAddress,
@@ -39,7 +42,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             }
             catch(Exception ex)
             {
-                //TODO: Microservice not responded or crashed, log here.
+                _logger.LogError(ex, ex.Message);
                 
                 pet.Update(pet.Name, pet.Race, pet.Species, "", pet.Sex, pet.BirthDay, pet.Description,
                     pet.ShelterAddress, pet.Sterilization, pet.Weight, pet.Color);

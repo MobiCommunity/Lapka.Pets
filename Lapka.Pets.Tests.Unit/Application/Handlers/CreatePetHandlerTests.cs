@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
+using Lapka.Pets.Core.Events.Concrete;
+using Lapka.Pets.Core.Exceptions;
+using Lapka.Pets.Core.Exceptions.Location;
+using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Shouldly;
 using Xunit;
 using File = Lapka.Pets.Core.ValueObjects.File;
 
@@ -20,41 +28,150 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly CreatePetHandler _handler;
         private readonly IPetRepository _petRepository;
+        private readonly ILogger<CreatePetHandler> _logger;
 
         public CreatePetHandlerTests()
         {
             _petRepository = Substitute.For<IPetRepository>();
             _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
             _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new CreatePetHandler(_eventProcessor, _petRepository, _grpcPhotoService);
+            _logger = Substitute.For<ILogger<CreatePetHandler>>();
+            _handler = new CreatePetHandler(_logger, _eventProcessor, _petRepository, _grpcPhotoService);
         }
 
-        private Task Act(CreatePet command)
-        {
-            return _handler.HandleAsync(command);
-        }
+        private Task Act(CreatePet command) => _handler.HandleAsync(command);
 
         [Fact]
-        public async Task given_valid_resource_id_for_valid_customer_reserve_resource_should_succeed()
+        public async Task given_valid_pet_should_succeed()
         {
             Pet pet = ArrangePet();
             File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
 
             CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description);
-
-            Pet petCreated = Pet.Create(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoPath,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description);
-            File fileCreated = new File(file.Name, file.Content, file.ContentType);
-
-            await _grpcPhotoService.AddAsync(fileCreated.Name, fileCreated.Content);
-            await _petRepository.AddAsync(petCreated);
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
             await Act(command);
 
-            await _petRepository.Received().AddAsync(Arg.Is(petCreated));
-            await _grpcPhotoService.Received().AddAsync(Arg.Is(fileCreated.Name), Arg.Is(fileCreated.Content));
-            await _eventProcessor.Received().ProcessAsync(Arg.Any<IEnumerable<IDomainEvent>>());
+            string fileNameExpectedValue = $"{photoId:N}.jpg";
+
+            await _petRepository.Received()
+                .AddAsync(Arg.Is<Pet>(p => p.Id.Value == pet.Id.Value &&
+                                           p.Name == pet.Name && p.Sex == pet.Sex &&
+                                           p.Race == pet.Race && p.Species == pet.Species &&
+                                           p.BirthDay == pet.BirthDay &&
+                                           p.Color == pet.Color && p.Weight == pet.Weight &&
+                                           p.Sterilization == pet.Sterilization &&
+                                           p.ShelterAddress.City ==
+                                           pet.ShelterAddress.City &&
+                                           p.ShelterAddress.Name ==
+                                           pet.ShelterAddress.Name &&
+                                           p.ShelterAddress.Street ==
+                                           pet.ShelterAddress.Street &&
+                                           p.ShelterAddress.GeoLocation.Latitude ==
+                                           pet.ShelterAddress.GeoLocation.Latitude &&
+                                           p.ShelterAddress.GeoLocation.Longitude ==
+                                           pet.ShelterAddress.GeoLocation.Longitude &&
+                                           p.Description == pet.Description &&
+                                           p.MainPhotoPath == fileNameExpectedValue));
+
+            await _grpcPhotoService.Received().AddAsync(Arg.Is(fileNameExpectedValue), Arg.Is(file.Content));
+            await _eventProcessor.Received().ProcessAsync(Arg.Is<IEnumerable<IDomainEvent>>(e
+                => e.FirstOrDefault().GetType() == typeof(PetCreated)));
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_name_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(name: "");
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+
+            var exception = await Record.ExceptionAsync(async () => await Act(command));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<InvalidPetNameException>();
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_race_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(race: "");
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+
+            var exception = await Record.ExceptionAsync(async () => await Act(command));
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<InvalidRaceValueException>();
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_birth_date_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+
+            var exception = await Record.ExceptionAsync(async () => await Act(command));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<InvalidBirthDayValueException>();
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_color_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(color: "");
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+
+            var exception = await Record.ExceptionAsync(async () => await Act(command));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<InvalidColorValueException>();
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_weight_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(weight: 0);
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+
+            var exception = await Record.ExceptionAsync(async () => await Act(command));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<WeightBelowMinimumValueException>();
+        }
+
+        [Fact]
+        public async Task given_invalid_pet_description_should_throw_an_exception()
+        {
+            Pet pet = ArrangePet(description: "");
+            File file = ArrangeFile();
+            Guid photoId = Guid.NewGuid();
+
+            Exception exception = await Record.ExceptionAsync(async () => await Act(
+                new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file, pet.BirthDay,
+                    pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId)));
+
+            exception.ShouldNotBeNull();
+            exception.ShouldBeOfType<InvalidDescriptionValueException>();
         }
 
         private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
@@ -108,7 +225,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             string validName = name ?? $"{Guid.NewGuid()}.jpg";
             Stream validStream = stream ?? new MemoryStream();
-            string validContentType = contentType ?? "ocet/jpg";
+            string validContentType = contentType ?? "image/jpg";
 
             File file = new File(validName, validStream, validContentType);
 

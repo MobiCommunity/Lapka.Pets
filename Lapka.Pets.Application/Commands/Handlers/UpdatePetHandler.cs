@@ -5,17 +5,20 @@ using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class UpdatePetHandler : ICommandHandler<UpdatePet>
     {
+        private readonly ILogger<UpdatePetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public UpdatePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository, IGrpcPhotoService grpcPhotoService)
+        public UpdatePetHandler(ILogger<UpdatePetHandler> logger, IEventProcessor eventProcessor, IPetRepository petRepository, IGrpcPhotoService grpcPhotoService)
         {
+            _logger = logger;
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
@@ -43,7 +46,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             }
             catch(Exception ex)
             {
-                //TODO: Microservice not responded or crashed, log here.
+                _logger.LogError(ex, ex.Message);
             }
             
             await _eventProcessor.ProcessAsync(pet.Events);

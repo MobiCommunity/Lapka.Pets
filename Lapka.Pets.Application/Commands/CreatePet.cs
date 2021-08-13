@@ -18,9 +18,10 @@ namespace Lapka.Pets.Application.Commands
         public bool Sterilization { get; }
         public Address ShelterAddress { get; }
         public string Description { get; }
+        public Guid PhotoId { get; }
 
         public CreatePet(Guid id, string name, Sex sex, string race, Species species, File photo, DateTime birthDay, string color,
-            double weight, bool sterilization, Address shelterAddress, string description)
+            double weight, bool sterilization, Address shelterAddress, string description, Guid photoId)
         {
             Id = id;
             Name = name;
@@ -34,6 +35,7 @@ namespace Lapka.Pets.Application.Commands
             Sterilization = sterilization;
             ShelterAddress = shelterAddress;
             Description = description;
+            PhotoId = photoId;
         }
     }
 }
