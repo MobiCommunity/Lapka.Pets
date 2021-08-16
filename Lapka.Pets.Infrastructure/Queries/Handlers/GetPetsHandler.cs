@@ -6,6 +6,7 @@ using Convey.CQRS.Queries;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -23,21 +24,23 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<IEnumerable<PetBasicDto>> HandleAsync(GetPets query)
         {
+            Location location = new Location(query.Latitude, query.Longitude);
+
             IMongoQueryable<PetDocument> queryable = _mongoRepository.Collection.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Name))
             {
                 queryable = queryable.Where(x => x.Name.Contains(query.Name));
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.Race))
             {
                 queryable = queryable.Where(x => x.Race.Contains(query.Race));
             }
-            
+
             IList<PetDocument> search = await queryable.ToListAsync();
 
-            return search.Select(x => x.AsBasicDto());
+            return search.Select(x => x.AsBasicDto(location));
         }
     }
 }

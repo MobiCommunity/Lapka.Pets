@@ -1,3 +1,4 @@
+using GeoCoordinatePortable;
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Core.Entities;
@@ -78,8 +79,13 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
         
-        public static PetBasicDto AsBasicDto(this PetDocument pet)
+        public static PetBasicDto AsBasicDto(this PetDocument pet, Location location)
         {
+            GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),
+                double.Parse(pet.ShelterAddress.GeoLocation.Longitude));
+            GeoCoordinate pin2 = new GeoCoordinate(double.Parse(location.Latitude), double.Parse(location.Longitude));
+            double distance = pin1.GetDistanceTo(pin2);
+            
             return new PetBasicDto
             {
                 Id = pet.Id,
@@ -88,12 +94,18 @@ namespace Lapka.Pets.Infrastructure.Documents
                 MainPhotoPath = pet.MainPhotoPath,
                 Race = pet.Race,
                 BirthDay = pet.BirthDay,
-                ShelterAddress = pet.ShelterAddress.AsDto()
+                ShelterAddress = pet.ShelterAddress.AsDto(),
+                DistanceInMeters = distance
             };
         }
         
-        public static PetDetailsDto AsDetailDto(this PetDocument pet)
+        public static PetDetailsDto AsDetailDto(this PetDocument pet, Location location)
         {
+            GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),
+                double.Parse(pet.ShelterAddress.GeoLocation.Longitude));
+            GeoCoordinate pin2 = new GeoCoordinate(double.Parse(location.Latitude), double.Parse(location.Longitude));
+            double distance = pin1.GetDistanceTo(pin2);
+            
             return new PetDetailsDto
             {
                 Id = pet.Id,
@@ -106,7 +118,8 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
                 Sterilization = pet.Sterilization,
-                Weight = pet.Weight
+                Weight = pet.Weight,
+                DistanceInMeters = distance
             };
         }
     }

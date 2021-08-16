@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
@@ -26,25 +27,33 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id) 
+        public async Task<IActionResult> GetById(Guid id, [Required]string longitude, [Required]string latitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPet
             {
-                Id = id
+                Id = id,
+                Latitude = latitude,
+                Longitude = longitude
             }));
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race) 
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
+            [Required]string latitude, [Required]string longitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPets
             {
+                Latitude = latitude.Replace('.', ','),
+                Longitude = longitude.Replace('.', ','),
                 Name = name,
                 Race = race
             }));
         
 
         [HttpGet("{race}")]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race) 
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race, [Required]string latitude,
+            [Required]string longitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
             {
+                Latitude = latitude.Replace('.', ','),
+                Longitude = longitude.Replace('.', ','),
                 Race = race
             }));
         

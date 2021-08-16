@@ -52,19 +52,19 @@ namespace Lapka.Pets.Core.ValueObjects
                 throw new InvalidLatitudeValueException(Latitude);
             }
 
-            bool isDouble = double.TryParse(Longitude, out double doubleLongitude);
+            bool isDouble = double.TryParse(Latitude, out double doubleLatitude);
 
             if (!isDouble)
             {
-                throw new LongitudeIncorrectDataTypeException(Longitude);
+                throw new LongitudeIncorrectDataTypeException(Latitude);
             }
 
-            if (doubleLongitude <= MinLatitudeValue)
+            if (doubleLatitude <= MinLatitudeValue)
             {
                 throw new LatitudeTooLowException(Latitude);
             }
 
-            if (doubleLongitude >= MaxLatitudeValue)
+            if (doubleLatitude >= MaxLatitudeValue)
             {
                 throw new LatitudeTooBigException(Latitude);
             }

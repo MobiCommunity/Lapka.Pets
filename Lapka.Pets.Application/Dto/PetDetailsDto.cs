@@ -29,5 +29,7 @@ namespace Lapka.Pets.Application.Dto
         public bool Sterilization { get; set; }
         [Required]
         public string Description { get; set; }
+        [Required] 
+        public double DistanceInMeters { get; set; }
     }
 }
