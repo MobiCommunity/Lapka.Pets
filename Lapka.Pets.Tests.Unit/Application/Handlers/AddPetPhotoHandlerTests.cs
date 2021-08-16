@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,18 +35,28 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         public async Task given_valid_pet_path_should_delete()
         {
             Pet pet = ArrangePet();
-            File file = ArrangeFile();
-            Guid photoId = Guid.NewGuid();
+            List<File> files = new List<File>();
+            files.Add(ArrangeFile());
+            List<Guid> photoIds = new List<Guid>();
+            for (int i = 0; i < files.Count; i++)
+            {
+                photoIds.Add(new Guid());
+            }
             
-            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, file, photoId);
+            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, files, photoIds);
 
             _petRepository.GetByIdAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
-            string expectedPhotoId = $"{photoId:N}.jpg";
             await _petRepository.Received().UpdateAsync(pet);
-            await _grpcPhotoService.Received().AddAsync(expectedPhotoId, file.Content);
+            
+            for (int i = 0; i < files.Count; i++)
+            {
+                string expectedPhotoId = $"{photoIds[i]:N}.jpg";
+                await _grpcPhotoService.Received().AddAsync(expectedPhotoId, files[i].Content);
+            }
+            
             await _eventProcessor.Received().ProcessAsync(pet.Events);
         }
 

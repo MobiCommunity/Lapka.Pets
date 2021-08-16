@@ -82,11 +82,14 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new PetPhotoUpdated(MainPhotoPath));
         }
         
-        public void AddPhoto(string photoPath)
+        public void AddPhotos(List<string> photoPaths)
         {
-            PhotoPaths.Add(photoPath);
-
-            AddEvent(new PetPhotoAdded(photoPath));
+            foreach (string path in photoPaths)
+            {
+                PhotoPaths.Add(path);
+            }
+            
+            AddEvent(new PetPhotosAdded(photoPaths));
         }
         
         public void RemovePhoto(string photoPath)

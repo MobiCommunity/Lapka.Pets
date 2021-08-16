@@ -3,11 +3,11 @@ using Lapka.Pets.Core.Events.Abstract;
 
 namespace Lapka.Pets.Core.Events.Concrete
 {
-    public class PetPhotoAdded : IDomainEvent
+    public class PetPhotosAdded : IDomainEvent
     {
-        public string PhotoPath { get; }
+        public List<string> PhotoPath { get; }
 
-        public PetPhotoAdded(string photoPath)
+        public PetPhotosAdded(List<string> photoPath)
         {
             PhotoPath = photoPath;
         }

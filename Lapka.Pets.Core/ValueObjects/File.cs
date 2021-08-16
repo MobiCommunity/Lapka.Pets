@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Lapka.Pets.Core.ValueObjects
 {
@@ -8,7 +9,7 @@ namespace Lapka.Pets.Core.ValueObjects
         public Stream Content { get; }
         public string ContentType { get; }
 
-        public File(string name, Stream content, string contentType)
+        public File( string name, Stream content, string contentType)
         {
             Name = name;
             Content = content;

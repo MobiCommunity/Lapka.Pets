@@ -9,6 +9,7 @@ using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Core.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -33,8 +34,6 @@ namespace Lapka.Pets.Api.Controllers
                 Id = id
             }));
         
-
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll() =>
             Ok(await _queryDispatcher.QueryAsync(new GetPets()));
@@ -47,8 +46,6 @@ namespace Lapka.Pets.Api.Controllers
                 Race = race
             }));
         
-
-
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
         {
@@ -64,11 +61,17 @@ namespace Lapka.Pets.Api.Controllers
         }
         
         [HttpPost("photo/{id:guid}")]
-        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photo)
+        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
         {
-            Guid photoId = Guid.NewGuid();
+            List<Guid> photoIds = new List<Guid>();
             
-            await _commandDispatcher.SendAsync(new AddPetPhoto(id, photo.Photo.First().AsValueObject(), photoId));
+            for (int i = 0; i < photos.Photos.Count; i++)
+            {
+                photoIds.Add(Guid.NewGuid());
+            }
+            
+            await _commandDispatcher.SendAsync(new AddPetPhoto(id,
+                photos.Photos.Select(x => x.AsValueObject()).ToList(), photoIds));
 
             return Ok();
         }

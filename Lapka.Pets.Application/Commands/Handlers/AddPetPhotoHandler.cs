@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
@@ -23,25 +25,31 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(AddPetPhoto command)
         {
-            string photoPath = $"{command.PhotoId:N}.{command.Photo.GetFileExtension()}"; 
-
+            List<string> photoPaths = new List<string>();
+            
             Pet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
                 throw new PetNotFoundException(command.PetId);
             }
-            
-            try
-            {
-                await _grpcPhotoService.AddAsync(photoPath, command.Photo.Content);
-            }
-            catch(Exception ex)
-            {
-                throw new CannotRequestFilesMicroserviceException(ex);
-            }
 
-            pet.AddPhoto(photoPath);
+            for (int i = 0; i < command.PhotoIds.Count; i++)
+            {
+                File photo = command.Photos[i];
+                string photoPath = $"{command.PhotoIds[i]:N}.{photo.GetFileExtension()}";
+                photoPaths.Add(photoPath);
+                
+                try
+                {
+                    await _grpcPhotoService.AddAsync(photoPath, photo.Content);
+                }
+                catch(Exception ex)
+                {
+                    throw new CannotRequestFilesMicroserviceException(ex);
+                }
+            }
             
+            pet.AddPhotos(photoPaths);
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }

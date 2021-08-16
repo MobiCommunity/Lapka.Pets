@@ -15,12 +15,16 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
     public class AddPetPhotoTests
     {
         [Fact]
-        public void given_valid_pet_photo_should_be_added()
+        public void given_valid_pet_photos_should_be_added()
         {
             Pet pet = ArrangePet();
-            string photoPath = $"{Guid.NewGuid():N}.jpg";
+            List<string> photoPaths = new List<string>
+            {
+                $"{Guid.NewGuid():N}.jpg",
+                $"{Guid.NewGuid():N}.jpg"
+            };
             
-            pet.AddPhoto(photoPath);
+            pet.AddPhotos(photoPaths);
 
             pet.ShouldNotBeNull();
             pet.Id.ShouldBe(pet.Id);
@@ -29,17 +33,20 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Race.ShouldBe(pet.Race);
             pet.Species.ShouldBe(pet.Species);
             pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
-            pet.PhotoPaths.Count().ShouldBe(1);
-            pet.PhotoPaths.ShouldContain(photoPath);
+            pet.PhotoPaths.Count().ShouldBe(2);
             pet.BirthDay.ShouldBe(pet.BirthDay);
             pet.Color.ShouldBe(pet.Color);
             pet.Weight.ShouldBe(pet.Weight);
             pet.Sterilization.ShouldBe(pet.Sterilization);
             pet.ShelterAddress.ShouldBe(pet.ShelterAddress);
             pet.Description.ShouldBe(pet.Description);
+            foreach (var path in photoPaths)
+            {
+                pet.PhotoPaths.ShouldContain(path);
+            }
             pet.Events.Count().ShouldBe(1);
             IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoAdded>();
+            @event.ShouldBeOfType<PetPhotosAdded>();
         }
 
         private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
