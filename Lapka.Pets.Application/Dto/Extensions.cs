@@ -55,7 +55,8 @@ namespace Lapka.Pets.Application.Dto
                 ShelterAddress = pet.ShelterAddress.AsDto(),
                 MainPhotoPath = pet.MainPhotoPath,
                 Sterilization = pet.Sterilization,
-                Weight = pet.Weight
+                Weight = pet.Weight,
+                PhotoPaths = pet.PhotoPaths
             };
         }
 

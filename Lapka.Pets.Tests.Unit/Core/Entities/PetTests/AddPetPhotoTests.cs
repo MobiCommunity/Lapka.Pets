@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Lapka.Pets.Core.Entities;
@@ -11,15 +12,15 @@ using File = Lapka.Pets.Core.ValueObjects.File;
 
 namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 {
-    public class UpdatePetPhotoTests
+    public class AddPetPhotoTests
     {
         [Fact]
-        public void given_valid_pet_photo_should_be_updated()
+        public void given_valid_pet_photo_should_be_added()
         {
             Pet pet = ArrangePet();
-            Guid photoId = Guid.NewGuid();
-
-            pet.UpdateMainPhoto(photoId.ToString());
+            string photoPath = $"{Guid.NewGuid():N}.jpg";
+            
+            pet.AddPhoto(photoPath);
 
             pet.ShouldNotBeNull();
             pet.Id.ShouldBe(pet.Id);
@@ -28,6 +29,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Race.ShouldBe(pet.Race);
             pet.Species.ShouldBe(pet.Species);
             pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
+            pet.PhotoPaths.Count().ShouldBe(1);
+            pet.PhotoPaths.ShouldContain(photoPath);
             pet.BirthDay.ShouldBe(pet.BirthDay);
             pet.Color.ShouldBe(pet.Color);
             pet.Weight.ShouldBe(pet.Weight);
@@ -36,9 +39,23 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Description.ShouldBe(pet.Description);
             pet.Events.Count().ShouldBe(1);
             IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoUpdated>();
+            @event.ShouldBeOfType<PetPhotoAdded>();
         }
-        
+
+        private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
+            Location location = null)
+        {
+            string shelterAddressName = name ?? "Mokotovo";
+            string shelterAddressCity = city ?? "Rzeszow";
+            string shelterAddressStreet = street ?? "Wojskowa";
+            Location validShelterLocation = location ?? ArrangeShelterAddressLocation();
+
+            Address address = new Address(shelterAddressName, shelterAddressCity, shelterAddressStreet,
+                validShelterLocation);
+
+            return address;
+        }
+
         private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
@@ -62,20 +79,6 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             return pet;
         }
 
-        private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
-            Location location = null)
-        {
-            string shelterAddressName = name ?? "Mokotovo";
-            string shelterAddressCity = city ?? "Rzeszow";
-            string shelterAddressStreet = street ?? "Wojskowa";
-            Location validShelterLocation = location ?? ArrangeShelterAddressLocation();
-
-            Address address = new Address(shelterAddressName, shelterAddressCity, shelterAddressStreet,
-                validShelterLocation);
-
-            return address;
-        }
-
         private Location ArrangeShelterAddressLocation(string latitude = null, string longitude = null)
         {
             string shelterAddressLocationLatitude = latitude ?? "22";
@@ -85,6 +88,5 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             return location;
         }
-        
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
@@ -7,19 +7,18 @@ using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.ValueObjects;
 using Shouldly;
 using Xunit;
-using File = Lapka.Pets.Core.ValueObjects.File;
 
 namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 {
-    public class UpdatePetPhotoTests
+    public class DeletePetPhotoTests
     {
         [Fact]
-        public void given_valid_pet_photo_should_be_updated()
+        public void given_valid_pet_photo_path_should_be_deleted()
         {
             Pet pet = ArrangePet();
-            Guid photoId = Guid.NewGuid();
+            string photoPath = pet.PhotoPaths.First();
 
-            pet.UpdateMainPhoto(photoId.ToString());
+            pet.RemovePhoto(photoPath);
 
             pet.ShouldNotBeNull();
             pet.Id.ShouldBe(pet.Id);
@@ -28,6 +27,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Race.ShouldBe(pet.Race);
             pet.Species.ShouldBe(pet.Species);
             pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
+            pet.PhotoPaths.Count().ShouldBe(0);
             pet.BirthDay.ShouldBe(pet.BirthDay);
             pet.Color.ShouldBe(pet.Color);
             pet.Weight.ShouldBe(pet.Weight);
@@ -36,30 +36,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Description.ShouldBe(pet.Description);
             pet.Events.Count().ShouldBe(1);
             IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoUpdated>();
-        }
-        
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
-            Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
-            double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
-        {
-            AggregateId validId = id ?? new AggregateId();
-            string validName = name ?? "Miniok";
-            Sex validSex = sex ?? Sex.Male;
-            string validRace = race ?? "mops";
-            Species validSpecies = species ?? Species.Dog;
-            string validPhotoPath = photoPath ?? $"{Guid.NewGuid()}.jpg";
-            DateTime validBirthDate = birthDay ?? DateTime.Now.Subtract(TimeSpan.FromDays(180));
-            string validColor = color ?? "red";
-            double validWeight = weight ?? 152;
-            bool validSterilization = sterilization ?? true;
-            string validDescription = description ?? "Dlugi opis nie do przeczytania.";
-            Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
-
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
-                validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
-
-            return pet;
+            @event.ShouldBeOfType<PetPhotoDeleted>();
         }
 
         private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
@@ -76,6 +53,33 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             return address;
         }
 
+        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+            Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
+            double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
+        {
+            AggregateId validId = id ?? new AggregateId();
+            string validName = name ?? "Miniok";
+            Sex validSex = sex ?? Sex.Male;
+            string validRace = race ?? "mops";
+            Species validSpecies = species ?? Species.Dog;
+            string validPhotoPath = photoPath ?? $"{Guid.NewGuid()}.jpg";
+            DateTime validBirthDate = birthDay ?? DateTime.Now.Subtract(TimeSpan.FromDays(180));
+            string validColor = color ?? "red";
+            double validWeight = weight ?? 152;
+            List<string> photoPaths = new List<string>();
+            photoPaths.Add($"{Guid.NewGuid()}.jpg");
+
+            bool validSterilization = sterilization ?? true;
+            string validDescription = description ?? "Dlugi opis nie do przeczytania.";
+            Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
+
+            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+                validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription,
+                photoPaths);
+
+            return pet;
+        }
+
         private Location ArrangeShelterAddressLocation(string latitude = null, string longitude = null)
         {
             string shelterAddressLocationLatitude = latitude ?? "22";
@@ -85,6 +89,5 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             return location;
         }
-        
     }
 }

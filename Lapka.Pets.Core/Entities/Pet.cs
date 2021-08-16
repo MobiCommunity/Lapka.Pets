@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
@@ -13,6 +14,7 @@ namespace Lapka.Pets.Core.Entities
         public Species Species { get; private set; }
         public Sex Sex { get; private set; }
         public string MainPhotoPath { get; private set; }
+        public List<string> PhotoPaths { get; private set; }
         public string Race { get; private set; }
         public DateTime BirthDay { get; private set; }
         public string Color { get; private set; }
@@ -22,15 +24,17 @@ namespace Lapka.Pets.Core.Entities
         public string Description { get; private set; }
 
 
-        public Pet(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
-            string color, double weight, bool sterilization, Address shelterAddress, string description)
+        public Pet(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath,
+             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
+             string description, List<string> photoPaths = null)
         {
             Id = new AggregateId(id);
             Name = name;
             Sex = sex;
             Race = race;
             Species = species;
-            MainPhotoPath = photoPath;
+            MainPhotoPath = mainPhotoPath;
+            PhotoPaths = photoPaths ?? new List<string>();
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
@@ -39,12 +43,14 @@ namespace Lapka.Pets.Core.Entities
             Description = description;
         }
 
-        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
-            string color, double weight, bool sterilization, Address shelterAddress, string description)
+        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath,
+            DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
+            string description)
         {
             Validate(name, race, birthDay, color, weight, description);
 
-            Pet pet = new Pet(id, name, sex, race, species, photoPath, birthDay, color, weight, sterilization, shelterAddress, description);
+            Pet pet = new Pet(id, name, sex, race, species, mainPhotoPath, birthDay, color, weight, 
+                sterilization, shelterAddress, description);
 
             pet.AddEvent(new PetCreated(pet));
             return pet;
@@ -69,11 +75,25 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new PetUpdated(this));
         }
         
-        public void UpdatePhoto(string mainPhotoPath)
+        public void UpdateMainPhoto(string mainPhotoPath)
         {
             MainPhotoPath = mainPhotoPath;
 
             AddEvent(new PetPhotoUpdated(MainPhotoPath));
+        }
+        
+        public void AddPhoto(string photoPath)
+        {
+            PhotoPaths.Add(photoPath);
+
+            AddEvent(new PetPhotoAdded(photoPath));
+        }
+        
+        public void RemovePhoto(string photoPath)
+        {
+            PhotoPaths.Remove(photoPath);
+
+            AddEvent(new PetPhotoDeleted(photoPath));
         }
 
         private static void Validate(string name, string race, DateTime birthDay, string color, double weight,

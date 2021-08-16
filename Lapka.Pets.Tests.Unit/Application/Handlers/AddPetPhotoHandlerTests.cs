@@ -1,44 +1,54 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Lapka.Pets.Application.Commands;
+using Lapka.Pets.Application.Commands.Handlers;
+using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.Events.Abstract;
-using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.ValueObjects;
-using Shouldly;
+using NSubstitute;
 using Xunit;
 using File = Lapka.Pets.Core.ValueObjects.File;
 
-namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
+namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
-    public class UpdatePetPhotoTests
+    public class AddPetPhotoHandlerTests
     {
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly AddPetPhotoHandler _handler;
+        private readonly IPetRepository _petRepository;
+
+        public AddPetPhotoHandlerTests()
+        {
+            _petRepository = Substitute.For<IPetRepository>();
+            _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _handler = new AddPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
+        }
+
+        private Task Act(AddPetPhoto command) => _handler.HandleAsync(command);
+
         [Fact]
-        public void given_valid_pet_photo_should_be_updated()
+        public async Task given_valid_pet_path_should_delete()
         {
             Pet pet = ArrangePet();
+            File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            
+            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, file, photoId);
 
-            pet.UpdateMainPhoto(photoId.ToString());
+            _petRepository.GetByIdAsync(command.PetId).Returns(pet);
 
-            pet.ShouldNotBeNull();
-            pet.Id.ShouldBe(pet.Id);
-            pet.Name.ShouldBe(pet.Name);
-            pet.Sex.ShouldBe(pet.Sex);
-            pet.Race.ShouldBe(pet.Race);
-            pet.Species.ShouldBe(pet.Species);
-            pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
-            pet.BirthDay.ShouldBe(pet.BirthDay);
-            pet.Color.ShouldBe(pet.Color);
-            pet.Weight.ShouldBe(pet.Weight);
-            pet.Sterilization.ShouldBe(pet.Sterilization);
-            pet.ShelterAddress.ShouldBe(pet.ShelterAddress);
-            pet.Description.ShouldBe(pet.Description);
-            pet.Events.Count().ShouldBe(1);
-            IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoUpdated>();
+            await Act(command);
+
+            string expectedPhotoId = $"{photoId:N}.jpg";
+            await _petRepository.Received().UpdateAsync(pet);
+            await _grpcPhotoService.Received().AddAsync(expectedPhotoId, file.Content);
+            await _eventProcessor.Received().ProcessAsync(pet.Events);
         }
-        
+
         private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
@@ -86,5 +96,15 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             return location;
         }
         
+        private File ArrangeFile(string name = null, Stream stream = null, string contentType = null)
+        {
+            string validName = name ?? $"{Guid.NewGuid()}.jpg";
+            Stream validStream = stream ?? new MemoryStream();
+            string validContentType = contentType ?? "image/jpg";
+
+            File file = new File(validName, validStream, validContentType);
+
+            return file;
+        }
     }
 }

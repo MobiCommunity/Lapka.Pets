@@ -41,13 +41,15 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDocument(),
                 Sterilization = pet.Sterilization,
-                Weight = pet.Weight
+                Weight = pet.Weight,
+                Species = pet.Species,
+                PhotoPaths = pet.PhotoPaths
             };
         }
         public static Pet AsBusiness(this PetDocument pet)
         {
             return new Pet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoPath, pet.BirthDay, pet.Color,
-                pet.Weight, pet.Sterilization, pet.ShelterAddress.AsBusiness(), pet.Description);
+                pet.Weight, pet.Sterilization, pet.ShelterAddress.AsBusiness(), pet.Description, pet.PhotoPaths);
         }
         public static Location AsBusiness(this LocationDocument location)
         {
@@ -106,7 +108,8 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Description = pet.Description,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
                 Sterilization = pet.Sterilization,
-                Weight = pet.Weight
+                Weight = pet.Weight,
+                PhotoPaths = pet.PhotoPaths
             };
         }
     }

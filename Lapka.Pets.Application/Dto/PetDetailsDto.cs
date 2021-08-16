@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.ValueObjects;
@@ -17,6 +18,7 @@ namespace Lapka.Pets.Application.Dto
         public string Race { get; set; }
         [Required] 
         public string MainPhotoPath { get; set; }
+        public List<string> PhotoPaths { get; set; }
         [Required]
         public DateTime BirthDay { get; set; }
         [Required]

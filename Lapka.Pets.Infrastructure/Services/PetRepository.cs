@@ -47,7 +47,7 @@ namespace Lapka.Pets.Infrastructure.Services
         {
             await _repository.AddAsync(pet.AsDocument());
         }
-
+        
         public async Task DeleteAsync(Pet pet)
         {
             await _repository.DeleteAsync(pet.AsDocument().Id);

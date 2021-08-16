@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
@@ -44,10 +45,30 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             await _grpcPhotoService.Received().DeleteAsync(pet.MainPhotoPath);
             await _eventProcessor.Received().ProcessAsync(pet.Events);
         }
+        
+        [Fact]
+        public async Task given_valid_pet_with_multiple_photos_should_delete()
+        {
+            Pet pet = ArrangePet();
+            DeletePet command = new DeletePet(pet.Id.Value);
 
+            _petRepository.GetByIdAsync(command.Id).Returns(pet);
+
+            await Act(command);
+
+            await _petRepository.Received().DeleteAsync(pet);
+            await _grpcPhotoService.Received().DeleteAsync(pet.MainPhotoPath);
+            foreach (string photo in pet.PhotoPaths)
+            {
+                await _grpcPhotoService.Received().DeleteAsync(photo);
+            }
+            await _eventProcessor.Received().ProcessAsync(pet.Events);
+        }
+        
         private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
-            double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
+            double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null,
+            List<string> photoPaths = null)
         {
             AggregateId validId = id ?? new AggregateId();
             string validName = name ?? "Miniok";
@@ -61,9 +82,19 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             bool validSterilization = sterilization ?? true;
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
+            List<string> validPhotoPaths = photoPaths;
+            if (validPhotoPaths is null)
+            {
+                validPhotoPaths = new List<string>();
+                for (int i = 0; i < 3; i++)
+                {
+                    validPhotoPaths.Add($"{Guid.NewGuid()}.jpg");
+                }
+            }
 
             Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
-                validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
+                validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription,
+                validPhotoPaths);
 
             return pet;
         }

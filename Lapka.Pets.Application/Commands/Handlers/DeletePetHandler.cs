@@ -17,8 +17,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
         private readonly IGrpcPhotoService _grpcPhotoService;
 
 
-        public DeletePetHandler(ILogger<DeletePetHandler> logger, IEventProcessor eventProcessor, IPetRepository petRepository,
-            IGrpcPhotoService grpcPhotoService)
+        public DeletePetHandler(ILogger<DeletePetHandler> logger, IEventProcessor eventProcessor,
+            IPetRepository petRepository, IGrpcPhotoService grpcPhotoService)
         {
             _logger = logger;
             _eventProcessor = eventProcessor;
@@ -29,7 +29,10 @@ namespace Lapka.Pets.Application.Commands.Handlers
         public async Task HandleAsync(DeletePet command)
         {
             Pet pet = await _petRepository.GetByIdAsync(command.Id);
-            if (pet is null) throw new PetNotFoundException(command.Id);
+            if (pet is null)
+            {
+                throw new PetNotFoundException(command.Id);
+            }
 
             pet.Delete();
 
@@ -38,6 +41,10 @@ namespace Lapka.Pets.Application.Commands.Handlers
             try
             {
                 await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath);
+                foreach (string photo in pet.PhotoPaths)
+                {
+                    await _grpcPhotoService.DeleteAsync(photo);
+                }
             }
             catch(Exception ex)
             {

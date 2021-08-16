@@ -85,16 +85,5 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             return location;
         }
-        
-        private File ArrangeFile(string name = null, Stream stream = null, string contentType = null)
-        {
-            string validName = name ?? $"{Guid.NewGuid()}.jpg";
-            Stream validStream = stream ?? new MemoryStream();
-            string validContentType = contentType ?? "image/jpg";
-
-            File file = new File(validName, validStream, validContentType);
-
-            return file;
-        }
     }
 }

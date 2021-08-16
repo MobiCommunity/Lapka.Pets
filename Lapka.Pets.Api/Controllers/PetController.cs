@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
@@ -60,6 +61,24 @@ namespace Lapka.Pets.Api.Controllers
                 pet.Description, photoId));
 
             return Created($"api/pet/{id}", null);
+        }
+        
+        [HttpPost("photo/{id:guid}")]
+        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photo)
+        {
+            Guid photoId = Guid.NewGuid();
+            
+            await _commandDispatcher.SendAsync(new AddPetPhoto(id, photo.Photo.First().AsValueObject(), photoId));
+
+            return Ok();
+        }
+        
+        [HttpDelete("photo/{id:guid}")]
+        public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
+        {
+            await _commandDispatcher.SendAsync(new DeletePetPhoto(id, photo.Path));
+
+            return Ok();
         }
 
         [HttpDelete("{id:guid}")]
