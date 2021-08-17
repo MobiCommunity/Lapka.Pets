@@ -21,13 +21,17 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<PetDetailsDto> HandleAsync(GetPet query)
         {
-            Location location = new Location(query.Latitude, query.Longitude);
             PetDocument pet = await _mongoRepository.GetAsync(query.Id);
             if (pet is null)
             {
                 throw new PetNotFoundException(query.Id);
             }
 
+            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
+            {
+                return pet.AsDetailDto();
+            }
+            Location location = new Location(query.Latitude, query.Longitude);
             return pet.AsDetailDto(location);
         }
     }

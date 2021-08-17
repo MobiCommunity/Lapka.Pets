@@ -24,8 +24,6 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<IEnumerable<PetBasicDto>> HandleAsync(GetPets query)
         {
-            Location location = new Location(query.Latitude, query.Longitude);
-
             IMongoQueryable<PetDocument> queryable = _mongoRepository.Collection.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Name))
@@ -40,6 +38,12 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
             IList<PetDocument> search = await queryable.ToListAsync();
 
+            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
+            {
+                return search.Select(x => x.AsBasicDto());
+            }
+            
+            Location location = new Location(query.Latitude, query.Longitude);
             return search.Select(x => x.AsBasicDto(location));
         }
     }

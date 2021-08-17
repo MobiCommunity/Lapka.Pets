@@ -23,15 +23,18 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<IEnumerable<PetBasicDto>> HandleAsync(GetPetsByRace query)
         {
-            Location location = new Location(query.Latitude, query.Longitude);
-
-
             if (string.IsNullOrEmpty(query.Race))
                 throw new PetsNotFoundException(query.Race);
 
             IEnumerable<PetDocument> pets = await _mongoRepository.FindAsync(x =>
                 x.Race.ToUpper() == query.Race.ToUpper());
 
+            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
+            {
+                return pets.Select(x => x.AsBasicDto());
+            }
+            
+            Location location = new Location(query.Latitude, query.Longitude);
             return pets.Select(x => x.AsBasicDto(location));
         }
     }

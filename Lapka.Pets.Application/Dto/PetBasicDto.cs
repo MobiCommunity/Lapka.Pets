@@ -22,6 +22,6 @@ namespace Lapka.Pets.Application.Dto
         [Required]
         public AddressDto ShelterAddress { get; set; }
         [Required] 
-        public double DistanceInMeters { get; set; }
+        public double Distance { get; set; }
     }
 }
