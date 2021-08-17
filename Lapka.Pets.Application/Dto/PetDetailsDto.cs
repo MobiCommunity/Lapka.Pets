@@ -30,6 +30,6 @@ namespace Lapka.Pets.Application.Dto
         [Required]
         public string Description { get; set; }
         [Required] 
-        public double Distance { get; set; }
+        public double? Distance { get; set; }
     }
 }

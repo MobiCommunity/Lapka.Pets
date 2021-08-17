@@ -82,7 +82,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         
         public static PetBasicDto AsBasicDto(this PetDocument pet, Location location = null)
         {
-            double distance = -1;
+            double? distance = null;
             if (location != null)
             {
                 GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),
@@ -106,7 +106,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         
         public static PetDetailsDto AsDetailDto(this PetDocument pet, Location location = null)
         {
-            double distance = -1;
+            double? distance = null;
             if (location != null)
             {
                 GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),

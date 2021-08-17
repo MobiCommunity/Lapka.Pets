@@ -18,7 +18,7 @@ namespace Lapka.Pets.Infrastructure.Services
         {
             _repository = mongoRepository;
         }
-
+        
         public async Task<Pet> GetByIdAsync(Guid id)
         {
             PetDocument petFromDb = await _repository.GetAsync(id);
@@ -26,20 +26,19 @@ namespace Lapka.Pets.Infrastructure.Services
             {
                 throw new PetNotFoundException(id);
             }
-
+            
             return petFromDb.AsBusiness();
-        }
-        // public async Task<IEnumerable<Pet>> GetAllAsync()
-        // {
-        //     var petsFromDb = await _repository.FindAsync(_ => true);
-        //
-        //     return petsFromDb.Select(x => x.AsBusiness());
-        // }
+        } 
+        public async Task<IEnumerable<Pet>> GetAllAsync()
+        {
+            IReadOnlyList<PetDocument> petsFromDb = await _repository.FindAsync(_ => true);
         
+            return petsFromDb.Select(x => x.AsBusiness());
+        }
 
         public async Task<IEnumerable<Pet>> GetAllByRaceAsync(string race)
         {
-            var petsFromDb = await _repository.FindAsync(x => x.Race.ToUpper() == race.ToUpper());
+            IReadOnlyList<PetDocument> petsFromDb = await _repository.FindAsync(x => x.Race.ToUpper() == race.ToUpper());
 
             return petsFromDb.Select(x => x.AsBusiness());
         }
