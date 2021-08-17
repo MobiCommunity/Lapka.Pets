@@ -38,13 +38,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
             IList<PetDocument> search = await queryable.ToListAsync();
 
-            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
-            {
-                return search.Select(x => x.AsBasicDto());
-            }
-            
-            Location location = new Location(query.Latitude, query.Longitude);
-            return search.Select(x => x.AsBasicDto(location));
+            return search.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
         }
     }
 }

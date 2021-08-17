@@ -26,7 +26,7 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id, string longitude, string latitude) 
+        public async Task<IActionResult> Get(Guid id, string longitude, string latitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPet
             {
                 Id = id,

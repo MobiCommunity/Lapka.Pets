@@ -24,8 +24,8 @@ namespace Lapka.Pets.Infrastructure.Documents
         {
             return new LocationDocument
             {
-                Latitude = location.Latitude,
-                Longitude = location.Longitude
+                Latitude = location.Latitude.AsDouble(),
+                Longitude = location.Longitude.AsDouble()
             };
         }
         
@@ -53,7 +53,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         }
         public static Location AsBusiness(this LocationDocument location)
         {
-            return new Location(location.Latitude, location.Longitude);
+            return new Location(location.Latitude.ToString(), location.Longitude.ToString());
         }
         public static Address AsBusiness(this AddressDocument address)
         {
@@ -80,14 +80,15 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
         
-        public static PetBasicDto AsBasicDto(this PetDocument pet, Location location = null)
+        public static PetBasicDto AsBasicDto(this PetDocument pet, string latitude, string longitude)
         {
             double? distance = null;
-            if (location != null)
+            if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
             {
-                GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),
-                    double.Parse(pet.ShelterAddress.GeoLocation.Longitude));
-                GeoCoordinate pin2 = new GeoCoordinate(double.Parse(location.Latitude), double.Parse(location.Longitude));
+                Location location = new Location(latitude, longitude);
+                GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
+                    pet.ShelterAddress.GeoLocation.Longitude);
+                GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
                 distance = pin1.GetDistanceTo(pin2);
             }
             
@@ -104,14 +105,15 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
         
-        public static PetDetailsDto AsDetailDto(this PetDocument pet, Location location = null)
+        public static PetDetailsDto AsDetailDto(this PetDocument pet, string latitude, string longitude)
         {
             double? distance = null;
-            if (location != null)
+            if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
             {
-                GeoCoordinate pin1 = new GeoCoordinate(double.Parse(pet.ShelterAddress.GeoLocation.Latitude),
-                    double.Parse(pet.ShelterAddress.GeoLocation.Longitude));
-                GeoCoordinate pin2 = new GeoCoordinate(double.Parse(location.Latitude), double.Parse(location.Longitude));
+                Location location = new Location(latitude, longitude);
+                GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
+                    pet.ShelterAddress.GeoLocation.Longitude);
+                GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
                 distance = pin1.GetDistanceTo(pin2);
             }
 

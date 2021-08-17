@@ -21,8 +21,8 @@ namespace Lapka.Pets.Application.Dto
         {
             return new LocationDto
             {
-                Latitude = location.Latitude,
-                Longitude = location.Longitude
+                Latitude = location.Latitude.AsDouble(),
+                Longitude = location.Longitude.AsDouble()
             };
         }
         

@@ -27,12 +27,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
                 throw new PetNotFoundException(query.Id);
             }
 
-            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
-            {
-                return pet.AsDetailDto();
-            }
-            Location location = new Location(query.Latitude, query.Longitude);
-            return pet.AsDetailDto(location);
+            return pet.AsDetailDto(query.Latitude, query.Longitude);
         }
     }
 }

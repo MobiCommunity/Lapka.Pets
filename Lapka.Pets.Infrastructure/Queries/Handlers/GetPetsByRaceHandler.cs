@@ -29,13 +29,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
             IEnumerable<PetDocument> pets = await _mongoRepository.FindAsync(x =>
                 x.Race.ToUpper() == query.Race.ToUpper());
 
-            if (string.IsNullOrEmpty(query.Latitude) || string.IsNullOrEmpty(query.Longitude))
-            {
-                return pets.Select(x => x.AsBasicDto());
-            }
-            
-            Location location = new Location(query.Latitude, query.Longitude);
-            return pets.Select(x => x.AsBasicDto(location));
+            return pets.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
         }
     }
 }
