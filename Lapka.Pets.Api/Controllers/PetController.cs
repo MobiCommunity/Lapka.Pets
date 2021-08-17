@@ -63,15 +63,8 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost("photo/{id:guid}")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
         {
-            List<Guid> photoIds = new List<Guid>();
-            
-            for (int i = 0; i < photos.Photos.Count; i++)
-            {
-                photoIds.Add(Guid.NewGuid());
-            }
-            
             await _commandDispatcher.SendAsync(new AddPetPhoto(id,
-                photos.Photos.Select(x => x.AsValueObject()).ToList(), photoIds));
+                photos.Photos.Select(x => x.AsValueObject()).ToList()));
 
             return Ok();
         }

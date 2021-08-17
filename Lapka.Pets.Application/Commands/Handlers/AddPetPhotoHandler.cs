@@ -33,10 +33,9 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.PetId);
             }
 
-            for (int i = 0; i < command.PhotoIds.Count; i++)
+            foreach (File photo in command.Photos)
             {
-                File photo = command.Photos[i];
-                string photoPath = $"{command.PhotoIds[i]:N}.{photo.GetFileExtension()}";
+                string photoPath = $"{Guid.NewGuid():N}.{photo.GetFileExtension()}";
                 photoPaths.Add(photoPath);
                 
                 try
@@ -48,7 +47,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                     throw new CannotRequestFilesMicroserviceException(ex);
                 }
             }
-            
+
             pet.AddPhotos(photoPaths);
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

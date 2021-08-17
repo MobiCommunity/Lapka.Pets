@@ -37,24 +37,19 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             Pet pet = ArrangePet();
             List<File> files = new List<File>();
             files.Add(ArrangeFile());
-            List<Guid> photoIds = new List<Guid>();
-            for (int i = 0; i < files.Count; i++)
-            {
-                photoIds.Add(new Guid());
-            }
-            
-            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, files, photoIds);
+
+            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, files);
 
             _petRepository.GetByIdAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
             await _petRepository.Received().UpdateAsync(pet);
-            
-            for (int i = 0; i < files.Count; i++)
+
+            foreach (File file in command.Photos)
             {
-                string expectedPhotoId = $"{photoIds[i]:N}.jpg";
-                await _grpcPhotoService.Received().AddAsync(expectedPhotoId, files[i].Content);
+                await _grpcPhotoService.Received().AddAsync(Arg.Is<string>(x =>
+                    x.Contains(".jpg")), file.Content);
             }
             
             await _eventProcessor.Received().ProcessAsync(pet.Events);
