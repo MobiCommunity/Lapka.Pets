@@ -8,7 +8,6 @@ namespace Lapka.Pets.Application.Services
     public interface IPetRepository
     {
         Task<Pet> GetByIdAsync(Guid id);
-        Task<IEnumerable<Pet>> GetAllAsync();
         Task<IEnumerable<Pet>> GetAllByRaceAsync(string race);
         Task AddAsync(Pet pet);
         Task DeleteAsync(Pet pet);

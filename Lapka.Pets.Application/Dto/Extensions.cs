@@ -1,7 +1,6 @@
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
-using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Application.Dto
 {
@@ -22,8 +21,8 @@ namespace Lapka.Pets.Application.Dto
         {
             return new LocationDto
             {
-                Latitude = location.Latitude,
-                Longitude = location.Longitude
+                Latitude = location.Latitude.AsDouble(),
+                Longitude = location.Longitude.AsDouble()
             };
         }
         
