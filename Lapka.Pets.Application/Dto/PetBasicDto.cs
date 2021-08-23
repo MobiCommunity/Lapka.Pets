@@ -21,5 +21,7 @@ namespace Lapka.Pets.Application.Dto
         public DateTime BirthDay { get; set; }
         [Required]
         public AddressDto ShelterAddress { get; set; }
+        [Required] 
+        public double? Distance { get; set; }
     }
 }
