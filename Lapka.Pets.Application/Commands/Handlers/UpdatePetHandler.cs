@@ -28,7 +28,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.Id);
             }
             
-            pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth, command.Description,
+            pet.Update(command.Name, command.Race, command.Species, pet.MainPhotoPath, command.Sex, command.DateOfBirth, command.Description,
                 command.ShelterAddress, command.Sterilization, command.Weight, command.Color);
             
             await _petRepository.UpdateAsync(pet);
