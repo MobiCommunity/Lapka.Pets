@@ -28,21 +28,32 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id) 
+        public async Task<IActionResult> Get(Guid id, string longitude, string latitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPet
             {
-                Id = id
+                Id = id,
+                Latitude = latitude,
+                Longitude = longitude
             }));
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll() =>
-            Ok(await _queryDispatcher.QueryAsync(new GetPets()));
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
+            string latitude, string longitude) 
+            => Ok(await _queryDispatcher.QueryAsync(new GetPets
+            {
+                Latitude = latitude,
+                Longitude = longitude,
+                Name = name,
+                Race = race
+            }));
         
 
         [HttpGet("{race}")]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race) 
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race, string latitude, string longitude) 
             => Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
             {
+                Latitude = latitude,
+                Longitude = longitude,
                 Race = race
             }));
         

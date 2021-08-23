@@ -43,27 +43,27 @@ namespace Lapka.Pets.Core.Entities
             Description = description;
         }
 
-        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath,
-            DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
-            string description)
+        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, string photoPath,
+            DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress, string description)
         {
             Validate(name, race, birthDay, color, weight, description);
 
-            Pet pet = new Pet(id, name, sex, race, species, mainPhotoPath, birthDay, color, weight, 
-                sterilization, shelterAddress, description);
+            Pet pet = new Pet(id, name, sex, race, species, photoPath, birthDay, color, weight, sterilization,
+                shelterAddress, description);
 
             pet.AddEvent(new PetCreated(pet));
             return pet;
         }
 
-        public void Update(string name, string race, Species species,  Sex sex, DateTime birthDay, string description,
-            Address shelterAddress, bool sterilization, double weight, string color)
+        public void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay, 
+            string description, Address shelterAddress, bool sterilization, double weight, string color)
         {
             Validate(name, race, birthDay, color, weight, description);
 
             Name = name;
             Race = race;
             Species = species;
+            MainPhotoPath = photoPath;
             Sex = sex;
             BirthDay = birthDay;
             Description = description;

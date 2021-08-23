@@ -18,6 +18,7 @@
         <PackageReference Include="Convey.Metrics.AppMetrics" Version="0.4.360" />
         <PackageReference Include="Convey.Persistence.MongoDB" Version="0.4.360" />
         <PackageReference Include="Convey.WebApi.CQRS" Version="0.4.360" />
+        <PackageReference Include="GeoCoordinate.NetCore" Version="1.0.0.1" />
         <PackageReference Include="Google.Protobuf" Version="3.17.3" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
 
