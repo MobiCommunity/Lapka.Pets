@@ -60,7 +60,7 @@ namespace Lapka.Pets.Api.Controllers
             return Created($"api/pet/{id}", null);
         }
         
-        [HttpPost("photo/{id:guid}")]
+        [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
         {
             await _commandDispatcher.SendAsync(new AddPetPhoto(id,
@@ -69,7 +69,7 @@ namespace Lapka.Pets.Api.Controllers
             return Ok();
         }
         
-        [HttpDelete("photo/{id:guid}")]
+        [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
             await _commandDispatcher.SendAsync(new DeletePetPhoto(id, photo.Path));
@@ -96,7 +96,7 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
-        [HttpPatch("photo/{id:guid}")]
+        [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
             Guid photoId = Guid.NewGuid();
