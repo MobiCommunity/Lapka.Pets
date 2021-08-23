@@ -18,7 +18,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         {
             Pet pet = ArrangePet();
 
-            pet.Update(pet.Name, pet.Race, pet.Species, pet.Sex, pet.BirthDay, pet.Description,
+            pet.Update(pet.Name, pet.Race, pet.Species, pet.MainPhotoPath, pet.Sex, pet.BirthDay, pet.Description,
                 pet.ShelterAddress, pet.Sterilization, pet.Weight, pet.Color);
 
             pet.ShouldNotBeNull();

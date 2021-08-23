@@ -9,6 +9,7 @@ namespace Lapka.Pets.Core.ValueObjects
         protected LocationParam(string value)
         {
             Value = value;
+            Validate();
         }
 
         public abstract void Validate();

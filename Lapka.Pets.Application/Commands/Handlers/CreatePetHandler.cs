@@ -44,7 +44,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             {
                 _logger.LogError(ex, ex.Message);
                 
-                pet.Update(pet.Name, pet.Race, pet.Species, pet.Sex, pet.BirthDay, pet.Description, pet.ShelterAddress, 
+                pet.Update(pet.Name, pet.Race, pet.Species, pet.MainPhotoPath, pet.Sex, pet.BirthDay, pet.Description, pet.ShelterAddress, 
                     pet.Sterilization, pet.Weight, pet.Color);
 
                 await _petRepository.UpdateAsync(pet);
