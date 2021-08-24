@@ -7,11 +7,23 @@ service Photo{
 
 message DeletePhotoRequest{
   string photoPath = 1;
+  enum Bucket{
+    PetPhotos = 0;
+    UserPhotos = 1;
+    ShelterPhotos = 2;
+  }
+  Bucket bucketName = 2;
 }
 
 message UploadPhotoRequest{
   string photoPath = 1;
   bytes photo = 2;
+  enum Bucket{
+    PetPhotos = 0;
+    UserPhotos = 1;
+    ShelterPhotos = 2;
+  }
+  Bucket bucketName = 3;
 }
 
 message UploadPhotoReply{}

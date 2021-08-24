@@ -5,6 +5,7 @@ using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
@@ -34,8 +35,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
             pet.Update(command.Name, command.Race, command.Species, mainPhotoPath, command.Sex, command.DateOfBirth, command.Description,
                 command.ShelterAddress, command.Sterilization, command.Weight, command.Color);
 
-            await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath);
-            await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content);
+            await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
+            await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
 
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
