@@ -35,7 +35,9 @@ namespace Lapka.Pets.Infrastructure
                 // .AddMessageOutbox()
                 // .AddMetrics()
                 ;
-
+            
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            
             builder.Services.Configure<KestrelServerOptions>
                 (o => o.AllowSynchronousIO = true);
 
@@ -43,9 +45,14 @@ namespace Lapka.Pets.Infrastructure
 
             IServiceCollection services = builder.Services;
 
-
+            services.AddScoped<IGrpcPetService, GrpcPetService>();
+            
+            services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
+            {
+                o.Address = new Uri("http://localhost:5011");
+            });
+            
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
-
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 
             services.AddTransient<IEventProcessor, EventProcessor>();

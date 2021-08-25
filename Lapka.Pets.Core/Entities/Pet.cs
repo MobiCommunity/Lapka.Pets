@@ -5,7 +5,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Core.Entities
 {
-    public class Pet : AggregateRoot
+    public abstract class Pet : AggregateRoot
     {
         private const double MinimumWeight = 0;
 
@@ -18,10 +18,7 @@ namespace Lapka.Pets.Core.Entities
         public string Color { get; private set; }
         public double Weight { get; private set; }
         public bool Sterilization { get; private set; }
-        public Address ShelterAddress { get; private set; }
-        public string Description { get; private set; }
-
-
+        
         public Pet(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
             string color, double weight, bool sterilization, Address shelterAddress, string description)
         {
@@ -35,23 +32,12 @@ namespace Lapka.Pets.Core.Entities
             Color = color;
             Weight = weight;
             Sterilization = sterilization;
-            ShelterAddress = shelterAddress;
-            Description = description;
         }
 
-        public static Pet Create(Guid id, string name, Sex sex, string race, Species species, string photoPath,
-            DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress, string description)
-        {
-            Validate(name, race, birthDay, color, weight, description);
+        public abstract T Create<T>(Guid id, string name, Sex sex, string race, Species species, string photoPath,
+            DateTime birthDay, string color, double weight, bool sterilization);
 
-            Pet pet = new Pet(id, name, sex, race, species, photoPath, birthDay, color, weight, sterilization,
-                shelterAddress, description);
-
-            pet.AddEvent(new PetCreated(pet));
-            return pet;
-        }
-
-        public void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay, 
+        public virtual void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay, 
             string description, Address shelterAddress, bool sterilization, double weight, string color)
         {
             Validate(name, race, birthDay, color, weight, description);
@@ -62,8 +48,6 @@ namespace Lapka.Pets.Core.Entities
             MainPhotoPath = photoPath;
             Sex = sex;
             BirthDay = birthDay;
-            Description = description;
-            ShelterAddress = shelterAddress;
             Sterilization = sterilization;
             Weight = weight;
             Color = color;
@@ -71,7 +55,7 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new PetUpdated(this));
         }
 
-        private static void Validate(string name, string race, DateTime birthDay, string color, double weight,
+        protected virtual void Validate(string name, string race, DateTime birthDay, string color, double weight,
             string description)
         {
             ValidateName(name);

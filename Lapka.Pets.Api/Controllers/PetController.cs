@@ -55,8 +55,20 @@ namespace Lapka.Pets.Api.Controllers
                 Race = race
             }));
         
-        [HttpPost]
-        public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
+        [HttpPost("shelter")]
+        public async Task<IActionResult> AddPetAsShelter([FromForm] CreatePetRequest pet)
+        {
+            Guid id = Guid.NewGuid();
+            await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
+                pet.File.AsValueObject(),
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsValueObject(),
+                pet.Description));
+
+            return Created($"api/pet/{id}", null);
+        }
+        
+        [HttpPost("user")]
+        public async Task<IActionResult> AddPetAsUser([FromForm] CreatePetRequest pet)
         {
             Guid id = Guid.NewGuid();
             await _commandDispatcher.SendAsync(new CreatePet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
