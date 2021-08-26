@@ -3,11 +3,11 @@ using Lapka.Pets.Core.Events.Abstract;
 
 namespace Lapka.Pets.Core.Events.Concrete
 {
-    public class PetUpdated : IDomainEvent
+    public class PetUpdated<T> : IDomainEvent where T : Pet
     {
-        public Pet Pet { get; }
+        public T Pet { get; }
 
-        public PetUpdated(Pet pet)
+        public PetUpdated(T pet)
         {
             Pet = pet;
         }

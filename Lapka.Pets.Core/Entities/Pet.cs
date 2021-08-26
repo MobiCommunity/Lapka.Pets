@@ -18,9 +18,9 @@ namespace Lapka.Pets.Core.Entities
         public string Color { get; private set; }
         public double Weight { get; private set; }
         public bool Sterilization { get; private set; }
-        
-        public Pet(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
-            string color, double weight, bool sterilization, Address shelterAddress, string description)
+
+        protected Pet(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
+            string color, double weight, bool sterilization)
         {
             Id = new AggregateId(id);
             Name = name;
@@ -34,13 +34,10 @@ namespace Lapka.Pets.Core.Entities
             Sterilization = sterilization;
         }
 
-        public abstract T Create<T>(Guid id, string name, Sex sex, string race, Species species, string photoPath,
-            DateTime birthDay, string color, double weight, bool sterilization);
-
-        public virtual void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay, 
-            string description, Address shelterAddress, bool sterilization, double weight, string color)
+        public void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay,
+            bool sterilization, double weight, string color)
         {
-            Validate(name, race, birthDay, color, weight, description);
+            Validate(name, race, birthDay, color, weight);
 
             Name = name;
             Race = race;
@@ -51,19 +48,17 @@ namespace Lapka.Pets.Core.Entities
             Sterilization = sterilization;
             Weight = weight;
             Color = color;
-
-            AddEvent(new PetUpdated(this));
         }
 
-        protected virtual void Validate(string name, string race, DateTime birthDay, string color, double weight,
-            string description)
+        public abstract void Delete();
+
+        protected static void Validate(string name, string race, DateTime birthDay, string color, double weight)
         {
             ValidateName(name);
             ValidateRace(race);
             ValidateBirthDay(birthDay);
             ValidateColor(color);
             ValidateWeight(weight);
-            ValidateDescription(description);
         }
 
         private static void ValidateName(string name)
@@ -94,17 +89,6 @@ namespace Lapka.Pets.Core.Entities
         {
             if (weight <= MinimumWeight)
                 throw new WeightBelowMinimumValueException(weight);
-        }
-
-        private static void ValidateDescription(string description)
-        {
-            if (string.IsNullOrEmpty(description))
-                throw new InvalidDescriptionValueException(description);
-        }
-
-        public void Delete()
-        {
-            AddEvent(new PetDeleted(this));
         }
     }
 }

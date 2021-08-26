@@ -8,6 +8,7 @@ using Convey.WebApi;
 using Convey.WebApi.Exceptions;
 using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Services;
@@ -29,7 +30,8 @@ namespace Lapka.Pets.Infrastructure
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
                 // .AddRabbitMq()
                 .AddMongo()
-                .AddMongoRepository<PetDocument, Guid>("Pets")
+                .AddMongoRepository<PetShelterDocument, Guid>("petsshelter")
+                .AddMongoRepository<PetUserDocument, Guid>("petsuser")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()

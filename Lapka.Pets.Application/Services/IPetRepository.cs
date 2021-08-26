@@ -5,12 +5,11 @@ using Lapka.Pets.Core.Entities;
 
 namespace Lapka.Pets.Application.Services
 {
-    public interface IPetRepository
+    public interface IPetRepository<T>
     {
-        Task<Pet> GetByIdAsync(Guid id);
-        Task<IEnumerable<Pet>> GetAllByRaceAsync(string race);
-        Task AddAsync(Pet pet);
-        Task DeleteAsync(Pet pet);
-        Task UpdateAsync(Pet pet);
+        Task<T> GetByIdAsync(Guid id);
+        Task AddAsync(T pet);
+        Task DeleteAsync(T pet);
+        Task UpdateAsync(T pet);
     }
 }

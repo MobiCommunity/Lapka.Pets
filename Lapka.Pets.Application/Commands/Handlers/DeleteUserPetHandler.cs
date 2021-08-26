@@ -7,22 +7,24 @@ using Microsoft.AspNetCore.Routing.Matching;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class DeletePetHandler : ICommandHandler<DeletePet>
+    public class DeleteUserPetHandler : ICommandHandler<DeleteUserPet>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository _petRepository;
+        private readonly IPetRepository<UserPet> _petRepository;
 
-
-        public DeletePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository)
+        public DeleteUserPetHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> petRepository)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
         }
 
-        public async Task HandleAsync(DeletePet command)
+        public async Task HandleAsync(DeleteUserPet command)
         {
-            Pet pet = await _petRepository.GetByIdAsync(command.Id);
-            if (pet is null) throw new PetNotFoundException(command.Id);
+            UserPet pet = await _petRepository.GetByIdAsync(command.PetId);
+            if (pet is null)
+            {
+                throw new PetNotFoundException(command.PetId);
+            }
 
             pet.Delete();
 

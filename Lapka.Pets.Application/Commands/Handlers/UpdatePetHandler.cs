@@ -8,20 +8,18 @@ using Lapka.Pets.Core.Entities;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class UpdatePetHandler : ICommandHandler<UpdatePet>
+    public class UpdatePetHandler : ICommandHandler<UpdateShelterPet>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public UpdatePetHandler(IEventProcessor eventProcessor, IPetRepository petRepository, IGrpcPhotoService grpcPhotoService)
+        public UpdatePetHandler(IEventProcessor eventProcessor, IPetRepository<Petd> petRepository, IGrpcPhotoService grpcPhotoService)
         {
             _eventProcessor = eventProcessor;
-            _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
         }
 
-        public async Task HandleAsync(UpdatePet command)
+        public async Task HandleAsync(UpdateShelterPet command)
         {
             string mainPhotoPath = $"{Guid.NewGuid():N}.{command.Photo.GetFileExtension()}"; 
 

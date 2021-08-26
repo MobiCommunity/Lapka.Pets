@@ -4,7 +4,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Infrastructure.Documents
 {
-    public class PetDocument : IIdentifiable<Guid>
+    public abstract class PetDocument : IIdentifiable<Guid>
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -16,7 +16,5 @@ namespace Lapka.Pets.Infrastructure.Documents
         public string Color { get; set; }
         public double Weight { get; set; }
         public bool Sterilization { get; set; }
-        public AddressDocument ShelterAddress { get; set; }
-        public string Description { get; set; }
     }
 }

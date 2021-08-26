@@ -4,7 +4,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands
 {
-    public class UpdatePet : ICommand
+    public class UpdateShelterPet : ICommand
     {
         public Guid Id { get; }
         public string Name { get; }
@@ -19,7 +19,7 @@ namespace Lapka.Pets.Application.Commands
         public double Weight { get; }
         public string Color { get; }
 
-        public UpdatePet(Guid id, string name, string race, Species species, File mainPath, Sex sex, DateTime dateOfBirth, string description,
+        public UpdateShelterPet(Guid id, string name, string race, Species species, File mainPath, Sex sex, DateTime dateOfBirth, string description,
             Address shelterAddress, bool sterilization, double weight, string color)
         {
             Id = id;

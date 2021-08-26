@@ -5,10 +5,8 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Queries
 {
-    public class GetPet : IQuery<PetDetailsDto>
+    public class GetUserPet : IQuery<PetDetailsUserDto>
     {
         public Guid Id { get; set; }
-        public string Longitude { get; set; }
-        public string Latitude { get; set; }
     }
 }

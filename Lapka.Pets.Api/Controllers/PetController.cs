@@ -27,7 +27,7 @@ namespace Lapka.Pets.Api.Controllers
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude) 
-            => Ok(await _queryDispatcher.QueryAsync(new GetPet
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPet
             {
                 Id = id,
                 Latitude = latitude,
@@ -37,7 +37,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
             string latitude, string longitude) 
-            => Ok(await _queryDispatcher.QueryAsync(new GetPets
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPets
             {
                 Latitude = latitude,
                 Longitude = longitude,
@@ -48,7 +48,7 @@ namespace Lapka.Pets.Api.Controllers
 
         [HttpGet("{race}")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetByRace(string race, string latitude, string longitude) 
-            => Ok(await _queryDispatcher.QueryAsync(new GetPetsByRace
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPetsByRace
             {
                 Latitude = latitude,
                 Longitude = longitude,
@@ -90,7 +90,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdatePetRequest petUpdate)
         {
-            await _commandDispatcher.SendAsync(new UpdatePet(id, petUpdate.Name, petUpdate.Race,
+            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, petUpdate.Name, petUpdate.Race,
                 petUpdate.Species, petUpdate.File.AsValueObject(), petUpdate.Sex, petUpdate.DateOfBirth,
                 petUpdate.Description,
                 petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,

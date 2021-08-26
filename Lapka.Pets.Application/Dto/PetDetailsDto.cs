@@ -5,7 +5,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Dto
 {
-    public class PetDetailsDto
+    public abstract class PetDetailsDto
     {
         [Required]
         public Guid Id { get; set; }
@@ -20,16 +20,10 @@ namespace Lapka.Pets.Application.Dto
         [Required]
         public DateTime BirthDay { get; set; }
         [Required]
-        public AddressDto ShelterAddress { get; set; }
-        [Required]
         public string Color { get; set; }
         [Required]
         public double Weight { get; set; }
         [Required]
         public bool Sterilization { get; set; }
-        [Required]
-        public string Description { get; set; }
-        [Required] 
-        public double? Distance { get; set; }
     }
 }

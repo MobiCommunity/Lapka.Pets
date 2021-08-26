@@ -1,6 +1,8 @@
+using System.Linq;
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
+using Lapka.Pets.Infrastructure.Documents;
 
 namespace Lapka.Pets.Application.Dto
 {
@@ -26,23 +28,22 @@ namespace Lapka.Pets.Application.Dto
             };
         }
         
-        public static PetBasicDto AsBasicDto(this Pet pet)
+        public static PetBasicUserDto AsBasicDto(this UserPet pet)
         {
-            return new PetBasicDto
+            return new PetBasicUserDto
             {
                 Id = pet.Id.Value,
                 Name = pet.Name,
                 Sex = pet.Sex,
                 MainPhotoPath = pet.MainPhotoPath,
                 Race = pet.Race,
-                BirthDay = pet.BirthDay,
-                ShelterAddress = pet.ShelterAddress.AsDto()
+                BirthDay = pet.BirthDay
             };
         }
         
-        public static PetDetailsDto AsDetailsDto(this Pet pet)
+        public static PetDetailsUserDto AsDetailsDto(this UserPet pet)
         {
-            return new PetDetailsDto
+            return new PetDetailsUserDto
             {
                 Id = pet.Id.Value,
                 Name = pet.Name,
@@ -50,11 +51,33 @@ namespace Lapka.Pets.Application.Dto
                 Race = pet.Race,
                 Color = pet.Color,
                 BirthDay = pet.BirthDay,
-                Description = pet.Description,
-                ShelterAddress = pet.ShelterAddress.AsDto(),
                 MainPhotoPath = pet.MainPhotoPath,
                 Sterilization = pet.Sterilization,
-                Weight = pet.Weight
+                Weight = pet.Weight,
+                PetEvents = pet.SoonEvents.Select(x => x.AsDto()),
+                Visits = pet.LastVisits.Select(x => x.AsDto())
+            };
+        }
+
+        public static VisitDto AsDto(this Visit visit)
+        {
+            return new VisitDto
+            {
+                Description = visit.Description,
+                VisitDate = visit.VisitDate,
+                IsVisitDone = visit.IsVisitDone,
+                MedicalTreatments = visit.MedicalTreatments,
+                LocationName = visit.LocationName,
+                Weight = visit.Weight
+            };
+        }
+        
+        public static PetEventDto AsDto(this PetEvent petEvent)
+        {
+            return new PetEventDto
+            {
+                DateOfEvent = petEvent.DateOfEvent,
+                DescriptionOfEvent = petEvent.DescriptionOfEvent
             };
         }
 
