@@ -4,6 +4,7 @@ using GeoCoordinatePortable;
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.Exceptions;
 using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Infrastructure.Documents
@@ -211,6 +212,28 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 Distance = distance
+            };
+        }
+        
+        public static UploadPhotoRequest.Types.Bucket AsGrpcUpload(this BucketName bucket)
+        {
+            return bucket switch
+            {
+                BucketName.PetPhotos => UploadPhotoRequest.Types.Bucket.PetPhotos,
+                BucketName.ShelterPhotos => UploadPhotoRequest.Types.Bucket.ShelterPhotos,
+                BucketName.UserPhotos => UploadPhotoRequest.Types.Bucket.UserPhotos,
+                _ => throw new InvalidBucketNameException(bucket.ToString())
+            };
+        }
+        
+        public static DeletePhotoRequest.Types.Bucket AsGrpcDelete(this BucketName bucket)
+        {
+            return bucket switch
+            {
+                BucketName.PetPhotos => DeletePhotoRequest.Types.Bucket.PetPhotos,
+                BucketName.ShelterPhotos => DeletePhotoRequest.Types.Bucket.ShelterPhotos,
+                BucketName.UserPhotos => DeletePhotoRequest.Types.Bucket.UserPhotos,
+                _ => throw new InvalidBucketNameException(bucket.ToString())
             };
         }
     }
