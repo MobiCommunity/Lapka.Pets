@@ -31,10 +31,11 @@ namespace Lapka.Pets.Core.Entities
             return pet;
         }
 
-        public void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
-            bool sterilization, double weight, string color)
+        public override void Update(string name, string race, Species species, Sex sex, DateTime birthDay, bool sterilization,
+            double weight, string color)
         {
-            Update(name, race, species, sex, birthDay, sterilization, weight, color);
+            base.Update(name, race, species, sex, birthDay, sterilization, weight, color);
+            
             Validate(name, race, birthDay, color, weight);
 
             AddEvent(new PetUpdated<UserPet>(this));

@@ -13,14 +13,11 @@ namespace Lapka.Pets.Application.Commands.Handlers
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository<UserPet> _petRepository;
-        private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public UpdateUserPetHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> petRepository,
-            IGrpcPhotoService grpcPhotoService)
+        public UpdateUserPetHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> petRepository)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
-            _grpcPhotoService = grpcPhotoService;
         }
 
         public async Task HandleAsync(UpdateUserPet command)

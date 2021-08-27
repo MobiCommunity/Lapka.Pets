@@ -37,7 +37,7 @@ namespace Lapka.Pets.Core.Entities
             Sterilization = sterilization;
         }
 
-        public void Update(string name, string race, Species species, string photoPath, Sex sex, DateTime birthDay,
+        public virtual void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
             bool sterilization, double weight, string color)
         {
             Validate(name, race, birthDay, color, weight);
@@ -45,7 +45,6 @@ namespace Lapka.Pets.Core.Entities
             Name = name;
             Race = race;
             Species = species;
-            MainPhotoPath = photoPath;
             Sex = sex;
             BirthDay = birthDay;
             Sterilization = sterilization;
