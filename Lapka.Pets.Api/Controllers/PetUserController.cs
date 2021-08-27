@@ -58,7 +58,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
+
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
@@ -66,7 +66,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return Ok();
         }
-        
+
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
         {
@@ -75,22 +75,22 @@ namespace Lapka.Pets.Api.Controllers
 
             return Ok();
         }
-        
+
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
             Guid photoId = Guid.NewGuid();
-            
+
             await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsValueObject(), photoId));
 
             return NoContent();
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
         {
-            await _commandDispatcher.SendAsync(new UpdateUserPet(id, pet.Name, pet.Race, pet.Species,
-                pet.File.AsValueObject(), pet.Sex, pet.DateOfBirth, pet.Sterilization, pet.Weight, pet.Color));
+            await _commandDispatcher.SendAsync(new UpdateUserPet(id, pet.Name, pet.Race, pet.Species, pet.Sex,
+                pet.DateOfBirth, pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();
         }

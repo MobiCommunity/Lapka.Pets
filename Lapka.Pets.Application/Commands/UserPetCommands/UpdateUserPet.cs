@@ -11,21 +11,19 @@ namespace Lapka.Pets.Application.Commands
         public string Name { get; }
         public string Race { get; }
         public Species Species { get; }
-        public File Photo { get; }
         public Sex Sex { get; }
         public DateTime DateOfBirth { get; }
         public bool Sterilization { get; }
         public double Weight { get; }
         public string Color { get; }
 
-        public UpdateUserPet(Guid id, string name, string race, Species species, File photo, Sex sex,
+        public UpdateUserPet(Guid id, string name, string race, Species species, Sex sex,
             DateTime dateOfBirth, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;
             Race = race;
             Species = species;
-            Photo = photo;
             Sex = sex;
             DateOfBirth = dateOfBirth;
             Sterilization = sterilization;

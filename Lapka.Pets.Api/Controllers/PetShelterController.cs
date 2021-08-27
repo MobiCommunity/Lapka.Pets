@@ -50,7 +50,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest shelterPet)
         {
-            string? userId = User.Identity.Name;
+            string userId = User.Identity.Name;
             Guid id = Guid.NewGuid();
             Guid photoId = Guid.NewGuid();
 

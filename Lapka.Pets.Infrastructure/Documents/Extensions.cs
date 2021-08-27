@@ -82,7 +82,8 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Weight = pet.Weight,
                 Species = pet.Species,
                 ShelterAddress = pet.ShelterAddress.AsDocument(),
-                PhotoPaths = pet.PhotoPaths
+                PhotoPaths = pet.PhotoPaths,
+                Description = pet.Description
             };
         }
 
@@ -183,7 +184,20 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Race = pet.Race,
                 BirthDay = pet.BirthDay,
                 ShelterAddress = pet.ShelterAddress.AsDto(),
-                Distance = distance,
+                Distance = distance
+            };
+        }
+        
+        public static PetBasicUserDto AsBasicDto(this PetUserDocument pet)
+        {
+            return new PetBasicUserDto
+            {
+                Id = pet.Id,
+                Name = pet.Name,
+                Sex = pet.Sex,
+                MainPhotoPath = pet.MainPhotoPath,
+                Race = pet.Race,
+                BirthDay = pet.BirthDay
             };
         }
 

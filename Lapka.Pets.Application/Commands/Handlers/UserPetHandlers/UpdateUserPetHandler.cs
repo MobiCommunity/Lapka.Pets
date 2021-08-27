@@ -25,23 +25,15 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(UpdateUserPet command)
         {
-            string mainPhotoPath = $"{Guid.NewGuid():N}.{command.Photo.GetFileExtension()}";
-
             UserPet pet = await _petRepository.GetByIdAsync(command.Id);
             if (pet is null)
             {
                 throw new PetNotFoundException(command.Id);
             }
 
-            pet.Update(command.Name, command.Race, command.Species, mainPhotoPath, command.Sex, command.DateOfBirth,
+            pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
                 command.Sterilization, command.Weight, command.Color);
 
-            if (command.Photo != null)
-            {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
-                await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
-            }
-            
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
