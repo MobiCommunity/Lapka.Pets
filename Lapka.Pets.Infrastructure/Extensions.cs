@@ -8,12 +8,12 @@ using Convey.WebApi;
 using Convey.WebApi.Exceptions;
 using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
-using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lapka.Pets.Infrastructure
@@ -46,13 +46,24 @@ namespace Lapka.Pets.Infrastructure
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
             IServiceCollection services = builder.Services;
+            
+            ServiceProvider provider = services.BuildServiceProvider();
+            IConfiguration configuration = provider.GetService<IConfiguration>();
 
-            services.AddScoped<IGrpcPetService, GrpcPetService>();
+            FilesMicroserviceOptions filesMicroserviceOptions = new FilesMicroserviceOptions();
+            configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
+
+            services.AddGrpcClient<Photo.PhotoClient>(o =>
+            {
+                o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
+            });
             
             services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
             {
                 o.Address = new Uri("http://localhost:5011");
             });
+            
+            services.AddScoped<IGrpcPetService, GrpcPetService>();
             
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();

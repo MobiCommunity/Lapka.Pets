@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
@@ -51,16 +52,33 @@ namespace Lapka.Pets.Api.Controllers
         {
             string? userId = User.Identity.Name;
             Guid id = Guid.NewGuid();
+            Guid photoId = Guid.NewGuid();
 
             await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, shelterPet.Name, shelterPet.Sex,
                 shelterPet.Race, shelterPet.Species, shelterPet.File.AsValueObject(), shelterPet.BirthDay,
                 shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization,
-                shelterPet.ShelterAddress.AsValueObject(), shelterPet.Description));
+                shelterPet.ShelterAddress.AsValueObject(), shelterPet.Description, photoId));
 
             return Created($"api/pet/shelter/{id}", null);
         }
+        
+        [HttpDelete("{id:guid}/photo")]
+        public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
+        {
+            await _commandDispatcher.SendAsync(new DeletePetPhoto(id, photo.Path));
 
+            return Ok();
+        }
+        
+        [HttpPost("{id:guid}/photo")]
+        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
+        {
+            await _commandDispatcher.SendAsync(new AddPetPhoto(id,
+                photos.Photos.Select(x => x.AsValueObject()).ToList()));
 
+            return Ok();
+        }
+        
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -69,12 +87,22 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateShelterPetRequest pet)
         {
             await _commandDispatcher.SendAsync(new UpdateShelterPet(id, pet.Name, pet.Race, pet.Species,
                 pet.File.AsValueObject(), pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
                 pet.Sterilization, pet.Weight, pet.Color));
+
+            return NoContent();
+        }
+        
+        [HttpPatch("{id:guid}/photo")]
+        public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
+        {
+            Guid photoId = Guid.NewGuid();
+            
+            await _commandDispatcher.SendAsync(new UpdatePetPhoto(id, petUpdate.File.AsValueObject(), photoId));
 
             return NoContent();
         }

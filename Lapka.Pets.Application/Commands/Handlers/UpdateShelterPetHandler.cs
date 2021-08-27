@@ -6,6 +6,7 @@ using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
@@ -20,7 +21,6 @@ namespace Lapka.Pets.Application.Commands.Handlers
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
-            _grpcPhotoService = grpcPhotoService;
         }
 
         public async Task HandleAsync(UpdateShelterPet command)

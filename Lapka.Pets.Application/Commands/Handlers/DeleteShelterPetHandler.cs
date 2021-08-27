@@ -1,21 +1,29 @@
+using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Microsoft.AspNetCore.Routing.Matching;
+using Lapka.Pets.Core.ValueObjects;
+using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class DeleteShelterPetHandler : ICommandHandler<DeletePet>
     {
+        private readonly ILogger<DeleteShelterPetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
+        private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly IPetRepository<ShelterPet> _petRepository;
 
-        public DeleteShelterPetHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository)
+
+        public DeleteShelterPetHandler(ILogger<DeleteShelterPetHandler> logger, IEventProcessor eventProcessor,
+            IPetRepository<ShelterPet> petRepository, IGrpcPhotoService grpcPhotoService)
         {
+            _logger = logger;
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
+            _grpcPhotoService = grpcPhotoService;
         }
 
         public async Task HandleAsync(DeletePet command)
@@ -29,6 +37,20 @@ namespace Lapka.Pets.Application.Commands.Handlers
             pet.Delete();
 
             await _petRepository.DeleteAsync(pet);
+            
+            try
+            {
+                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
+                foreach (string photo in pet.PhotoPaths)
+                {
+                    await _grpcPhotoService.DeleteAsync(photo, BucketName.PetPhotos);
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+            
             await _eventProcessor.ProcessAsync(pet.Events);
         }
     }

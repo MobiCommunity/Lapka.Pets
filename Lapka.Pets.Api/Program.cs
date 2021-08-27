@@ -46,11 +46,6 @@ namespace Lapka.Pets.Api
                     
                     AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
                     
-                    services.AddGrpcClient<Photo.PhotoClient>(o =>
-                    {
-                        o.Address = new Uri("http://localhost:5013");
-                    });
-                    
                     services.AddSwaggerGen(c =>
                     {
                         c.SwaggerDoc("v1", new OpenApiInfo

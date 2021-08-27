@@ -9,7 +9,6 @@ namespace Lapka.Pets.Api.Models.Request
         public string Name { get; set; }
         public string Race { get; set; }
         public Species Species { get; set; }
-        public IFormFile File { get; set; }
         public Sex Sex { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string Description { get; set; }

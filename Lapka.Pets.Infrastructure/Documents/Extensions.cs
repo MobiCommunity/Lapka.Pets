@@ -82,6 +82,7 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Weight = pet.Weight,
                 Species = pet.Species,
                 ShelterAddress = pet.ShelterAddress.AsDocument()
+                PhotoPaths = pet.PhotoPaths
             };
         }
 
@@ -211,7 +212,8 @@ namespace Lapka.Pets.Infrastructure.Documents
                 ShelterAddress = pet.ShelterAddress.AsDto(),
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
-                Distance = distance
+                Distance = distance,
+                PhotoPaths = pet.PhotoPaths
             };
         }
         
