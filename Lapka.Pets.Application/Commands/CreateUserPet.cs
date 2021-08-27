@@ -6,10 +6,13 @@ namespace Lapka.Pets.Application.Commands
 {
     public class CreateUserPet : CreatePet
     {
-        public CreateUserPet(Guid id, string name, Sex sex, string race, Species species, File photo, DateTime birthDay,
-            string color, double weight, bool sterilization) : base(id, name, sex, race, species, photo, birthDay,
-            color, weight, sterilization)
+        public string UserId { get; }
+
+        public CreateUserPet(Guid id, string userId, string name, Sex sex, string race, Species species, File photo, DateTime birthDay,
+            string color, double weight, bool sterilization) : base(id, name, sex, race, species, photo,
+            birthDay, color, weight, sterilization)
         {
+            UserId = userId;
         }
     }
 }

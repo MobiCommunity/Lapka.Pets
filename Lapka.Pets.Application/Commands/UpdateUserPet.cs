@@ -17,12 +17,9 @@ namespace Lapka.Pets.Application.Commands
         public bool Sterilization { get; }
         public double Weight { get; }
         public string Color { get; }
-        public IEnumerable<PetEvent> PetEvents { get; }
-        public IEnumerable<Visit> Visits { get; }
 
         public UpdateUserPet(Guid id, string name, string race, Species species, File photo, Sex sex,
-            DateTime dateOfBirth, bool sterilization, double weight, string color, IEnumerable<PetEvent> petEvents,
-            IEnumerable<Visit> visits)
+            DateTime dateOfBirth, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;
@@ -34,8 +31,6 @@ namespace Lapka.Pets.Application.Commands
             Sterilization = sterilization;
             Weight = weight;
             Color = color;
-            PetEvents = petEvents;
-            Visits = visits;
         }
     }
 }

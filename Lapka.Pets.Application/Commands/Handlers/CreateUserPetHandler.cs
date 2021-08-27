@@ -4,6 +4,7 @@ using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Application.Commands.Handlers
@@ -30,7 +31,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 mainPhotoPath, command.BirthDay, command.Color, command.Weight, command.Sterilization);
 
             await _petRepository.AddAsync(pet);
-            await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content);
+            await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
 
             await _eventProcessor.ProcessAsync(pet.Events);
         }

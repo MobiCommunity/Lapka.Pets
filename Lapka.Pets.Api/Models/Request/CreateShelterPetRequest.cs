@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Lapka.Pets.Api.Models.Request
 {
-    public class CreatePetRequest
+    public class CreateShelterPetRequest
     {
         public string Name { get; set; }
         public Sex Sex { get; set; }

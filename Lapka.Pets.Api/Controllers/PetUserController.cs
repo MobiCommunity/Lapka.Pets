@@ -8,13 +8,12 @@ using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
-using Lapka.Pets.Core.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
 {
     [ApiController]
-    [Route("api/pet")]
+    [Route("api/pet/user")]
     public class PetUserController : ControllerBase
     {
         private readonly ICommandDispatcher _commandDispatcher;
@@ -27,30 +26,23 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
-            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPet
+        public async Task<IActionResult> Get(Guid id)
+            => Ok(await _queryDispatcher.QueryAsync(new GetUserPet
             {
-                Id = id,
-                Latitude = latitude,
-                Longitude = longitude
+                Id = id
             }));
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
-            string latitude, string longitude)
-            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPets
-            {
-                Latitude = latitude,
-                Longitude = longitude,
-                Name = name,
-                Race = race
-            }));
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
+            => Ok(await _queryDispatcher.QueryAsync(new GetUserPets()));
 
         [HttpPost("user")]
-        public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
+        public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
         {
+            string? userId = User.Identity.Name;
             Guid id = Guid.NewGuid();
-            await _commandDispatcher.SendAsync(new CreateUserPet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
+
+            await _commandDispatcher.SendAsync(new CreateUserPet(id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.File.AsValueObject(), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization));
 
             return Created($"api/pet/{id}", null);
@@ -65,13 +57,10 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromForm] UpdatePetRequest petUpdate)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
         {
-            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, petUpdate.Name, petUpdate.Race,
-                petUpdate.Species, petUpdate.File.AsValueObject(), petUpdate.Sex, petUpdate.DateOfBirth,
-                petUpdate.Description,
-                petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
-                petUpdate.Color));
+            await _commandDispatcher.SendAsync(new UpdateUserPet(id, pet.Name, pet.Race, pet.Species,
+                pet.File.AsValueObject(), pet.Sex, pet.DateOfBirth, pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();
         }

@@ -45,18 +45,21 @@ namespace Lapka.Pets.Api.Controllers
                 Name = name,
                 Race = race
             }));
-        
+
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] CreatePetRequest pet)
+        public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest shelterPet)
         {
+            string? userId = User.Identity.Name;
             Guid id = Guid.NewGuid();
-            await _commandDispatcher.SendAsync(new CreateShelterPet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
-                pet.File.AsValueObject(), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                pet.ShelterAddress.AsValueObject(), pet.Description));
+
+            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, shelterPet.Name, shelterPet.Sex,
+                shelterPet.Race, shelterPet.Species, shelterPet.File.AsValueObject(), shelterPet.BirthDay,
+                shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization,
+                shelterPet.ShelterAddress.AsValueObject(), shelterPet.Description));
 
             return Created($"api/pet/shelter/{id}", null);
         }
-        
+
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
@@ -67,12 +70,11 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromForm] UpdatePetRequest petUpdate)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateShelterPetRequest pet)
         {
-            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, petUpdate.Name, petUpdate.Race,
-                petUpdate.Species, petUpdate.File.AsValueObject(), petUpdate.Sex, petUpdate.DateOfBirth,
-                petUpdate.Description, petUpdate.ShelterAddress.AsValueObject(), petUpdate.Sterilization, petUpdate.Weight,
-                petUpdate.Color));
+            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, pet.Name, pet.Race, pet.Species,
+                pet.File.AsValueObject(), pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
+                pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();
         }
