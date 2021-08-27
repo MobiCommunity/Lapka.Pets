@@ -21,12 +21,11 @@ namespace Lapka.Pets.Core.Entities
         }
 
         public static UserPet Create(Guid id, string name, Sex sex, string race, Species species, string photoPath,
-            DateTime birthDay, string color, double weight, bool sterilization, IEnumerable<PetEvent> soonEvents,
-            IEnumerable<Visit> visits)
+            DateTime birthDay, string color, double weight, bool sterilization)
         {
             Validate(name, race, birthDay, color, weight);
             UserPet pet = new UserPet(id, name, sex, race, species, photoPath, birthDay, color, weight,
-                sterilization, soonEvents, visits);
+                sterilization, new List<PetEvent>(), new List<Visit>());
 
             pet.AddEvent(new PetCreated<UserPet>(pet));
             return pet;

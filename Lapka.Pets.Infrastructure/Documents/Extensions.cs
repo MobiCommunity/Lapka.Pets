@@ -185,33 +185,33 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
 
-        // public static PetDetailsShelterDto AsDetailDto(this PetShelterDocument pet, string latitude, string longitude)
-        // {
-        //     double? distance = null;
-        //     if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
-        //     {
-        //         Location location = new Location(latitude, longitude);
-        //         GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
-        //             pet.ShelterAddress.GeoLocation.Longitude);
-        //         GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
-        //         distance = pin1.GetDistanceTo(pin2);
-        //     }
-        //
-        //     return new PetDetailsShelterDto
-        //     {
-        //         Id = pet.Id,
-        //         Name = pet.Name,
-        //         Sex = pet.Sex,
-        //         Race = pet.Race,
-        //         Color = pet.Color,
-        //         BirthDay = pet.BirthDay,
-        //         MainPhotoPath = pet.MainPhotoPath,
-        //         Description = pet.Description,
-        //         ShelterAddress = pet.ShelterAddress.AsDto(),
-        //         Sterilization = pet.Sterilization,
-        //         Weight = pet.Weight,
-        //         Distance = distance
-        //     };
-        // }
+        public static PetDetailsShelterDto AsDetailDto(this PetShelterDocument pet, string latitude, string longitude)
+        {
+            double? distance = null;
+            if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
+            {
+                Location location = new Location(latitude, longitude);
+                GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
+                    pet.ShelterAddress.GeoLocation.Longitude);
+                GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
+                distance = pin1.GetDistanceTo(pin2);
+            }
+        
+            return new PetDetailsShelterDto
+            {
+                Id = pet.Id,
+                Name = pet.Name,
+                Sex = pet.Sex,
+                Race = pet.Race,
+                Color = pet.Color,
+                BirthDay = pet.BirthDay,
+                MainPhotoPath = pet.MainPhotoPath,
+                Description = pet.Description,
+                ShelterAddress = pet.ShelterAddress.AsDto(),
+                Sterilization = pet.Sterilization,
+                Weight = pet.Weight,
+                Distance = distance
+            };
+        }
     }
 }

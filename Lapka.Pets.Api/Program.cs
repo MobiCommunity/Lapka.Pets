@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Lapka.Pets.Api.Attributes;
 using Lapka.Pets.Application;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure;
 using Lapka.Pets.Infrastructure.Services;
 
@@ -39,7 +40,8 @@ namespace Lapka.Pets.Api
                         .AddInfrastructure()
                         .AddApplication();
 
-                    services.AddTransient<IPetRepository, PetRepository>();
+                    services.AddTransient<IPetRepository<ShelterPet>, ShelterPetRepository>();
+                    services.AddTransient<IPetRepository<UserPet>, UserPetRepository>();
                     services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
                     
                     AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);

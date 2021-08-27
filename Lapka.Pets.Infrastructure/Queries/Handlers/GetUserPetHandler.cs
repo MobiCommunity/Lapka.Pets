@@ -27,7 +27,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
                 throw new PetNotFoundException(query.Id);
             }
 
-            return pet();
+            return pet.AsBusiness().AsDetailsDto();
         }
     }
 }

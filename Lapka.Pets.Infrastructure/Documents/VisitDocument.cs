@@ -10,6 +10,6 @@ namespace Lapka.Pets.Infrastructure.Documents
         public DateTime VisitDate { get; set; }
         public string Description { get; set; }
         public double Weight { get; set; }
-        public List<string> MedicalTreatments { get; set; }
+        public IEnumerable<string> MedicalTreatments { get; set; }
     }
 }

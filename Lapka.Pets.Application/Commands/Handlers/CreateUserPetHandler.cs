@@ -27,8 +27,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             string mainPhotoPath = $"{Guid.NewGuid():N}.{command.Photo.GetFileExtension()}";
 
             UserPet pet = UserPet.Create(command.Id, command.Name, command.Sex, command.Race, command.Species,
-                mainPhotoPath, command.BirthDay, command.Color, command.Weight, command.Sterilization,
-                command.PetEvents, command.Visits);
+                mainPhotoPath, command.BirthDay, command.Color, command.Weight, command.Sterilization);
 
             await _petRepository.AddAsync(pet);
             await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content);
