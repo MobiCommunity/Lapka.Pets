@@ -6,25 +6,26 @@ using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class DeletePetPhotoHandler : ICommandHandler<DeletePetPhoto>
+    public class DeleteShelterPetPhotoHandler : ICommandHandler<DeleteShelterPetPhoto>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository _petRepository;
+        private readonly IPetRepository<ShelterPet> _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public DeletePetPhotoHandler(IEventProcessor eventProcessor, IPetRepository petRepository,
+        public DeleteShelterPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
         }
-        public async Task HandleAsync(DeletePetPhoto command)
+        public async Task HandleAsync(DeleteShelterPetPhoto command)
         {
-            Pet pet = await _petRepository.GetByIdAsync(command.PetId);
+            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
                 throw new PetNotFoundException(command.PetId);
@@ -40,7 +41,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             
             try
             {
-                await _grpcPhotoService.DeleteAsync(command.Path);
+                await _grpcPhotoService.DeleteAsync(command.Path, BucketName.PetPhotos);
             }
             catch(Exception ex)
             {

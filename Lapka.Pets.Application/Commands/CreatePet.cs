@@ -4,7 +4,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands
 {
-    public class CreatePet : ICommand
+    public abstract class CreatePet : ICommand
     {
         public Guid Id { get; }
         public string Name { get; }
@@ -18,7 +18,7 @@ namespace Lapka.Pets.Application.Commands
         public bool Sterilization { get; }
         public Guid PhotoId { get; }
 
-        public CreatePet(Guid id, string name, Sex sex, string race, Species species, File photo, DateTime birthDay, string color,
+        protected CreatePet(Guid id, string name, Sex sex, string race, Species species, File photo, DateTime birthDay, string color,
             double weight, bool sterilization, Guid photoId)
         {
             Id = id;

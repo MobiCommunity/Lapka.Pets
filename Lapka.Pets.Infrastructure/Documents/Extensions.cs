@@ -31,20 +31,20 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
         
-        public static PetDocument AsDocument(this Pet pet)
+        public static PetDocument AsDocument(this AggregatePet aggregatePet)
         {
             return new PetUserDocument
             {
-                Id = pet.Id.Value,
-                Name = pet.Name,
-                Sex = pet.Sex,
-                Race = pet.Race,
-                Color = pet.Color,
-                BirthDay = pet.BirthDay,
-                MainPhotoPath = pet.MainPhotoPath,
-                Sterilization = pet.Sterilization,
-                Weight = pet.Weight,
-                Species = pet.Species,
+                Id = aggregatePet.Id.Value,
+                Name = aggregatePet.Name,
+                Sex = aggregatePet.Sex,
+                Race = aggregatePet.Race,
+                Color = aggregatePet.Color,
+                BirthDay = aggregatePet.BirthDay,
+                MainPhotoPath = aggregatePet.MainPhotoPath,
+                Sterilization = aggregatePet.Sterilization,
+                Weight = aggregatePet.Weight,
+                Species = aggregatePet.Species,
             };
         }
         
@@ -81,7 +81,7 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 Species = pet.Species,
-                ShelterAddress = pet.ShelterAddress.AsDocument()
+                ShelterAddress = pet.ShelterAddress.AsDocument(),
                 PhotoPaths = pet.PhotoPaths
             };
         }

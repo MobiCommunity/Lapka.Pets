@@ -1,45 +1,56 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
+using Lapka.Pets.Application.Commands;
+using Lapka.Pets.Application.Commands.Handlers;
+using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.Events.Abstract;
-using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.ValueObjects;
-using Shouldly;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Xunit;
-using File = Lapka.Pets.Core.ValueObjects.File;
 
-namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
+namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
-    public class UpdatePetPhotoTests
+    public class UpdateShelterPetHandlerTests
     {
-        [Fact]
-        public void given_valid_pet_photo_should_be_updated()
+        private readonly IEventProcessor _eventProcessor;
+        private readonly UpdateShelterPetHandler _handler;
+        private readonly IPetRepository<ShelterPet> _petRepository;
+
+        public UpdateShelterPetHandlerTests()
         {
-            Pet pet = ArrangePet();
-            Guid photoId = Guid.NewGuid();
-
-            pet.UpdateMainPhoto(photoId.ToString());
-
-            pet.ShouldNotBeNull();
-            pet.Id.ShouldBe(pet.Id);
-            pet.Name.ShouldBe(pet.Name);
-            pet.Sex.ShouldBe(pet.Sex);
-            pet.Race.ShouldBe(pet.Race);
-            pet.Species.ShouldBe(pet.Species);
-            pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
-            pet.BirthDay.ShouldBe(pet.BirthDay);
-            pet.Color.ShouldBe(pet.Color);
-            pet.Weight.ShouldBe(pet.Weight);
-            pet.Sterilization.ShouldBe(pet.Sterilization);
-            pet.ShelterAddress.ShouldBe(pet.ShelterAddress);
-            pet.Description.ShouldBe(pet.Description);
-            pet.Events.Count().ShouldBe(1);
-            IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoUpdated>();
+            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _handler = new UpdateShelterPetHandler(_eventProcessor, _petRepository);
         }
-        
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+
+        private Task Act(UpdateShelterPet command)
+        {
+            return _handler.HandleAsync(command);
+        }
+
+        [Fact]
+        public async Task given_valid_pet_should_update()
+        {
+            ShelterPet arrangePet = ArrangePet();
+
+            ShelterPet pet = ShelterPet.Create(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+                arrangePet.Species, arrangePet.MainPhotoPath, arrangePet.BirthDay, arrangePet.Color,
+                arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description);
+
+            UpdateShelterPet command = new UpdateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Race, arrangePet.Species,
+                arrangePet.Sex, arrangePet.BirthDay, arrangePet.Description, arrangePet.ShelterAddress,
+                arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
+
+            _petRepository.GetByIdAsync(command.Id).Returns(pet);
+
+            await Act(command);
+
+            await _petRepository.Received().UpdateAsync(pet);
+            await _eventProcessor.Received().ProcessAsync(pet.Events);
+        }
+
+        private ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
         {
@@ -56,7 +67,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
 
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+            ShelterPet pet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
                 validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
 
             return pet;
@@ -85,6 +96,5 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             return location;
         }
-        
     }
 }

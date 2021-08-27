@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
@@ -11,46 +13,40 @@ using Xunit;
 
 namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
-    public class UpdatePetHandlerTests
+    public class DeletePetPhotoHandlerTests
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly UpdatePetHandler _handler;
-        private readonly IPetRepository _petRepository;
+        private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly DeleteShelterPetPhotoHandler _handler;
+        private readonly IPetRepository<ShelterPet> _petRepository;
 
-        public UpdatePetHandlerTests()
+        public DeletePetPhotoHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository>();
+            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
+            _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
             _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new UpdatePetHandler(_eventProcessor, _petRepository);
+            _handler = new DeleteShelterPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
         }
 
-        private Task Act(UpdatePet command)
-        {
-            return _handler.HandleAsync(command);
-        }
+        private Task Act(DeleteShelterPetPhoto command) => _handler.HandleAsync(command);
 
         [Fact]
-        public async Task given_valid_pet_should_update()
+        public async Task given_valid_pet_path_should_delete()
         {
-            Pet arrangePet = ArrangePet();
+            ShelterPet arrangePet = ArrangePet();
+            string photoPath = arrangePet.PhotoPaths.First();
+            DeleteShelterPetPhoto command = new DeleteShelterPetPhoto(arrangePet.Id.Value, photoPath);
 
-            Pet pet = Pet.Create(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
-                arrangePet.Species, arrangePet.MainPhotoPath, arrangePet.BirthDay, arrangePet.Color,
-                arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description);
-
-            UpdatePet command = new UpdatePet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Race, arrangePet.Species,
-                arrangePet.Sex, arrangePet.BirthDay, arrangePet.Description, arrangePet.ShelterAddress,
-                arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
-
-            _petRepository.GetByIdAsync(command.Id).Returns(pet);
+            _petRepository.GetByIdAsync(command.PetId).Returns(arrangePet);
 
             await Act(command);
 
-            await _petRepository.Received().UpdateAsync(pet);
-            await _eventProcessor.Received().ProcessAsync(pet.Events);
+            await _petRepository.Received().UpdateAsync(arrangePet);
+            await _grpcPhotoService.Received().DeleteAsync(photoPath, BucketName.PetPhotos);
+            await _eventProcessor.Received().ProcessAsync(arrangePet.Events);
         }
 
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+        private ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
         {
@@ -66,8 +62,10 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             bool validSterilization = sterilization ?? true;
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
-
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+            List<string> photoPaths = new List<string>();
+            photoPaths.Add($"{Guid.NewGuid()}.jpg");
+                
+            ShelterPet pet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
                 validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
 
             return pet;

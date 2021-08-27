@@ -11,7 +11,8 @@ namespace Lapka.Pets.Application.Commands
 
         public CreateShelterPet(Guid id, string? userId, string name, Sex sex, string race, Species species, File photo,
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
-            string description) : base(id, name, sex, race, species, photo, birthDay, color, weight, sterilization)
+            string description, Guid photoId) : base(id, name, sex, race, species, photo, birthDay, color,
+            weight, sterilization, photoId)
         {
             UserId = userId;
             ShelterAddress = shelterAddress;

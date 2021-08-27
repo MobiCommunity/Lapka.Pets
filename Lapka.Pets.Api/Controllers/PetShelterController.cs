@@ -65,7 +65,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
-            await _commandDispatcher.SendAsync(new DeletePetPhoto(id, photo.Path));
+            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, photo.Path));
 
             return Ok();
         }
@@ -73,7 +73,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
         {
-            await _commandDispatcher.SendAsync(new AddPetPhoto(id,
+            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id,
                 photos.Photos.Select(x => x.AsValueObject()).ToList()));
 
             return Ok();
@@ -82,7 +82,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _commandDispatcher.SendAsync(new DeletePet(id));
+            await _commandDispatcher.SendAsync(new DeleteShelterPet(id));
 
             return NoContent();
         }
@@ -91,7 +91,7 @@ namespace Lapka.Pets.Api.Controllers
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateShelterPetRequest pet)
         {
             await _commandDispatcher.SendAsync(new UpdateShelterPet(id, pet.Name, pet.Race, pet.Species,
-                pet.File.AsValueObject(), pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
+                pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
                 pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace Lapka.Pets.Api.Controllers
         {
             Guid photoId = Guid.NewGuid();
             
-            await _commandDispatcher.SendAsync(new UpdatePetPhoto(id, petUpdate.File.AsValueObject(), photoId));
+            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsValueObject(), photoId));
 
             return NoContent();
         }

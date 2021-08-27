@@ -55,7 +55,7 @@ namespace Lapka.Pets.Application.Dto
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 PetEvents = pet.SoonEvents.Select(x => x.AsDto()),
-                Visits = pet.LastVisits.Select(x => x.AsDto())
+                Visits = pet.LastVisits.Select(x => x.AsDto()),
                 PhotoPaths = pet.PhotoPaths
             };
         }

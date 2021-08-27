@@ -5,7 +5,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Core.Entities
 {
-    public class ShelterPet : Pet
+    public class ShelterPet : AggregatePet
     {
         public Address ShelterAddress { get; private set; }
         public string Description { get; private set; }
@@ -22,7 +22,7 @@ namespace Lapka.Pets.Core.Entities
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
             string description)
         {
-            Validate(name, race, birthDay, color, weight);
+            Validate(name, race, birthDay, color, weight, description);
             ShelterPet pet = new ShelterPet(id, name, sex, race, species, photoPath, birthDay, color, weight,
                 sterilization, shelterAddress, description);
 
@@ -47,7 +47,7 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new PetDeleted<ShelterPet>(this));
         }
 
-        private void Validate(string name, string race, DateTime birthDay, string color, double weight,
+        private static void Validate(string name, string race, DateTime birthDay, string color, double weight,
             string description)
         {
             Validate(name, race, birthDay, color, weight);

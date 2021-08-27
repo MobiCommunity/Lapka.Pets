@@ -6,7 +6,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Core.Entities
 {
-    public abstract class Pet : AggregateRoot
+    public abstract class AggregatePet : AggregateRoot
     {
         private const double MinimumWeight = 0;
 
@@ -21,7 +21,7 @@ namespace Lapka.Pets.Core.Entities
         public double Weight { get; private set; }
         public bool Sterilization { get; private set; }
         
-        protected Pet(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath, DateTime birthDay,
+        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath, DateTime birthDay,
             string color, double weight, bool sterilization, List<string> photoPaths = null)
         {
             Id = new AggregateId(id);
@@ -53,9 +53,9 @@ namespace Lapka.Pets.Core.Entities
             Color = color;
         }
 
-        public virtual void UpdateMainPhoto(string mainPhotoPath)
+        public void UpdateMainPhoto(string mainPhotoPath)
         {
-            MainPhotoPath = mainPhotoPath
+            MainPhotoPath = mainPhotoPath;
             AddEvent(new PetPhotoUpdated(MainPhotoPath));
         }
         

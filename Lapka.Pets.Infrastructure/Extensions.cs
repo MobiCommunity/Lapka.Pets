@@ -10,6 +10,7 @@ using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
+using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;

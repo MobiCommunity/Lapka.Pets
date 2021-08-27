@@ -6,7 +6,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Core.Entities
 {
-    public class UserPet : Pet
+    public class UserPet : AggregatePet
     {
         public IEnumerable<PetEvent> SoonEvents { get; private set; }
         public IEnumerable<Visit> LastVisits { get; private set; }

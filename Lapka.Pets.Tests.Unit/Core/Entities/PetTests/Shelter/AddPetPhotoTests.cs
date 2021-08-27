@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
@@ -8,44 +7,43 @@ using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.ValueObjects;
 using Shouldly;
 using Xunit;
-using File = Lapka.Pets.Core.ValueObjects.File;
 
-namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
+namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests.Shelter
 {
     public class AddPetPhotoTests
     {
         [Fact]
         public void given_valid_pet_photos_should_be_added()
         {
-            Pet pet = ArrangePet();
+            ShelterPet aggregatePet = ArrangePet();
             List<string> photoPaths = new List<string>
             {
                 $"{Guid.NewGuid():N}.jpg",
                 $"{Guid.NewGuid():N}.jpg"
             };
             
-            pet.AddPhotos(photoPaths);
+            aggregatePet.AddPhotos(photoPaths);
 
-            pet.ShouldNotBeNull();
-            pet.Id.ShouldBe(pet.Id);
-            pet.Name.ShouldBe(pet.Name);
-            pet.Sex.ShouldBe(pet.Sex);
-            pet.Race.ShouldBe(pet.Race);
-            pet.Species.ShouldBe(pet.Species);
-            pet.MainPhotoPath.ShouldBe(pet.MainPhotoPath);
-            pet.PhotoPaths.Count().ShouldBe(2);
-            pet.BirthDay.ShouldBe(pet.BirthDay);
-            pet.Color.ShouldBe(pet.Color);
-            pet.Weight.ShouldBe(pet.Weight);
-            pet.Sterilization.ShouldBe(pet.Sterilization);
-            pet.ShelterAddress.ShouldBe(pet.ShelterAddress);
-            pet.Description.ShouldBe(pet.Description);
+            aggregatePet.ShouldNotBeNull();
+            aggregatePet.Id.ShouldBe(aggregatePet.Id);
+            aggregatePet.Name.ShouldBe(aggregatePet.Name);
+            aggregatePet.Sex.ShouldBe(aggregatePet.Sex);
+            aggregatePet.Race.ShouldBe(aggregatePet.Race);
+            aggregatePet.Species.ShouldBe(aggregatePet.Species);
+            aggregatePet.MainPhotoPath.ShouldBe(aggregatePet.MainPhotoPath);
+            aggregatePet.PhotoPaths.Count().ShouldBe(2);
+            aggregatePet.BirthDay.ShouldBe(aggregatePet.BirthDay);
+            aggregatePet.Color.ShouldBe(aggregatePet.Color);
+            aggregatePet.Weight.ShouldBe(aggregatePet.Weight);
+            aggregatePet.Sterilization.ShouldBe(aggregatePet.Sterilization);
+            aggregatePet.ShelterAddress.ShouldBe(aggregatePet.ShelterAddress);
+            aggregatePet.Description.ShouldBe(aggregatePet.Description);
             foreach (var path in photoPaths)
             {
-                pet.PhotoPaths.ShouldContain(path);
+                aggregatePet.PhotoPaths.ShouldContain(path);
             }
-            pet.Events.Count().ShouldBe(1);
-            IDomainEvent @event = pet.Events.Single();
+            aggregatePet.Events.Count().ShouldBe(1);
+            IDomainEvent @event = aggregatePet.Events.Single();
             @event.ShouldBeOfType<PetPhotosAdded>();
         }
 
@@ -63,7 +61,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             return address;
         }
 
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+        private ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
         {
@@ -80,10 +78,10 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
 
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+            ShelterPet aggregatePet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
                 validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
 
-            return pet;
+            return aggregatePet;
         }
 
         private Location ArrangeShelterAddressLocation(string latitude = null, string longitude = null)

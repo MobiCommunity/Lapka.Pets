@@ -3,15 +3,15 @@ using Convey.CQRS.Commands;
 
 namespace Lapka.Pets.Application.Commands
 {
-    public class DeleteUserPet : ICommand
+    public class DeleteShelterPetPhoto : ICommand
     {
-        public Guid UserId { get; }
         public Guid PetId { get; }
+        public string Path { get; }
 
-        public DeleteUserPet(Guid userId, Guid petId)
+        public DeleteShelterPetPhoto(Guid petId, string path)
         {
-            UserId = userId;
             PetId = petId;
+            Path = path;
         }
     }
 }

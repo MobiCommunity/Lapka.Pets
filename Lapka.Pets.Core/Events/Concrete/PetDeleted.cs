@@ -3,7 +3,7 @@ using Lapka.Pets.Core.Events.Abstract;
 
 namespace Lapka.Pets.Core.Events.Concrete
 {
-    public class PetDeleted<T> : IDomainEvent where T : Pet 
+    public class PetDeleted<T> : IDomainEvent where T : AggregatePet 
     {
         public T Pet { get; }
 

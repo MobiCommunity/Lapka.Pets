@@ -23,20 +23,20 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IGrpcPhotoService _grpcPhotoService;
-        private readonly CreatePetHandler _handler;
-        private readonly ILogger<CreatePetHandler> _logger;
-        private readonly IPetRepository _petRepository;
+        private readonly CreateShelterPetHandler _handler;
+        private readonly ILogger<CreateShelterPetHandler> _logger;
+        private readonly IPetRepository<ShelterPet> _petRepository;
 
         public CreatePetHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository>();
+            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
             _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
             _eventProcessor = Substitute.For<IEventProcessor>();
-            _logger = Substitute.For<ILogger<CreatePetHandler>>();
-            _handler = new CreatePetHandler(_logger, _eventProcessor, _petRepository, _grpcPhotoService);
+            _logger = Substitute.For<ILogger<CreateShelterPetHandler>>();
+            _handler = new CreateShelterPetHandler(_eventProcessor, _petRepository, _grpcPhotoService, _logger);
         }
 
-        private Task Act(CreatePet command)
+        private Task Act(CreateShelterPet command)
         {
             return _handler.HandleAsync(command);
         }
@@ -44,51 +44,56 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_should_create()
         {
-            Pet pet = ArrangePet();
+            ShelterPet pet = ArrangePet();
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, userId, pet.Name, pet.Sex, pet.Race,
+                pet.Species, file, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
 
             await Act(command);
 
             string fileNameExpectedValue = $"{photoId:N}.jpg";
 
             await _petRepository.Received()
-                .AddAsync(Arg.Is<Pet>(p => p.Id.Value == pet.Id.Value &&
-                                           p.Name == pet.Name && p.Sex == pet.Sex &&
-                                           p.Race == pet.Race && p.Species == pet.Species &&
-                                           p.BirthDay == pet.BirthDay &&
-                                           p.Color == pet.Color && p.Weight == pet.Weight &&
-                                           p.Sterilization == pet.Sterilization &&
-                                           p.ShelterAddress.City ==
-                                           pet.ShelterAddress.City &&
-                                           p.ShelterAddress.Name ==
-                                           pet.ShelterAddress.Name &&
-                                           p.ShelterAddress.Street ==
-                                           pet.ShelterAddress.Street &&
-                                           p.ShelterAddress.GeoLocation.Latitude ==
-                                           pet.ShelterAddress.GeoLocation.Latitude &&
-                                           p.ShelterAddress.GeoLocation.Longitude ==
-                                           pet.ShelterAddress.GeoLocation.Longitude &&
-                                           p.Description == pet.Description &&
-                                           p.MainPhotoPath == fileNameExpectedValue));
+                .AddAsync(Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
+                                                  p.Name == pet.Name && p.Sex == pet.Sex &&
+                                                  p.Race == pet.Race && p.Species == pet.Species &&
+                                                  p.BirthDay == pet.BirthDay &&
+                                                  p.Color == pet.Color && p.Weight == pet.Weight &&
+                                                  p.Sterilization == pet.Sterilization &&
+                                                  p.ShelterAddress.City ==
+                                                  pet.ShelterAddress.City &&
+                                                  p.ShelterAddress.Name ==
+                                                  pet.ShelterAddress.Name &&
+                                                  p.ShelterAddress.Street ==
+                                                  pet.ShelterAddress.Street &&
+                                                  p.ShelterAddress.GeoLocation.Latitude ==
+                                                  pet.ShelterAddress.GeoLocation.Latitude &&
+                                                  p.ShelterAddress.GeoLocation.Longitude ==
+                                                  pet.ShelterAddress.GeoLocation.Longitude &&
+                                                  p.Description == pet.Description &&
+                                                  p.MainPhotoPath == fileNameExpectedValue));
 
-            await _grpcPhotoService.Received().AddAsync(Arg.Is(fileNameExpectedValue), Arg.Is(file.Content));
+            await _grpcPhotoService.Received().AddAsync(Arg.Is(fileNameExpectedValue), Arg.Is(file.Content),
+                Arg.Is(BucketName.PetPhotos));
             await _eventProcessor.Received().ProcessAsync(Arg.Is<IEnumerable<IDomainEvent>>(e
-                => e.FirstOrDefault().GetType() == typeof(PetCreated)));
+                => e.FirstOrDefault().GetType() == typeof(PetCreated<ShelterPet>)));
         }
 
         [Fact]
         public async Task given_invalid_pet_name_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(name: "");
+            ShelterPet arrangePet = ArrangePet(name: "");
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race, arrangePet.Species, file,
+                arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization,
+                arrangePet.ShelterAddress, arrangePet.Description, photoId);
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
@@ -99,12 +104,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_race_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(race: "");
+            ShelterPet arrangePet = ArrangePet(race: "");
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race, arrangePet.Species, file,
+                arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization,
+                arrangePet.ShelterAddress, arrangePet.Description, photoId);
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(command));
             exception.ShouldNotBeNull();
@@ -114,12 +122,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_birth_date_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
+            ShelterPet arrangePet = ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race, arrangePet.Species, file,
+                arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization,
+                arrangePet.ShelterAddress, arrangePet.Description, photoId);
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
@@ -130,12 +141,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_color_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(color: "");
+            ShelterPet arrangePet = ArrangePet(color: "");
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race, arrangePet.Species, file,
+                arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization,
+                arrangePet.ShelterAddress, arrangePet.Description, photoId);
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
@@ -146,12 +160,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_weight_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(weight: 0);
+            ShelterPet arrangePet = ArrangePet(weight: 0);
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
-            CreatePet command = new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file,
-                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId);
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race, arrangePet.Species, file,
+                arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization,
+                arrangePet.ShelterAddress, arrangePet.Description, photoId);
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(command));
 
@@ -162,19 +179,22 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_description_should_throw_an_exception()
         {
-            Pet pet = ArrangePet(description: "");
+            ShelterPet arrangePet = ArrangePet(description: "");
             File file = ArrangeFile();
             Guid photoId = Guid.NewGuid();
+            string userId = Guid.NewGuid().ToString();
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(
-                new CreatePet(pet.Id.Value, pet.Name, pet.Sex, pet.Race, pet.Species, file, pet.BirthDay,
-                    pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress, pet.Description, photoId)));
+                new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+                    arrangePet.Species, file, arrangePet.BirthDay,
+                    arrangePet.Color, arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress,
+                    arrangePet.Description, photoId)));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidDescriptionValueException>();
         }
 
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+        private ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
         {
@@ -191,10 +211,11 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
 
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+            ShelterPet aggregatePet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies,
+                validPhotoPath,
                 validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
 
-            return pet;
+            return aggregatePet;
         }
 
         private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,

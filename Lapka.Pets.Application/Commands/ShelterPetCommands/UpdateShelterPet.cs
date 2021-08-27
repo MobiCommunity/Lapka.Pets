@@ -16,10 +16,10 @@ namespace Lapka.Pets.Application.Commands
         public Address ShelterAddress { get; }
         public bool Sterilization { get; }
         public double Weight { get; }
-        public string Color { get; }  
-        
-        public UpdateShelterPet(Guid id, string name, string race, Species species, File mainPath, Sex sex,
-            DateTime dateOfBirth, string description, Address shelterAddress, bool sterilization, double weight, string color)
+        public string Color { get; }
+
+        public UpdateShelterPet(Guid id, string name, string race, Species species, Sex sex, DateTime dateOfBirth,
+            string description, Address shelterAddress, bool sterilization, double weight, string color)
         {
             Id = id;
             Name = name;
@@ -31,7 +31,7 @@ namespace Lapka.Pets.Application.Commands
             ShelterAddress = shelterAddress;
             Sterilization = sterilization;
             Weight = weight;
-            Color = color;   
+            Color = color;
         }
     }
 }

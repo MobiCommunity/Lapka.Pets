@@ -9,7 +9,7 @@ using Lapka.Pets.Infrastructure.Documents;
 namespace Lapka.Pets.Infrastructure.Services
 {
     public abstract class PetRepository<TBusinessPet, TPetDocument> : IPetRepository<TBusinessPet>
-        where TBusinessPet : Pet where TPetDocument : PetDocument
+        where TBusinessPet : AggregatePet where TPetDocument : PetDocument
     {
         protected PetRepository(IMongoRepository<TPetDocument, Guid> repository)
         {

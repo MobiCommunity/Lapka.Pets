@@ -10,24 +10,24 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class AddPetPhotoHandler : ICommandHandler<AddPetPhoto>
+    public class AddShelterPetPhotoHandler : ICommandHandler<AddShelterPetPhoto>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository _petRepository;
+        private readonly IPetRepository<ShelterPet> _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public AddPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository petRepository,
+        public AddShelterPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
         }
-        public async Task HandleAsync(AddPetPhoto command)
+        public async Task HandleAsync(AddShelterPetPhoto command)
         {
             List<string> photoPaths = new List<string>();
             
-            Pet pet = await _petRepository.GetByIdAsync(command.PetId);
+            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
                 throw new PetNotFoundException(command.PetId);
@@ -40,7 +40,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 
                 try
                 {
-                    await _grpcPhotoService.AddAsync(photoPath, photo.Content);
+                    await _grpcPhotoService.AddAsync(photoPath, photo.Content, BucketName.PetPhotos);
                 }
                 catch(Exception ex)
                 {

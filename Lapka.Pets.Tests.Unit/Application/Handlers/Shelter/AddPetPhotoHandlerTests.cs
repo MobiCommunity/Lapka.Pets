@@ -18,44 +18,44 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IGrpcPhotoService _grpcPhotoService;
-        private readonly AddPetPhotoHandler _handler;
-        private readonly IPetRepository _petRepository;
+        private readonly AddShelterPetPhotoHandler _handler;
+        private readonly IPetRepository<ShelterPet> _petRepository;
 
         public AddPetPhotoHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository>();
+            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
             _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
             _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new AddPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
+            _handler = new AddShelterPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
         }
 
-        private Task Act(AddPetPhoto command) => _handler.HandleAsync(command);
+        private Task Act(AddShelterPetPhoto command) => _handler.HandleAsync(command);
 
         [Fact]
         public async Task given_valid_pet_path_should_delete()
         {
-            Pet pet = ArrangePet();
+            ShelterPet aggregatePet = ArrangePet();
             List<File> files = new List<File>();
             files.Add(ArrangeFile());
 
-            AddPetPhoto command = new AddPetPhoto(pet.Id.Value, files);
+            AddShelterPetPhoto command = new AddShelterPetPhoto(aggregatePet.Id.Value, files);
 
-            _petRepository.GetByIdAsync(command.PetId).Returns(pet);
+            _petRepository.GetByIdAsync(command.PetId).Returns(aggregatePet);
 
             await Act(command);
 
-            await _petRepository.Received().UpdateAsync(pet);
+            await _petRepository.Received().UpdateAsync(aggregatePet);
 
             foreach (File file in command.Photos)
             {
                 await _grpcPhotoService.Received().AddAsync(Arg.Is<string>(x =>
-                    x.Contains(".jpg")), file.Content);
+                    x.Contains(".jpg")), file.Content, BucketName.PetPhotos);
             }
             
-            await _eventProcessor.Received().ProcessAsync(pet.Events);
+            await _eventProcessor.Received().ProcessAsync(aggregatePet.Events);
         }
 
-        private Pet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
+        private ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
             Species? species = null, string photoPath = null, DateTime? birthDay = null, string color = null,
             double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null)
         {
@@ -72,10 +72,10 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
 
-            Pet pet = new Pet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
+            ShelterPet aggregatePet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoPath,
                 validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription);
 
-            return pet;
+            return aggregatePet;
         }
 
         private Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
