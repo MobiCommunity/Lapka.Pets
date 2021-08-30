@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Lapka.Pets.Infrastructure.Documents
+namespace Lapka.Pets.Api.Models.Request
 {
-    public class VisitDto
+    public class UpdateVisitRequest
     {
         [Required]
-        public Guid Id { get; set; }
-        [Required]
         public string LocationName { get; set; }
+        /// <summary>
+        /// For testing purpose until user has to log in to update visit
+        /// </summary>
+        [Required] 
+        public Guid UserId { get; set; }
         [Required]
         public bool IsVisitDone { get; set; }
         [Required]
