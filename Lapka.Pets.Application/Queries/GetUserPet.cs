@@ -8,5 +8,6 @@ namespace Lapka.Pets.Application.Queries
     public class GetUserPet : IQuery<PetDetailsUserDto>
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
     }
 }

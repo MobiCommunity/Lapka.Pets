@@ -27,21 +27,49 @@ namespace Lapka.Pets.Api.Controllers
             _commandDispatcher = commandDispatcher;
             _queryDispatcher = queryDispatcher;
         }
-        
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> Get(Guid id)
-            => Ok(await _queryDispatcher.QueryAsync(new GetUserPet
-            {
-                Id = id
-            }));
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
-            => Ok(await _queryDispatcher.QueryAsync(new GetUserPets()));
 
         /// <summary>
         /// User id has to be provided (from identity service) until
-        /// auth will be requried to add pet
+        /// auth will be required to get pet. Returns only provided
+        /// user's pet
+        /// </summary>
+        [HttpGet("{id:guid}/{userId:guid}")]
+        public async Task<IActionResult> Get(Guid id, Guid userId)
+        {
+            if (!Guid.TryParse(userId.ToString(), out userId))
+            {
+                return Unauthorized();
+            }
+            
+            return Ok(await _queryDispatcher.QueryAsync(new GetUserPet
+            {
+                Id = id,
+                UserId = userId
+            }));
+        }
+
+        /// <summary>
+        /// User id has to be provided (from identity service) until
+        /// auth will be required to get pets. Returns only provided
+        /// user's pets
+        /// </summary>
+        [HttpGet("{userId:guid}")]
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(Guid userId)
+        {
+            if (!Guid.TryParse(userId.ToString(), out userId))
+            {
+                return Unauthorized();
+            }
+            
+            return Ok(await _queryDispatcher.QueryAsync(new GetUserPets
+            {
+                UserId = userId
+            }));
+        }
+
+        /// <summary>
+        /// User id has to be provided (from identity service) until
+        /// auth will be required to add pet
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
@@ -72,7 +100,7 @@ namespace Lapka.Pets.Api.Controllers
 
         /// <summary>
         /// User id has to be provided (from identity service) until
-        /// auth will be requried to add pet visit
+        /// auth will be required to add pet visit
         /// </summary>
         [HttpPost("{id:guid}/visit")]
         public async Task<IActionResult> AddVisit(Guid id, [FromBody] AddVisitRequest request)
@@ -91,7 +119,7 @@ namespace Lapka.Pets.Api.Controllers
         
         /// <summary>
         /// User id has to be provided (from identity service) until
-        /// auth will be requried to update a visit
+        /// auth will be required to update a visit
         /// </summary>
         
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
@@ -109,7 +137,7 @@ namespace Lapka.Pets.Api.Controllers
         
         /// <summary>
         /// User id has to be provided (from identity service) until
-        /// auth will be requried to add pet soon event
+        /// auth will be required to add pet soon event
         /// </summary>
 
         [HttpPost("{id:guid}/soonEvent")]

@@ -27,6 +27,11 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
                 throw new PetNotFoundException(query.Id);
             }
 
+            if (pet.UserId != query.UserId)
+            {
+                throw new PetDoesNotBelongToUserException(pet.UserId.ToString(), pet.Id.ToString());
+            }
+
             return pet.AsBusiness().AsDetailsDto();
         }
     }

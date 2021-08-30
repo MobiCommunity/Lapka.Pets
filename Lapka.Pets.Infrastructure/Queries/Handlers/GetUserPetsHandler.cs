@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Convey.CQRS.Queries;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
+using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
 using MongoDB.Driver;
@@ -23,8 +24,8 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
         public async Task<IEnumerable<PetBasicUserDto>> HandleAsync(GetUserPets query)
         {
-            IReadOnlyList<PetUserDocument> pets = await _mongoRepository.FindAsync(_ => true);
-            
+            IReadOnlyList<PetUserDocument> pets = await _mongoRepository.FindAsync(x => x.UserId == query.UserId);
+
             return pets.Select(x => x.AsBusiness().AsBasicDto());
         }
     }
