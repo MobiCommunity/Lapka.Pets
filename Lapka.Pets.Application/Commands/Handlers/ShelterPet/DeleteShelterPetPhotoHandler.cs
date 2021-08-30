@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
@@ -6,46 +7,48 @@ using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
-using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class UpdateUserPhotoHandler : ICommandHandler<UpdateUserPetPhoto>
+    public class DeleteShelterPetPhotoHandler : ICommandHandler<DeleteShelterPetPhoto>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<UserPet> _petRepository;
+        private readonly IPetRepository<ShelterPet> _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public UpdateUserPhotoHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> petRepository,
+        public DeleteShelterPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
         }
-
-        public async Task HandleAsync(UpdateUserPetPhoto command)
+        public async Task HandleAsync(DeleteShelterPetPhoto command)
         {
-            string mainPhotoPath = $"{command.PhotoId:N}.{command.Photo.GetFileExtension()}";
-
-            UserPet pet = await _petRepository.GetByIdAsync(command.Id);
+            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
-                throw new PetNotFoundException(command.Id);
+                throw new PetNotFoundException(command.PetId);
             }
 
+            Guid photoId = pet.PhotoIds.FirstOrDefault(x => x == command.PhotoId);
+
+            if (photoId == Guid.Empty)
+            {
+                throw new PhotoNotFoundException(command.PhotoId.ToString());
+            }
+            
             try
             {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
-                await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
+                await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
 
-            pet.UpdateMainPhoto(mainPhotoPath);
-
+            pet.RemovePhoto(photoId);
+            
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }

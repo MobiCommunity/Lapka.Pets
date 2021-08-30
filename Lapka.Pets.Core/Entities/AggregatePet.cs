@@ -13,24 +13,24 @@ namespace Lapka.Pets.Core.Entities
         public string Name { get; private set; }
         public Species Species { get; private set; }
         public Sex Sex { get; private set; }
-        public string MainPhotoPath { get; private set; }
-        public List<string> PhotoPaths { get; private set; }
+        public Guid MainPhotoId { get; private set; }
+        public List<Guid> PhotoIds { get; private set; }
         public string Race { get; private set; }
         public DateTime BirthDay { get; private set; }
         public string Color { get; private set; }
         public double Weight { get; private set; }
         public bool Sterilization { get; private set; }
         
-        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, string mainPhotoPath, DateTime birthDay,
-            string color, double weight, bool sterilization, List<string> photoPaths = null)
+        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId, DateTime birthDay,
+            string color, double weight, bool sterilization, List<Guid> photoIds)
         {
             Id = new AggregateId(id);
             Name = name;
             Sex = sex;
             Race = race;
             Species = species;
-            MainPhotoPath = mainPhotoPath;
-            PhotoPaths = photoPaths ?? new List<string>();
+            MainPhotoId = mainPhotoId;
+            PhotoIds = photoIds;
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
@@ -52,29 +52,23 @@ namespace Lapka.Pets.Core.Entities
             Color = color;
         }
 
-        public void UpdateMainPhoto(string mainPhotoPath)
+        public virtual void UpdateMainPhoto(Guid mainPhotoId)
         {
-            MainPhotoPath = mainPhotoPath;
-            AddEvent(new PetPhotoUpdated(MainPhotoPath));
+            MainPhotoId = mainPhotoId;
         }
         
-        public void AddPhotos(List<string> photoPaths)
+        public virtual void AddPhotos(List<Guid> photoIds)
         {
-            foreach (string path in photoPaths)
+            foreach (Guid path in photoIds)
             {
-                PhotoPaths.Add(path);
+                PhotoIds.Add(path);
             }
-            
-            AddEvent(new PetPhotosAdded(photoPaths));
         }
         
-        public void RemovePhoto(string photoPath)
+        public virtual void RemovePhoto(Guid photoId)
         {
-            PhotoPaths.Remove(photoPath);
-
-            AddEvent(new PetPhotoDeleted(photoPath));
+            PhotoIds.Remove(photoId);
         }
-
         public abstract void Delete();
 
         protected static void Validate(string name, string race, DateTime birthDay, string color, double weight)

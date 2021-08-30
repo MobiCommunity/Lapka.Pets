@@ -25,7 +25,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
         {
             IReadOnlyList<PetUserDocument> pets = await _mongoRepository.FindAsync(_ => true);
             
-            return pets.Select(x => x.AsBasicDto());
+            return pets.Select(x => x.AsBusiness().AsBasicDto());
         }
     }
 }

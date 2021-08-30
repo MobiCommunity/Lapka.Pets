@@ -6,12 +6,12 @@ namespace Lapka.Pets.Application.Commands
     public class DeleteShelterPetPhoto : ICommand
     {
         public Guid PetId { get; }
-        public string Path { get; }
+        public Guid PhotoId { get; }
 
-        public DeleteShelterPetPhoto(Guid petId, string path)
+        public DeleteShelterPetPhoto(Guid petId, Guid photoId)
         {
             PetId = petId;
-            Path = path;
+            PhotoId = photoId;
         }
     }
 }

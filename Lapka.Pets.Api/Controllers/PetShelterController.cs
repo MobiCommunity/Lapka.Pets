@@ -10,12 +10,13 @@ using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
 {
     [ApiController]
-    [Route("api/pet/shelter")]
+    [Route("api/shelter/pet")]
     public class PetShelterController : ControllerBase
     {
         private readonly ICommandDispatcher _commandDispatcher;
@@ -48,37 +49,58 @@ namespace Lapka.Pets.Api.Controllers
             }));
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest shelterPet)
+        public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
         {
             string userId = User.Identity.Name;
             Guid id = Guid.NewGuid();
-            Guid photoId = Guid.NewGuid();
+            Guid mainPhotoId = Guid.NewGuid();
+            List<PhotoFile> photos = new List<PhotoFile>();
 
-            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, shelterPet.Name, shelterPet.Sex,
-                shelterPet.Race, shelterPet.Species, shelterPet.File.AsValueObject(), shelterPet.BirthDay,
-                shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization,
-                shelterPet.ShelterAddress.AsValueObject(), shelterPet.Description, photoId));
+            if (pet.Photos != null)
+            {
+                foreach (IFormFile photo in pet.Photos)
+                {
+                    photos.Add(photo.AsPhotoFile(Guid.NewGuid()));
+                }
+            }
+            
+            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, pet.Name, pet.Sex,
+                pet.Race, pet.Species, pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay,
+                pet.Color, pet.Weight, pet.Sterilization,
+                pet.ShelterAddress.AsValueObject(), pet.Description, photos));
 
             return Created($"api/pet/shelter/{id}", null);
         }
-        
+
+        /// <summary>
+        /// Deletes photo from Photos list (not a main photo)
+        /// </summary>
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
-            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, photo.Path));
+            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, photo.Id));
 
             return Ok();
         }
         
+        /// <summary>
+        /// Adds multiple photos to pet
+        /// </summary>
         [HttpPost("{id:guid}/photo")]
-        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest photos)
+        public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
-            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id,
-                photos.Photos.Select(x => x.AsValueObject()).ToList()));
+            List<PhotoFile> photos = new List<PhotoFile>();
+            
+            foreach (IFormFile photo in request.Photos)
+            {
+                photos.Add(photo.AsPhotoFile(Guid.NewGuid()));
+            }
+            
+            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id, photos));
 
             return Ok();
         }
-        
+
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -96,13 +118,16 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
+
+        /// <summary>
+        /// Updates only main pet photo
+        /// </summary>
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
             Guid photoId = Guid.NewGuid();
-            
-            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsValueObject(), photoId));
+
+            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsPhotoFile(photoId)));
 
             return NoContent();
         }

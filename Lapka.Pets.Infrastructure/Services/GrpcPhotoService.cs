@@ -17,21 +17,22 @@ namespace Lapka.Pets.Infrastructure.Services
             _client = client;
         }
         
-        public async Task AddAsync(string photoPath, Stream photo, BucketName bucket)
+        public async Task AddAsync(Guid id, string name, Stream photo, BucketName bucket)
         {
             await _client.UploadPhotoAsync(new UploadPhotoRequest
             {
-                PhotoPath = photoPath,
+                Id = id.ToString(),
+                Name = name,
                 Photo = await ByteString.FromStreamAsync(photo),
                 BucketName = bucket.AsGrpcUpload()
             });
         }
 
-        public async Task DeleteAsync(string photoPath, BucketName bucket)
+        public async Task DeleteAsync(Guid photoId, BucketName bucket)
         {
             await _client.DeletePhotoAsync(new DeletePhotoRequest
             {
-                PhotoPath = photoPath,
+                Id = photoId.ToString(),
                 BucketName = bucket.AsGrpcDelete()
             });
         }

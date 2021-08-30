@@ -26,25 +26,23 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(UpdateShelterPetPhoto command)
         {
-            string mainPhotoPath = $"{command.PhotoId:N}.{command.Photo.GetFileExtension()}";
-
-            ShelterPet pet = await _petRepository.GetByIdAsync(command.Id);
+            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
-                throw new PetNotFoundException(command.Id);
+                throw new PetNotFoundException(command.PetId);
             }
 
             try
             {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
-                await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
+                await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
+                await _grpcPhotoService.AddAsync(command.Photo.Id, command.Photo.Name, command.Photo.Content, BucketName.PetPhotos);
             }
             catch (Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
 
-            pet.UpdateMainPhoto(mainPhotoPath);
+            pet.UpdateMainPhoto(command.Photo.Id);
 
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

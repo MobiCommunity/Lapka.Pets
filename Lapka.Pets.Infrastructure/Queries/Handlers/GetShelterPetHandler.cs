@@ -5,23 +5,26 @@ using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Services;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetShelterPetHandler : IQueryHandler<GetShelterPet, PetDetailsShelterDto>
     {
-        private readonly IMongoRepository<PetShelterDocument, Guid> _mongoRepository;
+        private readonly IPetRepository<ShelterPet> _repository;
 
-        public GetShelterPetHandler(IMongoRepository<PetShelterDocument, Guid> mongoRepository)
+        public GetShelterPetHandler(IPetRepository<ShelterPet> repository)
         {
-            _mongoRepository = mongoRepository;
+            _repository = repository;
         }
 
         public async Task<PetDetailsShelterDto> HandleAsync(GetShelterPet query)
         {
-            PetShelterDocument pet = await _mongoRepository.GetAsync(query.Id);
+            ShelterPet pet = await _repository.GetByIdAsync(query.Id);
             if (pet is null)
             {
                 throw new PetNotFoundException(query.Id);

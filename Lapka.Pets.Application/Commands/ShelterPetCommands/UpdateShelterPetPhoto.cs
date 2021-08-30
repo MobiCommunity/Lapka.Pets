@@ -1,21 +1,19 @@
 ﻿using System;
 using System.IO;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Core.ValueObjects;
 using File = Lapka.Pets.Core.ValueObjects.File;
 
 namespace Lapka.Pets.Application.Commands
 {
     public class UpdateShelterPetPhoto : ICommand
     {
-        public Guid Id { get; }
-        public File Photo { get; }
-        public Guid PhotoId { get; }
-
-        public UpdateShelterPetPhoto(Guid id, File photo, Guid photoId)
+        public Guid PetId { get; }
+        public PhotoFile Photo { get; }
+        public UpdateShelterPetPhoto(Guid petId, PhotoFile photo)
         {
-            Id = id;
+            PetId = petId;
             Photo = photo;
-            PhotoId = photoId;
         }
     }
 }

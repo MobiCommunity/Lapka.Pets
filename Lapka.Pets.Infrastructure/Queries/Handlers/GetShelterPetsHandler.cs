@@ -38,7 +38,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
             IList<PetShelterDocument> search = await queryable.ToListAsync();
 
-            return search.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
+            return search.Select(x => x.AsBusiness().AsBasicDto(query.Latitude, query.Longitude));
         }
     }
 }

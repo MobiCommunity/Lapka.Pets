@@ -1,14 +1,19 @@
-﻿using Lapka.Pets.Core.Events.Abstract;
+﻿using System;
+using System.Collections.Generic;
+using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.Events.Abstract;
 
 namespace Lapka.Pets.Core.Events.Concrete
 {
-    public class PetPhotoDeleted : IDomainEvent
+    public class PetPhotoDeleted<T> : IDomainEvent where T : AggregatePet 
     {
-        public string PhotoPath { get; }
+        public T Pet { get; }
+        public Guid DeletedPhotoId { get; }
 
-        public PetPhotoDeleted(string photoPath)
+        public PetPhotoDeleted(T pet, Guid deletedPhotoId)
         {
-            PhotoPath = photoPath;
+            Pet = pet;
+            DeletedPhotoId = deletedPhotoId;
         }
     }
 }

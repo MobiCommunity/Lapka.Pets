@@ -13,7 +13,7 @@ namespace Lapka.Pets.Application.Services
             _client = client;
         }
 
-        public async Task AddPet(Guid userId, Guid petId)
+        public async Task AddPetAsync(Guid userId, Guid petId)
         {
             await _client.AddPetToUserAsync(new UploadUserPetRequest
             {
@@ -22,7 +22,7 @@ namespace Lapka.Pets.Application.Services
             });
         }
 
-        public async Task DeletePet(Guid userId, Guid petId)
+        public async Task DeletePetAsync(Guid userId, Guid petId)
         {
             await _client.DeletePetFromUserAsync(new DeleteUserPetRequest
             {

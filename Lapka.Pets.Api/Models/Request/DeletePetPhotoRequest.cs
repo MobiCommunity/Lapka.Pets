@@ -1,7 +1,11 @@
-﻿namespace Lapka.Pets.Api.Models.Request
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Lapka.Pets.Api.Models.Request
 {
     public class DeletePetPhotoRequest
     {
-        public string Path { get; set; }
+        [Required]
+        public Guid Id { get; set; }
     }
 }

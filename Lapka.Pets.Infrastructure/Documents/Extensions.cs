@@ -30,35 +30,20 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Longitude = location.Longitude.AsDouble()
             };
         }
-        
-        public static PetDocument AsDocument(this AggregatePet aggregatePet)
-        {
-            return new PetUserDocument
-            {
-                Id = aggregatePet.Id.Value,
-                Name = aggregatePet.Name,
-                Sex = aggregatePet.Sex,
-                Race = aggregatePet.Race,
-                Color = aggregatePet.Color,
-                BirthDay = aggregatePet.BirthDay,
-                MainPhotoPath = aggregatePet.MainPhotoPath,
-                Sterilization = aggregatePet.Sterilization,
-                Weight = aggregatePet.Weight,
-                Species = aggregatePet.Species,
-            };
-        }
-        
+
         public static PetUserDocument AsDocument(this UserPet pet)
         {
             return new PetUserDocument
             {
                 Id = pet.Id.Value,
+                UserId = pet.UserId,
                 Name = pet.Name,
                 Sex = pet.Sex,
                 Race = pet.Race,
                 Color = pet.Color,
                 BirthDay = pet.BirthDay,
-                MainPhotoPath = pet.MainPhotoPath,
+                MainPhotoId = pet.MainPhotoId,
+                PhotoIds = pet.PhotoIds,
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 Species = pet.Species,
@@ -77,12 +62,12 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Race = pet.Race,
                 Color = pet.Color,
                 BirthDay = pet.BirthDay,
-                MainPhotoPath = pet.MainPhotoPath,
+                MainPhotoId = pet.MainPhotoId,
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 Species = pet.Species,
                 ShelterAddress = pet.ShelterAddress.AsDocument(),
-                PhotoPaths = pet.PhotoPaths,
+                PhotoIds = pet.PhotoIds,
                 Description = pet.Description
             };
         }
@@ -91,46 +76,48 @@ namespace Lapka.Pets.Infrastructure.Documents
         {
             return new PetEventDocument
             {
+                Id = petEvent.Id,
                 DateOfEvent = petEvent.DateOfEvent,
                 DescriptionOfEvent = petEvent.DescriptionOfEvent
             };
         }
 
-        private static VisitDocument AsDocument(this Visit petEvent)
+        private static VisitDocument AsDocument(this Visit visit)
         {
             return new VisitDocument
             {
-                Description = petEvent.Description,
-                VisitDate = petEvent.VisitDate,
-                IsVisitDone = petEvent.IsVisitDone,
-                MedicalTreatments = petEvent.MedicalTreatments,
-                LocationName = petEvent.LocationName,
-                Weight = petEvent.Weight
+                Id = visit.Id,
+                Description = visit.Description,
+                VisitDate = visit.VisitDate,
+                IsVisitDone = visit.IsVisitDone,
+                MedicalTreatments = visit.MedicalTreatments,
+                LocationName = visit.LocationName,
+                Weight = visit.Weight
             };
         }
 
         private static PetEvent AsBusiness(this PetEventDocument petEvent)
         {
-            return new PetEvent(petEvent.DateOfEvent, petEvent.DescriptionOfEvent);
+            return new PetEvent(petEvent.Id, petEvent.DateOfEvent, petEvent.DescriptionOfEvent);
         }
 
-        private static Visit AsBusiness(this VisitDocument petEvent)
+        private static Visit AsBusiness(this VisitDocument visit)
         {
-            return new Visit(petEvent.LocationName, petEvent.IsVisitDone, petEvent.VisitDate, petEvent.Description,
-                petEvent.Weight, petEvent.MedicalTreatments);
+            return new Visit(visit.Id, visit.LocationName, visit.IsVisitDone, visit.VisitDate, visit.Description,
+                visit.Weight, visit.MedicalTreatments);
         }
 
         public static UserPet AsBusiness(this PetUserDocument pet)
         {
-            return new UserPet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoPath, pet.BirthDay,
+            return new UserPet(pet.Id, pet.UserId, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoId, pet.BirthDay,
                 pet.Color, pet.Weight, pet.Sterilization, pet.SoonEvents.Select(x => x.AsBusiness()).ToList(),
-                pet.Visits.Select(x => x.AsBusiness()).ToList());
+                pet.Visits.Select(x => x.AsBusiness()).ToList(), pet.PhotoIds);
         }
         
         public static ShelterPet AsBusiness(this PetShelterDocument pet)
         {
-            return new ShelterPet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoPath, pet.BirthDay,
-                pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsBusiness(), pet.Description);
+            return new ShelterPet(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoId, pet.BirthDay,
+                pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress.AsBusiness(), pet.Description, pet.PhotoIds);
         }
 
         private static Location AsBusiness(this LocationDocument location)
@@ -143,94 +130,6 @@ namespace Lapka.Pets.Infrastructure.Documents
             return new Address(address.Name, address.City, address.Street, address.GeoLocation.AsBusiness());
         }
 
-        public static AddressDto AsDto(this AddressDocument address)
-        {
-            return new AddressDto
-            {
-                Name = address.Name,
-                Street = address.Street,
-                City = address.City,
-                GeoLocation = address.GeoLocation.AsDto()
-            };
-        }
-
-        public static LocationDto AsDto(this LocationDocument location)
-        {
-            return new LocationDto
-            {
-                Latitude = location.Latitude,
-                Longitude = location.Longitude
-            };
-        }
-
-        public static PetBasicShelterDto AsBasicDto(this PetShelterDocument pet, string latitude, string longitude)
-        {
-            double? distance = null;
-            if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
-            {
-                Location location = new Location(latitude, longitude);
-                GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
-                    pet.ShelterAddress.GeoLocation.Longitude);
-                GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
-                distance = pin1.GetDistanceTo(pin2);
-            }
-
-            return new PetBasicShelterDto
-            {
-                Id = pet.Id,
-                Name = pet.Name,
-                Sex = pet.Sex,
-                MainPhotoPath = pet.MainPhotoPath,
-                Race = pet.Race,
-                BirthDay = pet.BirthDay,
-                ShelterAddress = pet.ShelterAddress.AsDto(),
-                Distance = distance
-            };
-        }
-        
-        public static PetBasicUserDto AsBasicDto(this PetUserDocument pet)
-        {
-            return new PetBasicUserDto
-            {
-                Id = pet.Id,
-                Name = pet.Name,
-                Sex = pet.Sex,
-                MainPhotoPath = pet.MainPhotoPath,
-                Race = pet.Race,
-                BirthDay = pet.BirthDay
-            };
-        }
-
-        public static PetDetailsShelterDto AsDetailDto(this PetShelterDocument pet, string latitude, string longitude)
-        {
-            double? distance = null;
-            if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
-            {
-                Location location = new Location(latitude, longitude);
-                GeoCoordinate pin1 = new GeoCoordinate(pet.ShelterAddress.GeoLocation.Latitude,
-                    pet.ShelterAddress.GeoLocation.Longitude);
-                GeoCoordinate pin2 = new GeoCoordinate(location.Latitude.AsDouble(), location.Longitude.AsDouble());
-                distance = pin1.GetDistanceTo(pin2);
-            }
-        
-            return new PetDetailsShelterDto
-            {
-                Id = pet.Id,
-                Name = pet.Name,
-                Sex = pet.Sex,
-                Race = pet.Race,
-                Color = pet.Color,
-                BirthDay = pet.BirthDay,
-                MainPhotoPath = pet.MainPhotoPath,
-                Description = pet.Description,
-                ShelterAddress = pet.ShelterAddress.AsDto(),
-                Sterilization = pet.Sterilization,
-                Weight = pet.Weight,
-                Distance = distance,
-                PhotoPaths = pet.PhotoPaths
-            };
-        }
-        
         public static UploadPhotoRequest.Types.Bucket AsGrpcUpload(this BucketName bucket)
         {
             return bucket switch

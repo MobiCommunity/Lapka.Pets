@@ -5,7 +5,7 @@ namespace Lapka.Pets.Application.Services
 {
     public interface IGrpcPetService
     {
-        Task AddPet(Guid userId, Guid petId);
-        Task DeletePet(Guid userId, Guid petId);
+        Task AddPetAsync(Guid userId, Guid petId);
+        Task DeletePetAsync(Guid userId, Guid petId);
     }
 }

@@ -61,7 +61,7 @@ namespace Lapka.Pets.Infrastructure
             
             services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
             {
-                o.Address = new Uri("http://localhost:5011");
+                o.Address = new Uri("http://localhost:5014");
             });
             
             services.AddScoped<IGrpcPetService, GrpcPetService>();

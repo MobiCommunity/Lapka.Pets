@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.ValueObjects;
 
@@ -8,36 +9,59 @@ namespace Lapka.Pets.Core.Entities
 {
     public class UserPet : AggregatePet
     {
-        public IEnumerable<PetEvent> SoonEvents { get; private set; }
-        public IEnumerable<Visit> LastVisits { get; private set; }
+        public Guid UserId { get; }
+        public List<PetEvent> SoonEvents { get; private set; }
+        public List<Visit> LastVisits { get; private set; }
 
-        public UserPet(Guid id, string name, Sex sex, string race, Species species, string photoPath, DateTime birthDay,
-            string color, double weight, bool sterilization, IEnumerable<PetEvent> soonEvents,
-            IEnumerable<Visit> lastVisits) : base(id, name, sex, race, species, photoPath, birthDay, color, weight,
-            sterilization)
+        public UserPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
+            DateTime birthDay, string color, double weight, bool sterilization, List<PetEvent> soonEvents,
+            List<Visit> lastVisits, List<Guid> photoIds) : base(id, name, sex, race, species, photoId, birthDay, color,
+            weight, sterilization, photoIds)
         {
+            UserId = userId;
             SoonEvents = soonEvents;
             LastVisits = lastVisits;
         }
 
-        public static UserPet Create(Guid id, string name, Sex sex, string race, Species species, string photoPath,
-            DateTime birthDay, string color, double weight, bool sterilization)
+        public static UserPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species,
+            Guid photoId,
+            DateTime birthDay, string color, double weight, bool sterilization, List<Guid> photoIds)
         {
             Validate(name, race, birthDay, color, weight);
-            UserPet pet = new UserPet(id, name, sex, race, species, photoPath, birthDay, color, weight,
-                sterilization, new List<PetEvent>(), new List<Visit>());
+            UserPet pet = new UserPet(id, userId, name, sex, race, species, photoId, birthDay, color, weight,
+                sterilization, new List<PetEvent>(), new List<Visit>(), photoIds);
 
             pet.AddEvent(new PetCreated<UserPet>(pet));
             return pet;
         }
 
-        public override void Update(string name, string race, Species species, Sex sex, DateTime birthDay, bool sterilization,
-            double weight, string color)
+        public override void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
+            bool sterilization, double weight, string color)
         {
             base.Update(name, race, species, sex, birthDay, sterilization, weight, color);
-            
+
             Validate(name, race, birthDay, color, weight);
 
+            AddEvent(new PetUpdated<UserPet>(this));
+        }
+
+        public void AddLastVisit(Visit visit)
+        {
+            LastVisits.Add(visit);
+            AddEvent(new PetUpdated<UserPet>(this));
+        }
+
+        public void UpdateLastVisit(Visit visitToUpdate, Visit updatedVisit)
+        {
+            visitToUpdate.Update(updatedVisit.LocationName, updatedVisit.IsVisitDone, updatedVisit.VisitDate,
+                updatedVisit.Description, updatedVisit.Weight, updatedVisit.MedicalTreatments);
+
+            AddEvent(new PetUpdated<UserPet>(this));
+        }
+
+        public void AddSoonEvent(PetEvent soonEvent)
+        {
+            SoonEvents.Add(soonEvent);
             AddEvent(new PetUpdated<UserPet>(this));
         }
 

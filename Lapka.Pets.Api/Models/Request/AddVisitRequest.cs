@@ -7,9 +7,9 @@ namespace Lapka.Pets.Api.Models.Request
     public class AddVisitRequest
     {
         [Required]
-        public string PetId { get; set; }
-        [Required]
         public string LocationName { get; set; }
+        [Required] 
+        public Guid UserId { get; set; }
         [Required]
         public bool IsVisitDone { get; set; }
         [Required]

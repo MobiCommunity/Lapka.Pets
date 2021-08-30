@@ -10,37 +10,32 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
-    public class AddUserPetPhotoHandler : ICommandHandler<AddUserPetPhoto>
+    public class AddShelterPetPhotoHandler : ICommandHandler<AddShelterPetPhoto>
     {
         private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<UserPet> _petRepository;
+        private readonly IPetRepository<ShelterPet> _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
 
-        public AddUserPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> petRepository,
+        public AddShelterPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository,
             IGrpcPhotoService grpcPhotoService)
         {
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
         }
-        public async Task HandleAsync(AddUserPetPhoto command)
+        public async Task HandleAsync(AddShelterPetPhoto command)
         {
-            List<string> photoPaths = new List<string>();
-            
-            UserPet pet = await _petRepository.GetByIdAsync(command.PetId);
+            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
             if (pet is null)
             {
                 throw new PetNotFoundException(command.PetId);
             }
 
-            foreach (File photo in command.Photos)
+            foreach (PhotoFile photo in command.Photos)
             {
-                string photoPath = $"{Guid.NewGuid():N}.{photo.GetFileExtension()}";
-                photoPaths.Add(photoPath);
-                
                 try
                 {
-                    await _grpcPhotoService.AddAsync(photoPath, photo.Content, BucketName.PetPhotos);
+                    await _grpcPhotoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
                 }
                 catch(Exception ex)
                 {
@@ -48,7 +43,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 }
             }
 
-            pet.AddPhotos(photoPaths);
+            pet.AddPhotos(command.Photos.IdsAsGuidList());
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }

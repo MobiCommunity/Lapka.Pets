@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
@@ -28,20 +28,37 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(CreateShelterPet command)
         {
-            string mainPhotoPath = $"{Guid.NewGuid():N}.{command.Photo.GetFileExtension()}";
-
             ShelterPet pet = ShelterPet.Create(command.Id, command.Name, command.Sex, command.Race, command.Species,
-                mainPhotoPath, command.BirthDay, command.Color, command.Weight, command.Sterilization,
-                command.ShelterAddress, command.Description);
+                command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight, command.Sterilization,
+                command.ShelterAddress, command.Description,
+                command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
             try
             {
-                await _grpcPhotoService.AddAsync(mainPhotoPath, command.Photo.Content, BucketName.PetPhotos);
+                await _grpcPhotoService.AddAsync(command.MainPhoto.Id, command.MainPhoto.Name,
+                    command.MainPhoto.Content, BucketName.PetPhotos);
+
+                if (command.Photos != null)
+                {
+                    foreach (PhotoFile photo in command.Photos)
+                    {
+                        await _grpcPhotoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+                    }
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Did not upload shelter pet photo");
+                pet.UpdateMainPhoto(Guid.Empty);
+                if (command.Photos != null)
+                {
+                    foreach (PhotoFile photo in command.Photos)
+                    {
+                        pet.RemovePhoto(photo.Id);
+                    }
+                }
             }
+
 
             await _petRepository.AddAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

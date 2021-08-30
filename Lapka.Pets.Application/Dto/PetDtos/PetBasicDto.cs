@@ -14,7 +14,9 @@ namespace Lapka.Pets.Application.Dto
         [Required]
         public Sex Sex { get; set; }
         [Required]
-        public string MainPhotoPath { get; set; }
+        public Species Species { get; set; }
+        [Required]
+        public Guid MainPhotoId { get; set; }
         [Required]
         public string Race { get; set; }
         [Required]

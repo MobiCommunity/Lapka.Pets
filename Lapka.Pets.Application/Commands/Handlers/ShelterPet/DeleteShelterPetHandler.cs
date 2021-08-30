@@ -35,15 +35,13 @@ namespace Lapka.Pets.Application.Commands.Handlers
             }
 
             pet.Delete();
-
-            await _petRepository.DeleteAsync(pet);
             
             try
             {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoPath, BucketName.PetPhotos);
-                foreach (string photo in pet.PhotoPaths)
+                await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
+                foreach (Guid photoId in pet.PhotoIds)
                 {
-                    await _grpcPhotoService.DeleteAsync(photo, BucketName.PetPhotos);
+                    await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
                 }
             }
             catch(Exception ex)
@@ -51,6 +49,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 _logger.LogError(ex, ex.Message);
             }
             
+            await _petRepository.DeleteAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
     }
