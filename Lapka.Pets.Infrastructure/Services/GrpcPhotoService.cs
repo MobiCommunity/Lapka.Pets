@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.ValueObjects;
+using Lapka.Pets.Infrastructure.Documents;
 
 namespace Lapka.Pets.Infrastructure.Services
 {
@@ -15,20 +17,23 @@ namespace Lapka.Pets.Infrastructure.Services
             _client = client;
         }
         
-        public async Task AddAsync(string photoPath, Stream photo)
+        public async Task AddAsync(Guid id, string name, Stream photo, BucketName bucket)
         {
             await _client.UploadPhotoAsync(new UploadPhotoRequest
             {
-                PhotoPath = photoPath,
-                Photo = await ByteString.FromStreamAsync(photo)
+                Id = id.ToString(),
+                Name = name,
+                Photo = await ByteString.FromStreamAsync(photo),
+                BucketName = bucket.AsGrpcUpload()
             });
         }
 
-        public async Task DeleteAsync(string photoPath)
+        public async Task DeleteAsync(Guid photoId, BucketName bucket)
         {
             await _client.DeletePhotoAsync(new DeletePhotoRequest
             {
-                PhotoPath = photoPath
+                Id = photoId.ToString(),
+                BucketName = bucket.AsGrpcDelete()
             });
         }
     }

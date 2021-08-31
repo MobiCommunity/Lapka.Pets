@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using Convey;
+using Convey.Auth;
 using Convey.CQRS.Queries;
 using Convey.HTTP;
 using Convey.MessageBrokers.RabbitMQ;
@@ -10,9 +12,14 @@ using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
+using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lapka.Pets.Infrastructure
@@ -28,24 +35,44 @@ namespace Lapka.Pets.Infrastructure
                 .AddErrorHandler<ExceptionToResponseMapper>()
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
                 // .AddRabbitMq()
+                .AddJwt()
                 .AddMongo()
-                .AddMongoRepository<PetDocument, Guid>("Pets")
+                .AddMongoRepository<PetShelterDocument, Guid>("petsshelter")
+                .AddMongoRepository<PetUserDocument, Guid>("petsuser")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()
                 // .AddMetrics()
                 ;
-
+            
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            
             builder.Services.Configure<KestrelServerOptions>
                 (o => o.AllowSynchronousIO = true);
 
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
             IServiceCollection services = builder.Services;
+            
+            ServiceProvider provider = services.BuildServiceProvider();
+            IConfiguration configuration = provider.GetService<IConfiguration>();
 
+            FilesMicroserviceOptions filesMicroserviceOptions = new FilesMicroserviceOptions();
+            configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
 
+            services.AddGrpcClient<Photo.PhotoClient>(o =>
+            {
+                o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
+            });
+            
+            services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
+            {
+                o.Address = new Uri("http://localhost:5014");
+            });
+            
+            services.AddScoped<IGrpcPetService, GrpcPetService>();
+            
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
-
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 
             services.AddTransient<IEventProcessor, EventProcessor>();
@@ -63,12 +90,20 @@ namespace Lapka.Pets.Infrastructure
             app
                 .UseErrorHandler()
                 .UseConvey()
+                .UseAuthentication()
                 //.UseMetrics()
                 //.UseRabbitMq()
                 ;
 
 
             return app;
+        }
+        
+        public static async Task<Guid> AuthenticateUsingJwtAsync(this HttpContext context)
+        {
+            var authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+
+            return authentication.Succeeded ? Guid.Parse(authentication.Principal.Identity.Name) : Guid.Empty;
         }
     }
 }

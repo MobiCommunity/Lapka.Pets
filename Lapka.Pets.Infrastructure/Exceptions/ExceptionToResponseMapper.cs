@@ -22,6 +22,12 @@ namespace Lapka.Pets.Infrastructure.Exceptions
                             code = petNotFoundException.Code,
                             reason = petNotFoundException.Message
                         },HttpStatusCode.NotFound),
+                    CannotRequestFilesMicroserviceException cannotRequestFilesMicroserviceException => 
+                        new ExceptionResponse (new
+                        {
+                            code = cannotRequestFilesMicroserviceException.Code,
+                            reason = cannotRequestFilesMicroserviceException.Message
+                        },HttpStatusCode.InternalServerError),
                     PetsNotFoundException petsNotFoundException => 
                         new ExceptionResponse (new
                         {

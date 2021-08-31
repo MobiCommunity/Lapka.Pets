@@ -9,12 +9,14 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Open.Serialization.Json.Newtonsoft;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Lapka.Pets.Api.Attributes;
 using Lapka.Pets.Application;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure;
 using Lapka.Pets.Infrastructure.Services;
 
@@ -39,15 +41,11 @@ namespace Lapka.Pets.Api
                         .AddInfrastructure()
                         .AddApplication();
 
-                    services.AddTransient<IPetRepository, PetRepository>();
+                    services.AddTransient<IPetRepository<ShelterPet>, ShelterPetRepository>();
+                    services.AddTransient<IPetRepository<UserPet>, UserPetRepository>();
                     services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
                     
                     AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-                    
-                    services.AddGrpcClient<Photo.PhotoClient>(o =>
-                    {
-                        o.Address = new Uri("http://localhost:5013");
-                    });
                     
                     services.AddSwaggerGen(c =>
                     {
@@ -61,9 +59,36 @@ namespace Lapka.Pets.Api
                         string xmlFile2 = "Lapka.Pets.Application.xml";
                         string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                         string xmlPath2 = Path.Combine(AppContext.BaseDirectory, xmlFile2);
-                        c.OperationFilter<BasicAuthOperationsFilter>();
                         c.IncludeXmlComments(xmlPath);
                         c.IncludeXmlComments(xmlPath2);
+                        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Description = @"JWT Authorization header using the Bearer scheme.
+                                           Enter 'Bearer' [space] and then your token in the text input below.
+                                           Example: 'Bearer 12345abcdef'",
+                            Name = "Authorization",
+                            In = ParameterLocation.Header,
+                            Type = SecuritySchemeType.ApiKey,
+                            Scheme = "Bearer"
+                        });
+                        
+                        c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                    },
+                                    Scheme = "oauth2",
+                                    Name = "Bearer",
+                                    In = ParameterLocation.Header,
+                                },
+                                new List<string>()
+                            }
+                        });
                     });
 
                     services.BuildServiceProvider();
