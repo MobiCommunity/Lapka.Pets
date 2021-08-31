@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using Lapka.Identity.Api.Models;
+using Lapka.Pets.Api.Helpers;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -80,15 +80,7 @@ namespace Lapka.Pets.Api.Controllers
             
             Guid id = Guid.NewGuid();
             Guid mainPhotoId = Guid.NewGuid();
-            List<PhotoFile> photos = new List<PhotoFile>();
-
-            if (pet.Photos != null)
-            {
-                foreach (IFormFile photo in pet.Photos)
-                {
-                    photos.Add(photo.AsPhotoFile(Guid.NewGuid()));
-                }
-            }
+            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(pet.Photos);
 
             await _commandDispatcher.SendAsync(new CreateUserPet(id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
@@ -201,13 +193,8 @@ namespace Lapka.Pets.Api.Controllers
                 return Unauthorized();
             }
             
-            List<PhotoFile> photos = new List<PhotoFile>();
-
-            foreach (IFormFile photo in request.Photos)
-            {
-                photos.Add(photo.AsPhotoFile(Guid.NewGuid()));
-            }
-
+            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(request.Photos);
+            
             await _commandDispatcher.SendAsync(new AddUserPetPhoto(id, userId, photos));
 
             return Ok();

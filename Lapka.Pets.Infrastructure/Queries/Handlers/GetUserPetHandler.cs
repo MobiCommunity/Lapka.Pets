@@ -6,33 +6,26 @@ using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure.Documents;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetUserPetHandler : IQueryHandler<GetUserPet, PetDetailsUserDto>
     {
-        private readonly IMongoRepository<PetUserDocument, Guid> _mongoRepository;
+        private readonly IMongoRepository<PetUserDocument, Guid> _repository;
 
-        public GetUserPetHandler(IMongoRepository<PetUserDocument, Guid> mongoRepository)
+        public GetUserPetHandler(IMongoRepository<PetUserDocument, Guid> repository)
         {
-            _mongoRepository = mongoRepository;
+            _repository = repository;
         }
 
         public async Task<PetDetailsUserDto> HandleAsync(GetUserPet query)
         {
-            PetUserDocument pet = await _mongoRepository.GetAsync(query.Id);
-            if (pet is null)
-            {
-                throw new PetNotFoundException(query.Id);
-            }
+            PetUserDocument pet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
+            PetHelpers.ValidIfUserIsOwnerOfPet(query.UserId, pet.UserId);
 
-            if (pet.UserId != query.UserId)
-            {
-                throw new PetDoesNotBelongToUserException(pet.UserId.ToString(), pet.Id.ToString());
-            }
-
-            return pet.AsBusiness().AsDetailsDto();
+            return pet.AsDetailsDto();
         }
     }
 }

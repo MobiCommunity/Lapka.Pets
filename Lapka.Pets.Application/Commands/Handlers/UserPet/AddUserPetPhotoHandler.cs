@@ -26,24 +26,18 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(AddUserPetPhoto command)
         {
-            UserPet pet = await _petRepository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_petRepository, command.PetId, command.UserId);
 
             foreach (PhotoFile photo in command.Photos)
             {
-                try
-                {
-                    await _grpcPhotoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
-                }
-                catch(Exception ex)
-                {
-                    throw new CannotRequestFilesMicroserviceException(ex);
-                }
+                await PetHelpers.AddPetPhotoAsync(_grpcPhotoService, photo);
             }
-
             pet.AddPhotos(command.Photos.IdsAsGuidList());
+            
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
+
+        
     }
 }

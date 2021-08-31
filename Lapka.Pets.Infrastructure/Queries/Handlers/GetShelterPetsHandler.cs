@@ -6,7 +6,6 @@ using Convey.CQRS.Queries;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
-using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -38,7 +37,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 
             IList<PetShelterDocument> search = await queryable.ToListAsync();
 
-            return search.Select(x => x.AsBusiness().AsBasicDto(query.Latitude, query.Longitude));
+            return search.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
         }
     }
 }

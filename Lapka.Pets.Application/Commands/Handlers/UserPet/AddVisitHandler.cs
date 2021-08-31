@@ -19,9 +19,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(AddVisit command)
         {
-            UserPet pet = await _repository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
-
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_repository, command.PetId, command.UserId);
+            
             pet.AddLastVisit(command.Visit);
 
             await _repository.UpdateAsync(pet);

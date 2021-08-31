@@ -43,6 +43,7 @@ namespace Lapka.Pets.Api
 
                     services.AddTransient<IPetRepository<ShelterPet>, ShelterPetRepository>();
                     services.AddTransient<IPetRepository<UserPet>, UserPetRepository>();
+                    services.AddTransient<IPetRepository<LostPet>, LostPetRepository>();
                     services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
                     
                     AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);

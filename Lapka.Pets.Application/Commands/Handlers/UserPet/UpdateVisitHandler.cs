@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.Handlers.Helpers;
@@ -21,20 +22,24 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(UpdateVisit command)
         {
-            UserPet pet = await _repository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_repository, command.PetId, command.UserId);
 
-
-            Visit visitToUpdate = pet.LastVisits.FirstOrDefault(x => x.Id == command.UpdatedVisit.Id);
-            if (visitToUpdate == null)
-            {
-                throw new VisitNotFoundException(command.UpdatedVisit.Id.ToString());
-            }
-            
+            Visit visitToUpdate = GetVisitToUpdateFromPet(command.UpdatedVisit.Id, pet);
             pet.UpdateLastVisit(visitToUpdate, command.UpdatedVisit);
 
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+        }
+
+        private static Visit GetVisitToUpdateFromPet(Guid visitId, UserPet pet)
+        {
+            Visit visitToUpdate = pet.LastVisits.FirstOrDefault(x => x.Id == visitId);
+            if (visitToUpdate == null)
+            {
+                throw new VisitNotFoundException(visitId.ToString());
+            }
+
+            return visitToUpdate;
         }
     }
 }

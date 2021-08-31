@@ -26,25 +26,11 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(DeleteUserPetPhoto command)
         {
-            UserPet pet = await _petRepository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_petRepository, command.PetId, command.UserId);
+            PetHelpers.CheckIfPhotoExist(command.PhotoId, pet);
             
-            Guid photoId = pet.PhotoIds.FirstOrDefault(x => x == command.PhotoId);
-            if (photoId == Guid.Empty)
-            {
-                throw new PhotoNotFoundException(command.PhotoId.ToString());
-            }
-
-            try
-            {
-                await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
-            }
-            catch(Exception ex)
-            {
-                throw new CannotRequestFilesMicroserviceException(ex);
-            }
-
-            pet.RemovePhoto(photoId);
+            await PetHelpers.DeletePetPhotoAsync(_grpcPhotoService, command.PhotoId);
+            pet.RemovePhoto(command.PhotoId);
             
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

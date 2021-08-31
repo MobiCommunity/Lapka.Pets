@@ -17,10 +17,9 @@ namespace Lapka.Pets.Application.Commands.Abstract
         public DateTime BirthDay { get; }
         public string Color { get; }
         public double Weight { get; }
-        public bool Sterilization { get; }
 
         protected CreatePet(Guid id, string name, Sex sex, string race, Species species, PhotoFile photo,
-            DateTime birthDay, string color, double weight, bool sterilization, IEnumerable<PhotoFile> photoPaths)
+            DateTime birthDay, string color, double weight, IEnumerable<PhotoFile> photoPaths)
         {
             Id = id;
             Name = name;
@@ -31,7 +30,6 @@ namespace Lapka.Pets.Application.Commands.Abstract
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
-            Sterilization = sterilization;
             Photos = photoPaths;
         }
     }

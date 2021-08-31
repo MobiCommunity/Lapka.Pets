@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -25,29 +26,11 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(DeleteShelterPetPhoto command)
         {
-            ShelterPet pet = await _petRepository.GetByIdAsync(command.PetId);
-            if (pet is null)
-            {
-                throw new PetNotFoundException(command.PetId);
-            }
+            ShelterPet pet = await PetHelpers.GetPetFromRepositoryAsync(_petRepository, command.PetId);
+            PetHelpers.CheckIfPhotoExist(command.PhotoId, pet);
 
-            Guid photoId = pet.PhotoIds.FirstOrDefault(x => x == command.PhotoId);
-
-            if (photoId == Guid.Empty)
-            {
-                throw new PhotoNotFoundException(command.PhotoId.ToString());
-            }
-            
-            try
-            {
-                await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
-            }
-            catch(Exception ex)
-            {
-                throw new CannotRequestFilesMicroserviceException(ex);
-            }
-
-            pet.RemovePhoto(photoId);
+            await PetHelpers.DeletePetPhotoAsync(_grpcPhotoService, command.PhotoId);
+            pet.RemovePhoto(command.PhotoId);
             
             await _petRepository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

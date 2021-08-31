@@ -20,9 +20,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
         }
         public async Task HandleAsync(AddSoonEvent command)
         {
-            UserPet pet = await _repository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
-
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_repository, command.PetId, command.UserId);
             
             pet.AddSoonEvent(command.SoonEvent);
 
