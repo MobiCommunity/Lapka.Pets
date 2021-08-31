@@ -15,18 +15,18 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetUserPetsHandler : IQueryHandler<GetUserPets, IEnumerable<PetBasicUserDto>>
     {
-        private readonly IMongoRepository<PetUserDocument, Guid> _mongoRepository;
+        private readonly IMongoRepository<PetUserDocument, Guid> _repository;
 
-        public GetUserPetsHandler(IMongoRepository<PetUserDocument, Guid> mongoRepository)
+        public GetUserPetsHandler(IMongoRepository<PetUserDocument, Guid> repository)
         {
-            _mongoRepository = mongoRepository;
+            _repository = repository;
         }
 
         public async Task<IEnumerable<PetBasicUserDto>> HandleAsync(GetUserPets query)
         {
-            IReadOnlyList<PetUserDocument> pets = await _mongoRepository.FindAsync(x => x.UserId == query.UserId);
+            IReadOnlyList<PetUserDocument> pets = await _repository.FindAsync(x => x.UserId == query.UserId);
 
-            return pets.Select(x => x.AsBusiness().AsBasicDto());
+            return pets.Select(x => x.AsBasicDto());
         }
     }
 }

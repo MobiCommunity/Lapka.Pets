@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -23,11 +24,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(UpdateShelterPet command)
         {
-            ShelterPet pet = await _petRepository.GetByIdAsync(command.Id);
-            if (pet is null)
-            {
-                throw new PetNotFoundException(command.Id);
-            }
+            ShelterPet pet = await PetHelpers.GetPetFromRepositoryAsync(_petRepository, command.Id);
 
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
                 command.Sterilization, command.Weight, command.Color, command.ShelterAddress, command.Description);

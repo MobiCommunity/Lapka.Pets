@@ -10,14 +10,16 @@ namespace Lapka.Pets.Core.Entities
     {
         public Address ShelterAddress { get; private set; }
         public string Description { get; private set; }
-
+        public bool Sterilization { get; private set; }
+        
         public ShelterPet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId,
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
             string description, List<Guid> photoIds) : base(id, name, sex, race, species, mainPhotoId, birthDay,
-            color, weight, sterilization, photoIds)
+            color, weight, photoIds)
         {
             ShelterAddress = shelterAddress;
             Description = description;
+            Sterilization = sterilization;
         }
 
         public static ShelterPet Create(Guid id, string name, Sex sex, string race, Species species, Guid photoId,
@@ -35,11 +37,12 @@ namespace Lapka.Pets.Core.Entities
         public void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
             bool sterilization, double weight, string color, Address shelterAddress, string description)
         {
-            Update(name, race, species, sex, birthDay, sterilization, weight, color);
+            Update(name, race, species, sex, birthDay, weight, color);
             Validate(name, race, birthDay, color, weight, description);
 
             ShelterAddress = shelterAddress;
             Description = description;
+            Sterilization = sterilization;
 
             AddEvent(new PetUpdated<ShelterPet>(this));
         }
@@ -56,7 +59,6 @@ namespace Lapka.Pets.Core.Entities
             base.RemovePhoto(photoId);
             
             AddEvent(new PetPhotoDeleted<ShelterPet>(this, photoId));
-
         }
         
         public override void UpdateMainPhoto(Guid photoId)

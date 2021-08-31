@@ -23,8 +23,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(UpdateUserPet command)
         {
-            UserPet pet = await _petRepository.GetByIdAsync(command.Id);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.Id, pet);
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_petRepository, command.Id, command.UserId);
 
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
                 command.Sterilization, command.Weight, command.Color);

@@ -39,6 +39,7 @@ namespace Lapka.Pets.Infrastructure
                 .AddMongo()
                 .AddMongoRepository<PetShelterDocument, Guid>("petsshelter")
                 .AddMongoRepository<PetUserDocument, Guid>("petsuser")
+                .AddMongoRepository<LostPetDocument, Guid>("lostpets")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()

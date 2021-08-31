@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
@@ -33,32 +34,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 command.ShelterAddress, command.Description,
                 command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
-            try
-            {
-                await _grpcPhotoService.AddAsync(command.MainPhoto.Id, command.MainPhoto.Name,
-                    command.MainPhoto.Content, BucketName.PetPhotos);
-
-                if (command.Photos != null)
-                {
-                    foreach (PhotoFile photo in command.Photos)
-                    {
-                        await _grpcPhotoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Did not upload shelter pet photo");
-                pet.UpdateMainPhoto(Guid.Empty);
-                if (command.Photos != null)
-                {
-                    foreach (PhotoFile photo in command.Photos)
-                    {
-                        pet.RemovePhoto(photo.Id);
-                    }
-                }
-            }
-
+            await PetHelpers.AddPetPhotosAsync(_logger, _grpcPhotoService, _petRepository, command.MainPhoto,
+                command.Photos, pet);
 
             await _petRepository.AddAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

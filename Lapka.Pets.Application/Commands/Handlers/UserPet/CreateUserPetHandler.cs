@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -34,31 +35,25 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 command.Species, command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight,
                 command.Sterilization, command.Photos.IdsAsGuidList());
 
+            await AddPetToUserInIdentityAsync(command.UserId, command.Id);
+            await PetHelpers.AddPetPhotosAsync(_logger, _grpcPhotoService, _petRepository, command.MainPhoto,
+                command.Photos, pet);
+
+
+            await _petRepository.AddAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);
+        }
+
+        private async Task AddPetToUserInIdentityAsync(Guid userId, Guid petId)
+        {
             try
             {
-                await _grpcPetService.AddPetAsync(command.UserId, command.Id);
+                await _grpcPetService.AddPetAsync(userId, petId);
             }
             catch (Exception e)
             {
                 throw new CannotRequestPetsMicroserviceException(e);
             }
-
-            try
-            {
-                await _grpcPhotoService.AddAsync(command.MainPhoto.Id, command.MainPhoto.Name,
-                    command.MainPhoto.Content, BucketName.PetPhotos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-
-                pet.UpdateMainPhoto(command.MainPhoto.Id);
-
-                await _petRepository.UpdateAsync(pet);
-            }
-
-            await _petRepository.AddAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
         }
     }
 }

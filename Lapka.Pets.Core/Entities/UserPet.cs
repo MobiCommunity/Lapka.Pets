@@ -12,15 +12,17 @@ namespace Lapka.Pets.Core.Entities
         public Guid UserId { get; }
         public List<PetEvent> SoonEvents { get; private set; }
         public List<Visit> LastVisits { get; private set; }
+        public bool Sterelization { get; private set; }
 
         public UserPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
             DateTime birthDay, string color, double weight, bool sterilization, List<PetEvent> soonEvents,
             List<Visit> lastVisits, List<Guid> photoIds) : base(id, name, sex, race, species, photoId, birthDay, color,
-            weight, sterilization, photoIds)
+            weight, photoIds)
         {
             UserId = userId;
             SoonEvents = soonEvents;
             LastVisits = lastVisits;
+            Sterelization = sterilization;
         }
 
         public static UserPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species,
@@ -35,10 +37,11 @@ namespace Lapka.Pets.Core.Entities
             return pet;
         }
 
-        public override void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
+        public void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
             bool sterilization, double weight, string color)
         {
-            base.Update(name, race, species, sex, birthDay, sterilization, weight, color);
+            base.Update(name, race, species, sex, birthDay, weight, color);
+            Sterelization = sterilization;
 
             Validate(name, race, birthDay, color, weight);
 

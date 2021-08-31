@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.Handlers.Helpers;
@@ -6,7 +7,6 @@ using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
-using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
@@ -31,35 +31,26 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(DeleteUserPet command)
         {
-            UserPet pet = await _petRepository.GetByIdAsync(command.PetId);
-            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
-
-            pet.Delete();
+            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_petRepository, command.PetId, command.UserId);
             
+            await DeletePetFromIdentityServiceAsync(command.UserId, command.PetId);
+            await PetHelpers.DeletePetPhotosAsync(_logger, _grpcPhotoService, pet.MainPhotoId, pet.PhotoIds);
+            pet.Delete();
+
+            await _petRepository.DeleteAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);
+        }
+
+        private async Task DeletePetFromIdentityServiceAsync(Guid userId, Guid petId)
+        {
             try
             {
-                await _grpcPetService.DeletePetAsync(command.UserId, command.PetId);
+                await _grpcPetService.DeletePetAsync(userId, petId);
             }
             catch (Exception ex)
             {
                 throw new CannotRequestPetsMicroserviceException(ex);
             }
-            
-            try
-            {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
-                foreach (Guid photoId in pet.PhotoIds)
-                {
-                    await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-            }
-
-            await _petRepository.DeleteAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
         }
     }
 }

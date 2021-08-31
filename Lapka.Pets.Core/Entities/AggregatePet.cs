@@ -19,10 +19,10 @@ namespace Lapka.Pets.Core.Entities
         public DateTime BirthDay { get; private set; }
         public string Color { get; private set; }
         public double Weight { get; private set; }
-        public bool Sterilization { get; private set; }
-        
-        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId, DateTime birthDay,
-            string color, double weight, bool sterilization, List<Guid> photoIds)
+
+        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId,
+            DateTime birthDay,
+            string color, double weight, List<Guid> photoIds)
         {
             Id = new AggregateId(id);
             Name = name;
@@ -34,11 +34,10 @@ namespace Lapka.Pets.Core.Entities
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
-            Sterilization = sterilization;
         }
 
-        public virtual void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
-            bool sterilization, double weight, string color)
+        public virtual void Update(string name, string race, Species species, Sex sex, DateTime birthDay, double weight,
+            string color)
         {
             Validate(name, race, birthDay, color, weight);
 
@@ -47,7 +46,6 @@ namespace Lapka.Pets.Core.Entities
             Species = species;
             Sex = sex;
             BirthDay = birthDay;
-            Sterilization = sterilization;
             Weight = weight;
             Color = color;
         }
@@ -56,7 +54,7 @@ namespace Lapka.Pets.Core.Entities
         {
             MainPhotoId = mainPhotoId;
         }
-        
+
         public virtual void AddPhotos(List<Guid> photoIds)
         {
             foreach (Guid path in photoIds)
@@ -64,11 +62,12 @@ namespace Lapka.Pets.Core.Entities
                 PhotoIds.Add(path);
             }
         }
-        
+
         public virtual void RemovePhoto(Guid photoId)
         {
             PhotoIds.Remove(photoId);
         }
+
         public abstract void Delete();
 
         protected static void Validate(string name, string race, DateTime birthDay, string color, double weight)
