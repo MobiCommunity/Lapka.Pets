@@ -17,14 +17,16 @@ namespace Lapka.Pets.Application.Commands.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IPetRepository<UserPet> _petRepository;
         private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly IGrpcPetService _grpcPetService;
 
         public DeleteUserPetHandler(ILogger<DeleteUserPetHandler> logger, IEventProcessor eventProcessor,
-            IPetRepository<UserPet> petRepository, IGrpcPhotoService grpcPhotoService)
+            IPetRepository<UserPet> petRepository, IGrpcPhotoService grpcPhotoService, IGrpcPetService grpcPetService)
         {
             _logger = logger;
             _eventProcessor = eventProcessor;
             _petRepository = petRepository;
             _grpcPhotoService = grpcPhotoService;
+            _grpcPetService = grpcPetService;
         }
 
         public async Task HandleAsync(DeleteUserPet command)
@@ -33,6 +35,15 @@ namespace Lapka.Pets.Application.Commands.Handlers
             UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
 
             pet.Delete();
+            
+            try
+            {
+                await _grpcPetService.DeletePetAsync(command.UserId, command.PetId);
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestPetsMicroserviceException(ex);
+            }
             
             try
             {
