@@ -8,6 +8,7 @@ namespace Lapka.Pets.Application.Commands
     public class UpdateUserPet : ICommand
     {
         public Guid Id { get; }
+        public Guid UserId { get; set; }
         public string Name { get; }
         public string Race { get; }
         public Species Species { get; }
@@ -17,10 +18,11 @@ namespace Lapka.Pets.Application.Commands
         public double Weight { get; }
         public string Color { get; }
 
-        public UpdateUserPet(Guid id, string name, string race, Species species, Sex sex,
+        public UpdateUserPet(Guid id, Guid userId, string name, string race, Species species, Sex sex,
             DateTime dateOfBirth, bool sterilization, double weight, string color)
         {
             Id = id;
+            UserId = userId;
             Name = name;
             Race = race;
             Species = species;

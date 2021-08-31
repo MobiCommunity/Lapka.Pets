@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
@@ -21,10 +22,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
         public async Task HandleAsync(UpdateVisit command)
         {
             UserPet pet = await _repository.GetByIdAsync(command.PetId);
-            if (!pet.UserId.Equals(command.UserId))
-            {
-                throw new PetDoesNotBelongToUserException(command.UserId.ToString(), pet.Id.ToString());
-            }
+            UserPetHelpers.ValidateUserAndPet(command.UserId, command.PetId, pet);
+
 
             Visit visitToUpdate = pet.LastVisits.FirstOrDefault(x => x.Id == command.UpdatedVisit.Id);
             if (visitToUpdate == null)

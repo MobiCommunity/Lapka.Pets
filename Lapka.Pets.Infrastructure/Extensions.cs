@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using Convey;
+using Convey.Auth;
 using Convey.CQRS.Queries;
 using Convey.HTTP;
 using Convey.MessageBrokers.RabbitMQ;
@@ -12,7 +14,10 @@ using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +35,7 @@ namespace Lapka.Pets.Infrastructure
                 .AddErrorHandler<ExceptionToResponseMapper>()
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
                 // .AddRabbitMq()
+                .AddJwt()
                 .AddMongo()
                 .AddMongoRepository<PetShelterDocument, Guid>("petsshelter")
                 .AddMongoRepository<PetUserDocument, Guid>("petsuser")
@@ -84,12 +90,20 @@ namespace Lapka.Pets.Infrastructure
             app
                 .UseErrorHandler()
                 .UseConvey()
+                .UseAuthentication()
                 //.UseMetrics()
                 //.UseRabbitMq()
                 ;
 
 
             return app;
+        }
+        
+        public static async Task<Guid> AuthenticateUsingJwtAsync(this HttpContext context)
+        {
+            var authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+
+            return authentication.Succeeded ? Guid.Parse(authentication.Principal.Identity.Name) : Guid.Empty;
         }
     }
 }

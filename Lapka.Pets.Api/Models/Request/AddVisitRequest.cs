@@ -8,8 +8,6 @@ namespace Lapka.Pets.Api.Models.Request
     {
         [Required]
         public string LocationName { get; set; }
-        [Required] 
-        public Guid UserId { get; set; }
         [Required]
         public bool IsVisitDone { get; set; }
         [Required]

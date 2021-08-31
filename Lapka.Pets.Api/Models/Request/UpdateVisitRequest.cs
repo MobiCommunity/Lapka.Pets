@@ -8,11 +8,6 @@ namespace Lapka.Pets.Api.Models.Request
     {
         [Required]
         public string LocationName { get; set; }
-        /// <summary>
-        /// For testing purpose until user has to log in to update visit
-        /// </summary>
-        [Required] 
-        public Guid UserId { get; set; }
         [Required]
         public bool IsVisitDone { get; set; }
         [Required]

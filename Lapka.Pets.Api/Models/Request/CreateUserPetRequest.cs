@@ -9,8 +9,6 @@ namespace Lapka.Pets.Api.Models.Request
 {
     public class CreateUserPetRequest
     {
-        [Required] 
-        public Guid UserId { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

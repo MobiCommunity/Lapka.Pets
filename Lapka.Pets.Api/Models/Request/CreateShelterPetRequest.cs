@@ -19,7 +19,6 @@ namespace Lapka.Pets.Api.Models.Request
         public Species Species { get; set; }
         [Required]
         public IFormFile MainPhoto { get; set; }
-        [Required]
         public List<IFormFile> Photos { get; set; }
         [Required]
         public DateTime BirthDay { get; set; }

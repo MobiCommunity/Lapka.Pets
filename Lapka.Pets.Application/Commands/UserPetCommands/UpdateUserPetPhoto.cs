@@ -9,11 +9,13 @@ namespace Lapka.Pets.Application.Commands
     public class UpdateUserPetPhoto : ICommand
     {
         public Guid Id { get; }
+        public Guid UserId { get; set; }
         public PhotoFile Photo { get; }
 
-        public UpdateUserPetPhoto(Guid id, PhotoFile photo)
+        public UpdateUserPetPhoto(Guid id, Guid userId, PhotoFile photo)
         {
             Id = id;
+            UserId = userId;
             Photo = photo;
         }
     }

@@ -10,6 +10,7 @@ using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
+using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,16 +28,15 @@ namespace Lapka.Pets.Api.Controllers
             _commandDispatcher = commandDispatcher;
             _queryDispatcher = queryDispatcher;
         }
-
+        
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to get pet. Returns only provided
-        /// user's pet
+        /// Gets user pet by ID (auth required)
         /// </summary>
-        [HttpGet("{id:guid}/{userId:guid}")]
-        public async Task<IActionResult> Get(Guid id, Guid userId)
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            if (!Guid.TryParse(userId.ToString(), out userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -49,14 +49,13 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to get pets. Returns only provided
-        /// user's pets
+        /// Gets all user pets (auth required)
         /// </summary>
-        [HttpGet("{userId:guid}")]
-        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(Guid userId)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
         {
-            if (!Guid.TryParse(userId.ToString(), out userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -68,13 +67,13 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to add pet
+        /// Add user's pet (auth required)
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
         {
-            if (!Guid.TryParse(pet.UserId.ToString(), out Guid userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -99,13 +98,13 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to add pet visit
+        /// Add visit for the user's pet (auth required)
         /// </summary>
         [HttpPost("{id:guid}/visit")]
         public async Task<IActionResult> AddVisit(Guid id, [FromBody] AddVisitRequest request)
         {
-            if (!Guid.TryParse(request.UserId.ToString(), out Guid userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -118,14 +117,14 @@ namespace Lapka.Pets.Api.Controllers
         }
         
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to update a visit
+        /// Updates a visit for the user's pet (auth required)
         /// </summary>
         
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
         public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, [FromBody] UpdateVisitRequest request)
         {
-            if (!Guid.TryParse(request.UserId.ToString(), out Guid userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -136,14 +135,14 @@ namespace Lapka.Pets.Api.Controllers
         }
         
         /// <summary>
-        /// User id has to be provided (from identity service) until
-        /// auth will be required to add pet soon event
+        /// Adds event for the user's pet (auth required)
         /// </summary>
 
         [HttpPost("{id:guid}/soonEvent")]
         public async Task<IActionResult> AddSoonEvent(Guid id, [FromBody] AddSoonEventRequest request)
         {
-            if (!Guid.TryParse(request.UserId.ToString(), out Guid userId))
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
             {
                 return Unauthorized();
             }
@@ -154,33 +153,54 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
+        
+        /// <summary>
+        /// Deletes user's pet (auth required)
+        /// </summary>
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            string userId = User.Identity.Name;
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+            
             await _commandDispatcher.SendAsync(new DeleteUserPet(userId, id));
 
             return NoContent();
         }
 
         /// <summary>
-        /// Deletes photo from Photos list (not a main photo)
+        /// Deletes photo from pet's photos list(not a main photo)(auth required)
         /// </summary>
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
-            await _commandDispatcher.SendAsync(new DeleteUserPetPhoto(id, photo.Id));
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+            
+            await _commandDispatcher.SendAsync(new DeleteUserPetPhoto(id, userId, photo.Id));
 
             return Ok();
         }
         
         /// <summary>
-        /// Adds multiple photos to pet
+        /// Adds multiple photos to the pet(auth required)
         /// </summary>
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+            
             List<PhotoFile> photos = new List<PhotoFile>();
 
             foreach (IFormFile photo in request.Photos)
@@ -188,28 +208,43 @@ namespace Lapka.Pets.Api.Controllers
                 photos.Add(photo.AsPhotoFile(Guid.NewGuid()));
             }
 
-            await _commandDispatcher.SendAsync(new AddUserPetPhoto(id, photos));
+            await _commandDispatcher.SendAsync(new AddUserPetPhoto(id, userId, photos));
 
             return Ok();
         }
 
         /// <summary>
-        /// Updates only main pet photo
+        /// Updates only pet's main photo(auth required)
         /// </summary>
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+            
             Guid photoId = Guid.NewGuid();
 
-            await _commandDispatcher.SendAsync(new UpdateUserPetPhoto(id, petUpdate.File.AsPhotoFile(photoId)));
+            await _commandDispatcher.SendAsync(new UpdateUserPetPhoto(id, userId, petUpdate.File.AsPhotoFile(photoId)));
 
             return NoContent();
         }
 
+        /// <summary>
+        /// Updates the user's pet (auth required)
+        /// </summary>
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
         {
-            await _commandDispatcher.SendAsync(new UpdateUserPet(id, pet.Name, pet.Race, pet.Species, pet.Sex,
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+            
+            await _commandDispatcher.SendAsync(new UpdateUserPet(id, userId, pet.Name, pet.Race, pet.Species, pet.Sex,
                 pet.DateOfBirth, pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();

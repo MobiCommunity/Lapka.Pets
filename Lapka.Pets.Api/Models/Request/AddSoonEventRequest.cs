@@ -5,8 +5,6 @@ namespace Lapka.Pets.Api.Models.Request
 {
     public class AddSoonEventRequest
     {
-        [Required] 
-        public Guid UserId { get; set; }
         [Required]
         public DateTime DateOfEvent { get; set; }
         [Required]

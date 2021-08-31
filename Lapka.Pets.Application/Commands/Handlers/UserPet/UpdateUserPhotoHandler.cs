@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -27,11 +28,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
         public async Task HandleAsync(UpdateUserPetPhoto command)
         {
             UserPet pet = await _petRepository.GetByIdAsync(command.Id);
-            if (pet is null)
-            {
-                throw new PetNotFoundException(command.Id);
-            }
-
+            UserPetHelpers.ValidateUserAndPet(command.UserId, command.Id, pet);
+            
             try
             {
                 await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
