@@ -60,6 +60,9 @@ namespace Lapka.Pets.Infrastructure
 
             FilesMicroserviceOptions filesMicroserviceOptions = new FilesMicroserviceOptions();
             configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
+            
+            IdentityMicroserviceOptions identityMicroserviceOptions = new IdentityMicroserviceOptions();
+            configuration.GetSection("identityMicroservice").Bind(identityMicroserviceOptions);
 
             services.AddGrpcClient<Photo.PhotoClient>(o =>
             {
@@ -68,7 +71,7 @@ namespace Lapka.Pets.Infrastructure
             
             services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
             {
-                o.Address = new Uri("http://localhost:5014");
+                o.Address = new Uri(identityMicroserviceOptions.UrlHttp2);
             });
             
             services.AddScoped<IGrpcPetService, GrpcPetService>();
