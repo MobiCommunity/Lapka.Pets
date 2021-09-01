@@ -64,6 +64,9 @@ namespace Lapka.Pets.Infrastructure
             IdentityMicroserviceOptions identityMicroserviceOptions = new IdentityMicroserviceOptions();
             configuration.GetSection("identityMicroservice").Bind(identityMicroserviceOptions);
 
+            services.AddSingleton(filesMicroserviceOptions);
+            services.AddSingleton(identityMicroserviceOptions);
+
             services.AddGrpcClient<Photo.PhotoClient>(o =>
             {
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
