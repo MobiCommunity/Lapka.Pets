@@ -14,16 +14,16 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetShelterPetsHandler : IQueryHandler<GetShelterPets, IEnumerable<PetBasicShelterDto>>
     {
-        private readonly IMongoRepository<PetShelterDocument, Guid> _mongoRepository;
+        private readonly IMongoRepository<ShelterPetDocument, Guid> _mongoRepository;
 
-        public GetShelterPetsHandler(IMongoRepository<PetShelterDocument, Guid> mongoRepository)
+        public GetShelterPetsHandler(IMongoRepository<ShelterPetDocument, Guid> mongoRepository)
         {
             _mongoRepository = mongoRepository;
         }
 
         public async Task<IEnumerable<PetBasicShelterDto>> HandleAsync(GetShelterPets query)
         {
-            IMongoQueryable<PetShelterDocument> queryable = _mongoRepository.Collection.AsQueryable();
+            IMongoQueryable<ShelterPetDocument> queryable = _mongoRepository.Collection.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Name))
             {
@@ -35,7 +35,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
                 queryable = queryable.Where(x => x.Race.Contains(query.Race));
             }
 
-            IList<PetShelterDocument> search = await queryable.ToListAsync();
+            IList<ShelterPetDocument> search = await queryable.ToListAsync();
 
             return search.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
         }

@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 
@@ -8,21 +7,19 @@ namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class LikePetHandler : ICommandHandler<LikePet>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<ShelterPet> _petRepository;
+        private readonly IShelterPetService _petService;
+        private readonly IPetLikesService _petLikesService;
 
-        public LikePetHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository)
+        public LikePetHandler(IShelterPetService petService, IPetLikesService petLikesService)
         {
-            _eventProcessor = eventProcessor;
-            _petRepository = petRepository;
+            _petService = petService;
+            _petLikesService = petLikesService;
         }
         public async Task HandleAsync(LikePet command)
         {
-            ShelterPet pet = await PetHelpers.GetPetFromRepositoryAsync(_petRepository, command.PetId);
+            ShelterPet pet = await _petService.GetAsync(command.PetId);
             
-
-            await _petRepository.UpdateAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petLikesService.LikePet(pet.Id.Value, command.UserId);
         }
     }
 }

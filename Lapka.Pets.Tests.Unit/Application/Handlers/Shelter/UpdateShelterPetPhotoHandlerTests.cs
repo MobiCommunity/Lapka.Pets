@@ -15,17 +15,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
     public class UpdateShelterPetPhotoHandlerTests
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly UpdateShelterPetPhotoHandler _handler;
-        private readonly IPetRepository<ShelterPet> _petRepository;
+        private readonly IShelterPetService _petService;
+        private readonly IShelterPetPhotoService _petPhotoService;
 
         public UpdateShelterPetPhotoHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
-            _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
-            _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new UpdateShelterPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
+            _petPhotoService = Substitute.For<IShelterPetPhotoService>();
+            _petService = Substitute.For<IShelterPetService>();
+            _handler = new UpdateShelterPetPhotoHandler(_petService, _petPhotoService);
         }
 
         private Task Act(UpdateShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -38,15 +36,11 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             Guid photoIdBeforeUpdated = pet.MainPhotoId;
             UpdateShelterPetPhoto command = new UpdateShelterPetPhoto(pet.Id.Value, file);
 
-            _petRepository.GetByIdAsync(command.PetId).Returns(pet);
+            _petService.GetAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
-            await _petRepository.Received().UpdateAsync(pet);
-            await _grpcPhotoService.Received().DeleteAsync(photoIdBeforeUpdated, BucketName.PetPhotos);
-            await _grpcPhotoService.Received().AddAsync(Arg.Is(file.Id),Arg.Is(file.Name), Arg.Is(file.Content),
-                Arg.Is(BucketName.PetPhotos));
-            await _eventProcessor.Received().ProcessAsync(pet.Events);
+            await _petService.Received().UpdateAsync(pet);
         }
     }
 }

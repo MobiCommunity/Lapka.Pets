@@ -1,31 +1,25 @@
 ﻿using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
-using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class AddSoonEventHandler : ICommandHandler<AddSoonEvent>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<UserPet> _repository;
-
-        public AddSoonEventHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> repository)
+        private readonly IUserPetService _petService;
+        public AddSoonEventHandler(IUserPetService petService)
         {
-            _eventProcessor = eventProcessor;
-            _repository = repository;
+            _petService = petService;
         }
         public async Task HandleAsync(AddSoonEvent command)
         {
-            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_repository, command.PetId, command.UserId);
+            UserPet pet = await _petService.GetAsync(command.PetId);
+            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
             
             pet.AddSoonEvent(command.SoonEvent);
 
-            await _repository.UpdateAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petService.UpdateAsync(pet);
         }
     }
 }

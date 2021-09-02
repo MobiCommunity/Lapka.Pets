@@ -15,17 +15,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
     public class DeletePetPhotoHandlerTests
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly DeleteShelterPetPhotoHandler _handler;
-        private readonly IPetRepository<ShelterPet> _petRepository;
+        private readonly IShelterPetService _petService;
+        private readonly IShelterPetPhotoService _petPhotoService;
 
         public DeletePetPhotoHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
-            _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
-            _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new DeleteShelterPetPhotoHandler(_eventProcessor, _petRepository, _grpcPhotoService);
+            _petPhotoService = Substitute.For<IShelterPetPhotoService>();
+            _petService = Substitute.For<IShelterPetService>();
+            _handler = new DeleteShelterPetPhotoHandler(_petService, _petPhotoService);
         }
 
         private Task Act(DeleteShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -41,13 +39,11 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             Guid photoPath = pet.PhotoIds.First();
             DeleteShelterPetPhoto command = new DeleteShelterPetPhoto(pet.Id.Value, photoPath);
 
-            _petRepository.GetByIdAsync(command.PetId).Returns(pet);
+            _petService.GetAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
-            await _petRepository.Received().UpdateAsync(pet);
-            await _grpcPhotoService.Received().DeleteAsync(photoPath, BucketName.PetPhotos);
-            await _eventProcessor.Received().ProcessAsync(pet.Events);
+            await _petPhotoService.Received().DeletePetPhotoAsync(photoPath, pet);
         }
     }
 }

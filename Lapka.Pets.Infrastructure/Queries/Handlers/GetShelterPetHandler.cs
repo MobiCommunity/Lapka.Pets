@@ -10,18 +10,18 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetShelterPetHandler : IQueryHandler<GetShelterPet, PetDetailsShelterDto>
     {
-        private readonly IMongoRepository<PetShelterDocument, Guid> _repository;
+        private readonly IMongoRepository<ShelterPetDocument, Guid> _repository;
 
-        public GetShelterPetHandler(IMongoRepository<PetShelterDocument, Guid> repository)
+        public GetShelterPetHandler(IMongoRepository<ShelterPetDocument, Guid> repository)
         {
             _repository = repository;
         }
 
         public async Task<PetDetailsShelterDto> HandleAsync(GetShelterPet query)
         {
-            PetShelterDocument pet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
+            ShelterPetDocument shelterPet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
 
-            return pet.AsDetailDto(query.Latitude, query.Longitude);
+            return shelterPet.AsDetailDto(query.Latitude, query.Longitude);
         }
     }
 }

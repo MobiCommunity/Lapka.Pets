@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 
@@ -8,27 +7,20 @@ namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class DeleteLostPetPhotoHandler : ICommandHandler<DeleteLostPetPhoto>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<LostPet> _petRepository;
-        private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly ILostPetService _petService;
+        private readonly ILostPetPhotoService _petPhotoService;
 
-        public DeleteLostPetPhotoHandler(IEventProcessor eventProcessor, IPetRepository<LostPet> petRepository,
-            IGrpcPhotoService grpcPhotoService)
+        public DeleteLostPetPhotoHandler(ILostPetService petService, ILostPetPhotoService petPhotoService)
         {
-            _eventProcessor = eventProcessor;
-            _petRepository = petRepository;
-            _grpcPhotoService = grpcPhotoService;
+            _petService = petService;
+            _petPhotoService = petPhotoService;
         }
         public async Task HandleAsync(DeleteLostPetPhoto command)
         {
-            LostPet pet = await PetHelpers.GetPetFromRepositoryAsync(_petRepository, command.PetId);
-            PetHelpers.CheckIfPhotoExist(command.PhotoId, pet);
-
-            await PetHelpers.DeletePetPhotoAsync(_grpcPhotoService, command.PhotoId);
-            pet.RemovePhoto(command.PhotoId);
+            LostPet pet = await _petService.GetAsync(command.PetId);
             
-            await _petRepository.UpdateAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petPhotoService.DeletePetPhotoAsync(command.PhotoId, pet);
+            await _petService.UpdateAsync(pet);
         }
     }
 }

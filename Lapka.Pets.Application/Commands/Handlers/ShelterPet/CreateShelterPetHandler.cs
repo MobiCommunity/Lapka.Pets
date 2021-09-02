@@ -2,29 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class CreateShelterPetHandler : ICommandHandler<CreateShelterPet>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<ShelterPet> _petRepository;
-        private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly ILogger<CreateShelterPetHandler> _logger;
+        private readonly IShelterPetService _petService;
 
-        public CreateShelterPetHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository,
-            IGrpcPhotoService grpcPhotoService, ILogger<CreateShelterPetHandler> logger)
+        public CreateShelterPetHandler(ILogger<CreateShelterPetHandler> logger, IShelterPetService petService)
         {
-            _eventProcessor = eventProcessor;
-            _petRepository = petRepository;
-            _grpcPhotoService = grpcPhotoService;
             _logger = logger;
+            _petService = petService;
         }
 
         public async Task HandleAsync(CreateShelterPet command)
@@ -34,11 +27,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 command.ShelterAddress, command.Description,
                 command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
-            await PetHelpers.AddPetPhotosAsync(_logger, _grpcPhotoService, _petRepository, command.MainPhoto,
-                command.Photos, pet);
-
-            await _petRepository.AddAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petService.AddAsync(_logger, command.MainPhoto, null, pet);
         }
     }
 }

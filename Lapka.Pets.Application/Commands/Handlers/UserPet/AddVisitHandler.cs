@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
-using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 
@@ -9,22 +7,20 @@ namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class AddVisitHandler : ICommandHandler<AddVisit>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<UserPet> _repository;
+        private readonly IUserPetService _petService;
 
-        public AddVisitHandler(IEventProcessor eventProcessor, IPetRepository<UserPet> repository)
+        public AddVisitHandler(IUserPetService petService)
         {
-            _eventProcessor = eventProcessor;
-            _repository = repository;
+            _petService = petService;
         }
         public async Task HandleAsync(AddVisit command)
         {
-            UserPet pet = await UserPetHelpers.GetUserPetWithValidation(_repository, command.PetId, command.UserId);
+            UserPet pet = await _petService.GetAsync(command.PetId);
+            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
             
             pet.AddLastVisit(command.Visit);
 
-            await _repository.UpdateAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petService.UpdateAsync(pet);
         }
     }
 }
