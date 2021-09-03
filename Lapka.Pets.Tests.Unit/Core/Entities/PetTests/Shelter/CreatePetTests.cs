@@ -15,22 +15,24 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 {
     public class CreatePetTests
     {
-        private ShelterPet Act(AggregateId id, string name, Sex sex, string race, Species species, Guid photoId,
+        private ShelterPet Act(AggregateId id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
-            string description, List<Guid> photoIds) => ShelterPet.Create(id.Value, name, sex, race, species, photoId,
+            string description, List<Guid> photoIds) => ShelterPet.Create(id.Value, userId, name, sex, race, species, photoId,
             birthDay, color, weight, sterilization, shelterAddress, description, photoIds);
 
         [Fact]
         public void given_valid_pet_should_be_created()
         {
             ShelterPet arrangePet = Extensions.ArrangePet();
+            Guid userId = Guid.NewGuid();
 
-            ShelterPet aggregatePet = Act(arrangePet.Id, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+            ShelterPet aggregatePet = Act(arrangePet.Id, userId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
                 arrangePet.Species, arrangePet.MainPhotoId, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
             aggregatePet.ShouldNotBeNull();
             aggregatePet.Id.ShouldBe(arrangePet.Id);
+            aggregatePet.UserId.ShouldBe(arrangePet.UserId);
             aggregatePet.Name.ShouldBe(arrangePet.Name);
             aggregatePet.Sex.ShouldBe(arrangePet.Sex);
             aggregatePet.Race.ShouldBe(arrangePet.Race);
@@ -51,8 +53,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_name_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(name: "");
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
                 pet.ShelterAddress, pet.Description, null));
 
@@ -64,8 +67,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_race_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(race: "");
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
                 pet.ShelterAddress, pet.Description, null));
 
@@ -77,8 +81,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_birth_date_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, null));
 
@@ -90,8 +95,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_color_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(color: "");
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, null));
 
@@ -103,8 +109,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_weight_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(weight: 0);
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
                 pet.ShelterAddress, pet.Description, null));
 
@@ -189,8 +196,9 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_invalid_pet_description_should_throw_an_exception()
         {
             ShelterPet pet = Extensions.ArrangePet(description: "");
+            Guid userId = Guid.NewGuid();
 
-            Exception exception = Record.Exception(() => Act(pet.Id, pet.Name, pet.Sex, pet.Race, pet.Species,
+            Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, null));
 

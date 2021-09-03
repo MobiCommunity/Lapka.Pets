@@ -51,12 +51,20 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
         {
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
+            
             Guid id = Guid.NewGuid();
             Guid mainPhotoId = Guid.NewGuid();
             
             List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(pet.Photos);
 
-            await _commandDispatcher.SendAsync(new CreateShelterPet(id, pet.Name, pet.Sex, pet.Race, pet.Species,
+            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
                 pet.ShelterAddress.AsValueObject(), pet.Description, photos));
 
@@ -69,7 +77,14 @@ namespace Lapka.Pets.Api.Controllers
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
-            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, photo.Id));
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
+            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, userId, photo.Id));
 
             return Ok();
         }
@@ -80,9 +95,16 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
             List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(request.Photos);
             
-            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id, photos));
+            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id, userId, photos));
 
             return Ok();
         }
@@ -90,7 +112,14 @@ namespace Lapka.Pets.Api.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _commandDispatcher.SendAsync(new DeleteShelterPet(id));
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
+            await _commandDispatcher.SendAsync(new DeleteShelterPet(id, userId));
 
             return NoContent();
         }
@@ -98,7 +127,14 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateShelterPetRequest pet)
         {
-            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, pet.Name, pet.Race, pet.Species,
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
+            await _commandDispatcher.SendAsync(new UpdateShelterPet(id, userId, pet.Name, pet.Race, pet.Species,
                 pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
                 pet.Sterilization, pet.Weight, pet.Color));
 
@@ -111,9 +147,16 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
+            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
+            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
+            {
+                return Unauthorized();
+            }
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
             Guid photoId = Guid.NewGuid();
 
-            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsPhotoFile(photoId)));
+            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, userId, petUpdate.File.AsPhotoFile(photoId)));
 
             return NoContent();
         }
@@ -121,7 +164,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPatch("{id:guid}/like")]
         public async Task<IActionResult> LikePet(Guid id)
         {
-            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
             {
                 return Unauthorized();
@@ -135,7 +178,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPatch("{id:guid}/dislike")]
         public async Task<IActionResult> DislikePet(Guid id)
         {
-            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
             {
                 return Unauthorized();
@@ -149,7 +192,7 @@ namespace Lapka.Pets.Api.Controllers
         [HttpGet("like")]
         public async Task<IActionResult> GetLikedPets(string longitude, string latitude)
         {
-            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
             {
                 return Unauthorized();

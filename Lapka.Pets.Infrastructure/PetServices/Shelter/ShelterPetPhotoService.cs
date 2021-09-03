@@ -136,8 +136,6 @@ namespace Lapka.Pets.Infrastructure.PetServices.Shelter
                 {
                     await _grpcPhotoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
                 }
-                
-                pet.AddPhotos(photoFiles.IdsAsGuidList());
             }
             catch (Exception ex)
             {

@@ -10,9 +10,9 @@ namespace Lapka.Pets.Infrastructure.Services
 {
     public class GrpcPhotoService : IGrpcPhotoService
     {
-        private readonly Photo.PhotoClient _client;
+        private readonly PhotoProto.PhotoProtoClient _client;
 
-        public GrpcPhotoService(Photo.PhotoClient client)
+        public GrpcPhotoService(PhotoProto.PhotoProtoClient client)
         {
             _client = client;
         }

@@ -9,12 +9,13 @@ namespace Lapka.Pets.Tests.Unit
 {
     public static class Extensions
     {
-        public static ShelterPet ArrangePet(AggregateId id = null, string name = null, Sex? sex = null, string race = null,
-            Species? species = null, Guid? photoId = null, DateTime? birthDay = null, string color = null,
-            double? weight = null, bool? sterilization = null, Address shelterAddress = null, string description = null,
-            List<Guid> photoIds = null)
+        public static ShelterPet ArrangePet(AggregateId id = null, Guid? userId = null, string name = null,
+            Sex? sex = null, string race = null, Species? species = null, Guid? photoId = null,
+            DateTime? birthDay = null, string color = null, double? weight = null, bool? sterilization = null,
+            Address shelterAddress = null, string description = null, List<Guid> photoIds = null)
         {
             AggregateId validId = id ?? new AggregateId();
+            Guid validUserId = userId ?? Guid.NewGuid();
             string validName = name ?? "Miniok";
             Sex validSex = sex ?? Sex.Male;
             string validRace = race ?? "mops";
@@ -32,12 +33,13 @@ namespace Lapka.Pets.Tests.Unit
                 Guid.NewGuid()
             };
 
-            ShelterPet aggregatePet = new ShelterPet(validId.Value, validName, validSex, validRace, validSpecies, validPhotoId,
-                validBirthDate, validColor, validWeight, validSterilization, validShelterAddress, validDescription, validPhotoIds);
+            ShelterPet aggregatePet = new ShelterPet(validId.Value, validUserId, validName, validSex, validRace,
+                validSpecies, validPhotoId, validBirthDate, validColor, validWeight, validSterilization,
+                validShelterAddress, validDescription, validPhotoIds);
 
             return aggregatePet;
         }
-        
+
         public static Address ArrangeShelterAddress(string name = null, string city = null, string street = null,
             Location location = null)
         {
@@ -61,8 +63,9 @@ namespace Lapka.Pets.Tests.Unit
 
             return location;
         }
-        
-        public static PhotoFile ArrangePhotoFile(Guid? photoId = null, string name = null, Stream stream = null, string contentType = null)
+
+        public static PhotoFile ArrangePhotoFile(Guid? photoId = null, string name = null, Stream stream = null,
+            string contentType = null)
         {
             Guid validPhotoId = photoId ?? Guid.NewGuid();
             string validName = name ?? $"{Guid.NewGuid()}.jpg";

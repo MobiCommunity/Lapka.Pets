@@ -31,7 +31,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         public async Task given_valid_pet_should_delete()
         {
             ShelterPet pet = Extensions.ArrangePet();
-            DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value);
+            Guid userId = Guid.NewGuid();
+            
+            DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
             _petService.GetAsync(command.Id).Returns(pet);
 
@@ -43,8 +45,10 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_with_multiple_photos_should_delete()
         {
-            ShelterPet pet = Extensions.ArrangePet();
-            DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value);
+            ShelterPet pet = Extensions.ArrangePet();       
+            Guid userId = Guid.NewGuid();
+            
+            DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
             _petService.GetAsync(command.Id).Returns(pet);
 

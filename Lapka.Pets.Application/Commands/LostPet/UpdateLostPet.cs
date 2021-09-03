@@ -12,7 +12,7 @@ namespace Lapka.Pets.Application.Commands
         public string Race { get; }
         public Species Species { get; }
         public Sex Sex { get; }
-        public DateTime BirthDate { get; }
+        public int Age { get; }
         public DateTime LostDate { get; }
         public double Weight { get; }
         public string Color { get; }
@@ -22,7 +22,7 @@ namespace Lapka.Pets.Application.Commands
         public string Description { get; }
 
         public UpdateLostPet(Guid id, Guid userId, string name, string race, Species species, Sex sex,
-            DateTime birthDate, DateTime lostDate, double weight, string color, string ownerName, string phoneNumber,
+            int age, DateTime lostDate, double weight, string color, string ownerName, string phoneNumber,
             Address lostAddress, string description)
         {
             Id = id;
@@ -31,7 +31,7 @@ namespace Lapka.Pets.Application.Commands
             Race = race;
             Species = species;
             Sex = sex;
-            BirthDate = birthDate;
+            Age = age;
             LostDate = lostDate;
             Weight = weight;
             Color = color;

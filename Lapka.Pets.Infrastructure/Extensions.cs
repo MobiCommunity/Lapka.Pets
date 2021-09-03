@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Convey;
 using Convey.Auth;
@@ -68,7 +70,7 @@ namespace Lapka.Pets.Infrastructure
             configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
             services.AddSingleton(filesMicroserviceOptions);
 
-            services.AddGrpcClient<Photo.PhotoClient>(o =>
+            services.AddGrpcClient<PhotoProto.PhotoProtoClient>(o =>
             {
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
             });
@@ -117,11 +119,20 @@ namespace Lapka.Pets.Infrastructure
             return app;
         }
         
-        public static async Task<Guid> AuthenticateUsingJwtAsync(this HttpContext context)
+        public static async Task<Guid> AuthenticateUsingJwtGetUserIdAsync(this HttpContext context)
         {
-            var authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+            AuthenticateResult authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
 
             return authentication.Succeeded ? Guid.Parse(authentication.Principal.Identity.Name) : Guid.Empty;
+        }
+
+        public static async Task<string> AuthenticateUsingJwtGetUserRoleAsync(this HttpContext context)
+        {
+            AuthenticateResult authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+
+            return authentication.Succeeded
+                ? authentication.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value
+                : string.Empty;
         }
     }
 }

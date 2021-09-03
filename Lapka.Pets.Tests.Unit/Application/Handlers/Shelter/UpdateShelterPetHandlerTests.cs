@@ -31,11 +31,12 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet();
 
-            ShelterPet pet = ShelterPet.Create(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+            ShelterPet pet = ShelterPet.Create(arrangePet.Id.Value, arrangePet.UserId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
                 arrangePet.Species, arrangePet.MainPhotoId, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, arrangePet.PhotoIds);
+            Guid userId = Guid.NewGuid();
 
-            UpdateShelterPet command = new UpdateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Race,
+            UpdateShelterPet command = new UpdateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Race,
                 arrangePet.Species,
                 arrangePet.Sex, arrangePet.BirthDay, arrangePet.Description, arrangePet.ShelterAddress,
                 arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);

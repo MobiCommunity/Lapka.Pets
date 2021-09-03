@@ -81,6 +81,7 @@ namespace Lapka.Pets.Infrastructure.Documents
             return new ShelterPetDocument
             {
                 Id = pet.Id.Value,
+                UserId = pet.UserId,
                 Name = pet.Name,
                 Sex = pet.Sex,
                 Race = pet.Race,
@@ -120,7 +121,8 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
 
-        public static PetDetailsShelterDto AsDetailDto(this ShelterPetDocument shelterPet, string latitude, string longitude)
+        public static PetDetailsShelterDto AsDetailDto(this ShelterPetDocument shelterPet, string latitude,
+            string longitude)
         {
             double? distance = null;
             if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
@@ -135,6 +137,7 @@ namespace Lapka.Pets.Infrastructure.Documents
             return new PetDetailsShelterDto
             {
                 Id = shelterPet.Id,
+                UserId = shelterPet.UserId,
                 Name = shelterPet.Name,
                 Sex = shelterPet.Sex,
                 Species = shelterPet.Species,
@@ -166,6 +169,7 @@ namespace Lapka.Pets.Infrastructure.Documents
             return new PetDetailsLostDto
             {
                 Id = pet.Id,
+                UserId = pet.UserId,
                 Name = pet.Name,
                 Sex = pet.Sex,
                 Species = pet.Species,
@@ -210,7 +214,8 @@ namespace Lapka.Pets.Infrastructure.Documents
             };
         }
 
-        public static PetBasicShelterDto AsBasicDto(this ShelterPetDocument shelterPet, string latitude, string longitude)
+        public static PetBasicShelterDto AsBasicDto(this ShelterPetDocument shelterPet, string latitude,
+            string longitude)
         {
             double? distance = null;
             if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
@@ -275,6 +280,7 @@ namespace Lapka.Pets.Infrastructure.Documents
             return new PetDetailsUserDto
             {
                 Id = pet.Id,
+                UserId = pet.UserId,
                 Name = pet.Name,
                 Sex = pet.Sex,
                 Species = pet.Species,
@@ -328,8 +334,8 @@ namespace Lapka.Pets.Infrastructure.Documents
         public static UserPet AsBusiness(this UserPetDocument pet)
         {
             return new UserPet(pet.Id, pet.UserId, pet.Name, pet.Sex, pet.Race, pet.Species, pet.MainPhotoId,
-                pet.BirthDay,
-                pet.Color, pet.Weight, pet.Sterilization, pet.SoonEvents.Select(x => x.AsBusiness()).ToList(),
+                pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
+                pet.SoonEvents.Select(x => x.AsBusiness()).ToList(),
                 pet.Visits.Select(x => x.AsBusiness()).ToList(), pet.PhotoIds);
         }
 
@@ -342,8 +348,10 @@ namespace Lapka.Pets.Infrastructure.Documents
 
         public static ShelterPet AsBusiness(this ShelterPetDocument shelterPet)
         {
-            return new ShelterPet(shelterPet.Id, shelterPet.Name, shelterPet.Sex, shelterPet.Race, shelterPet.Species, shelterPet.MainPhotoId, shelterPet.BirthDay,
-                shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization, shelterPet.ShelterAddress.AsBusiness(), shelterPet.Description,
+            return new ShelterPet(shelterPet.Id, shelterPet.UserId, shelterPet.Name, shelterPet.Sex, shelterPet.Race,
+                shelterPet.Species, shelterPet.MainPhotoId, shelterPet.BirthDay,
+                shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization, shelterPet.ShelterAddress.AsBusiness(),
+                shelterPet.Description,
                 shelterPet.PhotoIds);
         }
 
@@ -351,7 +359,7 @@ namespace Lapka.Pets.Infrastructure.Documents
         {
             return new UserLikedPets(likePets.Id, likePets.LikedPets);
         }
-        
+
         public static LikePetDocument AsDocument(this UserLikedPets likePets)
         {
             return new LikePetDocument(likePets.UserId, likePets.LikedPets);

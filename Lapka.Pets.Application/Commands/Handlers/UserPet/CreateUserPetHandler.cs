@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
@@ -24,7 +25,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 command.Species, command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight,
                 command.Sterilization, command.Photos.IdsAsGuidList());
 
-            await _petService.AddAsync(_logger, command.MainPhoto, null, pet);
+            await _petService.AddAsync(_logger, command.MainPhoto, command.Photos.ToList(), pet);
         }
     }
 }

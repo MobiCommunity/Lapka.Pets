@@ -12,9 +12,9 @@ namespace Lapka.Pets.Core.Entities
         public string Description { get; private set; }
         public bool Sterilization { get; private set; }
         
-        public ShelterPet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId,
+        public ShelterPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
-            string description, List<Guid> photoIds) : base(id, name, sex, race, species, mainPhotoId, birthDay,
+            string description, List<Guid> photoIds) : base(id, userId, name, sex, race, species, mainPhotoId, birthDay,
             color, weight, photoIds)
         {
             ShelterAddress = shelterAddress;
@@ -22,12 +22,12 @@ namespace Lapka.Pets.Core.Entities
             Sterilization = sterilization;
         }
 
-        public static ShelterPet Create(Guid id, string name, Sex sex, string race, Species species, Guid photoId,
+        public static ShelterPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
             DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
             string description, List<Guid> photoIds)
         {
             Validate(name, race, birthDay, color, weight, description);
-            ShelterPet pet = new ShelterPet(id, name, sex, race, species, photoId, birthDay, color, weight,
+            ShelterPet pet = new ShelterPet(id, userId, name, sex, race, species, photoId, birthDay, color, weight,
                 sterilization, shelterAddress, description, photoIds);
 
             pet.AddEvent(new PetCreated<ShelterPet>(pet));

@@ -6,7 +6,6 @@ namespace Lapka.Pets.Infrastructure.Documents
 {
     public class LostPetDocument : PetDocument
     {
-        public Guid UserId { get; set; }
         public string OwnerName { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime LostDate { get; set; }

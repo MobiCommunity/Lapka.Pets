@@ -32,11 +32,12 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_path_should_add()
         {
+            Guid userId = Guid.NewGuid();
             ShelterPet aggregatePet = Extensions.ArrangePet();
             List<PhotoFile> files = new List<PhotoFile>();
             files.Add(Extensions.ArrangePhotoFile());
 
-            AddShelterPetPhoto command = new AddShelterPetPhoto(aggregatePet.Id.Value, files);
+            AddShelterPetPhoto command = new AddShelterPetPhoto(aggregatePet.Id.Value, userId, files);
 
             _petService.GetAsync(command.PetId).Returns(aggregatePet);
 

@@ -13,5 +13,7 @@ namespace Lapka.Pets.Application.Services
         Task AddAsync<THandler>(ILogger<THandler> logger, PhotoFile mainPhoto, List<PhotoFile> photoFiles, TPet pet);
         Task DeleteAsync<THandler>(ILogger<THandler> logger, TPet pet);
         Task UpdateAsync(TPet pet);
+        void ValidIfUserIsOwnerOfPet(TPet pet, Guid userId);
+
     }
 }
