@@ -13,16 +13,16 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetUserPetHandler : IQueryHandler<GetUserPet, PetDetailsUserDto>
     {
-        private readonly IMongoRepository<PetUserDocument, Guid> _repository;
+        private readonly IMongoRepository<UserPetDocument, Guid> _repository;
 
-        public GetUserPetHandler(IMongoRepository<PetUserDocument, Guid> repository)
+        public GetUserPetHandler(IMongoRepository<UserPetDocument, Guid> repository)
         {
             _repository = repository;
         }
 
         public async Task<PetDetailsUserDto> HandleAsync(GetUserPet query)
         {
-            PetUserDocument pet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
+            UserPetDocument pet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
             PetHelpers.ValidIfUserIsOwnerOfPet(query.UserId, pet.UserId);
 
             return pet.AsDetailsDto();

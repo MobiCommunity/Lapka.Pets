@@ -13,15 +13,12 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
     public class UpdateShelterPetHandlerTests
     {
-        private readonly IEventProcessor _eventProcessor;
         private readonly UpdateShelterPetHandler _handler;
-        private readonly IPetRepository<ShelterPet> _petRepository;
-
+        private readonly IShelterPetService _petService;
         public UpdateShelterPetHandlerTests()
-        {
-            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
-            _eventProcessor = Substitute.For<IEventProcessor>();
-            _handler = new UpdateShelterPetHandler(_eventProcessor, _petRepository);
+        {          
+            _petService = Substitute.For<IShelterPetService>();
+            _handler = new UpdateShelterPetHandler(_petService);
         }
 
         private Task Act(UpdateShelterPet command)
@@ -43,12 +40,11 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
                 arrangePet.Sex, arrangePet.BirthDay, arrangePet.Description, arrangePet.ShelterAddress,
                 arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
 
-            _petRepository.GetByIdAsync(command.Id).Returns(pet);
+            _petService.GetAsync(command.Id).Returns(pet);
 
             await Act(command);
 
-            await _petRepository.Received().UpdateAsync(pet);
-            await _eventProcessor.Received().ProcessAsync(pet.Events);
+            await _petService.Received().UpdateAsync(pet);
         }
     }
 }

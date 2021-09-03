@@ -32,7 +32,6 @@
 
     <ItemGroup>
         <Protobuf Include="gRPC\Protos\photo.proto" GrpcServices="Client" />
-        <Protobuf Include="gRPC\Protos\pet.proto" GrpcServices="Client" />
     </ItemGroup>
 
 </Project>

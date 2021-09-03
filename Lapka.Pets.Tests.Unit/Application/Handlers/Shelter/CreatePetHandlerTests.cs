@@ -17,24 +17,21 @@ using NSubstitute;
 using Shouldly;
 using Xunit;
 using File = Lapka.Pets.Core.ValueObjects.File;
+using ILogger = Castle.Core.Logging.ILogger;
 
 namespace Lapka.Pets.Tests.Unit.Application.Handlers
 {
     public class CreatePetHandlerTests
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IGrpcPhotoService _grpcPhotoService;
         private readonly CreateShelterPetHandler _handler;
+        private readonly IShelterPetService _petService;
         private readonly ILogger<CreateShelterPetHandler> _logger;
-        private readonly IPetRepository<ShelterPet> _petRepository;
 
         public CreatePetHandlerTests()
         {
-            _petRepository = Substitute.For<IPetRepository<ShelterPet>>();
-            _grpcPhotoService = Substitute.For<IGrpcPhotoService>();
-            _eventProcessor = Substitute.For<IEventProcessor>();
             _logger = Substitute.For<ILogger<CreateShelterPetHandler>>();
-            _handler = new CreateShelterPetHandler(_eventProcessor, _petRepository, _grpcPhotoService, _logger);
+            _petService = Substitute.For<IShelterPetService>();
+            _handler = new CreateShelterPetHandler(_logger, _petService);
         }
 
         private Task Act(CreateShelterPet command)
@@ -60,8 +57,8 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 
             await Act(command);
 
-            await _petRepository.Received()
-                .AddAsync(Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
+            await _petService.Received()
+                .AddAsync(_logger, mainPhoto, null,Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
                                                   p.Name == pet.Name && p.Sex == pet.Sex &&
                                                   p.Race == pet.Race && p.Species == pet.Species &&
                                                   p.BirthDay == pet.BirthDay &&
@@ -80,25 +77,13 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
                                                   p.Description == pet.Description &&
                                                   p.MainPhotoId == pet.MainPhotoId &&
                                                   p.PhotoIds.SequenceEqual(pet.PhotoIds)));
-
-            await _grpcPhotoService.Received().AddAsync(Arg.Is(pet.MainPhotoId), Arg.Is(mainPhoto.Name),
-                Arg.Is(mainPhoto.Content), Arg.Is(BucketName.PetPhotos));
-
-            foreach (PhotoFile photo in photos)
-            {
-                await _grpcPhotoService.Received().AddAsync(Arg.Is(photo.Id), Arg.Is(photo.Name), Arg.Is(photo.Content),
-                    Arg.Is(BucketName.PetPhotos));
-            }
-
-            await _eventProcessor.Received().ProcessAsync(Arg.Is<IEnumerable<IDomainEvent>>(e
-                => e.FirstOrDefault().GetType() == typeof(PetCreated<ShelterPet>)));
         }
 
         [Fact]
         public async Task given_valid_pet_without_photos_should_create()
         {
             PhotoFile photo = Extensions.ArrangePhotoFile();
-            ShelterPet pet = Extensions.ArrangePet(photoId: photo.Id);
+            ShelterPet pet = Extensions.ArrangePet(photoId: photo.Id, photoIds: new List<Guid>());
 
             CreateShelterPet command = new CreateShelterPet(pet.Id.Value, pet.Name, pet.Sex, pet.Race,
                 pet.Species, photo, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
@@ -106,31 +91,26 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 
             await Act(command);
 
-            await _petRepository.Received()
-                .AddAsync(Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
-                                                  p.Name == pet.Name && p.Sex == pet.Sex &&
-                                                  p.Race == pet.Race && p.Species == pet.Species &&
-                                                  p.BirthDay == pet.BirthDay &&
-                                                  p.Color == pet.Color && p.Weight == pet.Weight &&
-                                                  p.Sterilization == pet.Sterilization &&
-                                                  p.ShelterAddress.City ==
-                                                  pet.ShelterAddress.City &&
-                                                  p.ShelterAddress.Name ==
-                                                  pet.ShelterAddress.Name &&
-                                                  p.ShelterAddress.Street ==
-                                                  pet.ShelterAddress.Street &&
-                                                  p.ShelterAddress.GeoLocation.Latitude ==
-                                                  pet.ShelterAddress.GeoLocation.Latitude &&
-                                                  p.ShelterAddress.GeoLocation.Longitude ==
-                                                  pet.ShelterAddress.GeoLocation.Longitude &&
-                                                  p.Description == pet.Description &&
-                                                  p.MainPhotoId == pet.MainPhotoId));
-
-            await _grpcPhotoService.Received().AddAsync(Arg.Is(pet.MainPhotoId), Arg.Is(photo.Name),
-                Arg.Is(photo.Content),
-                Arg.Is(BucketName.PetPhotos));
-            await _eventProcessor.Received().ProcessAsync(Arg.Is<IEnumerable<IDomainEvent>>(e
-                => e.FirstOrDefault().GetType() == typeof(PetCreated<ShelterPet>)));
+            await _petService.Received()
+                .AddAsync(Arg.Is(_logger), Arg.Is(photo), null,Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
+                                                                               p.Name == pet.Name && p.Sex == pet.Sex &&
+                                                                               p.Race == pet.Race && p.Species == pet.Species &&
+                                                                               p.BirthDay == pet.BirthDay &&
+                                                                               p.Color == pet.Color && p.Weight == pet.Weight &&
+                                                                               p.Sterilization == pet.Sterilization &&
+                                                                               p.ShelterAddress.City ==
+                                                                               pet.ShelterAddress.City &&
+                                                                               p.ShelterAddress.Name ==
+                                                                               pet.ShelterAddress.Name &&
+                                                                               p.ShelterAddress.Street ==
+                                                                               pet.ShelterAddress.Street &&
+                                                                               p.ShelterAddress.GeoLocation.Latitude ==
+                                                                               pet.ShelterAddress.GeoLocation.Latitude &&
+                                                                               p.ShelterAddress.GeoLocation.Longitude ==
+                                                                               pet.ShelterAddress.GeoLocation.Longitude &&
+                                                                               p.Description == pet.Description &&
+                                                                               p.MainPhotoId == pet.MainPhotoId &&
+                                                                               p.PhotoIds.SequenceEqual(pet.PhotoIds)));
         }
 
         [Fact]

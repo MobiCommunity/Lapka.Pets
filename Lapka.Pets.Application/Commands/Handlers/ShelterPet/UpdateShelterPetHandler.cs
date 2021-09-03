@@ -1,36 +1,26 @@
-using System;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
-using Lapka.Pets.Application.Commands.Handlers.Helpers;
-using Lapka.Pets.Application.Dto;
-using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.ValueObjects;
-using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class UpdateShelterPetHandler : ICommandHandler<UpdateShelterPet>
     {
-        private readonly IEventProcessor _eventProcessor;
-        private readonly IPetRepository<ShelterPet> _petRepository;
-
-        public UpdateShelterPetHandler(IEventProcessor eventProcessor, IPetRepository<ShelterPet> petRepository)
+        private readonly IShelterPetService _petService;
+        public UpdateShelterPetHandler(IShelterPetService petService)
         {
-            _eventProcessor = eventProcessor;
-            _petRepository = petRepository;
+            _petService = petService;
         }
 
         public async Task HandleAsync(UpdateShelterPet command)
         {
-            ShelterPet pet = await PetHelpers.GetPetFromRepositoryAsync(_petRepository, command.Id);
+            ShelterPet pet = await _petService.GetAsync(command.Id);
 
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
                 command.Sterilization, command.Weight, command.Color, command.ShelterAddress, command.Description);
 
-            await _petRepository.UpdateAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);
+            await _petService.UpdateAsync(pet);
         }
     }
 }

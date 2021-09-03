@@ -4,7 +4,7 @@ using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Infrastructure.Documents
 {
-    public class PetUserDocument : PetDocument
+    public class UserPetDocument : PetDocument
     {
         public Guid UserId { get; set; }
         public IEnumerable<PetEventDocument> SoonEvents { get; set; }

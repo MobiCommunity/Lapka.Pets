@@ -14,11 +14,13 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Lapka.Pets.Api.Attributes;
+using Lapka.Pets.Api.gRPC.Controllers;
 using Lapka.Pets.Application;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure;
 using Lapka.Pets.Infrastructure.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Lapka.Pets.Api
 {
@@ -30,22 +32,22 @@ namespace Lapka.Pets.Api
         }
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args).ConfigureServices(services =>
+            WebHost.CreateDefaultBuilder(args).ConfigureKestrel(options =>
+                {
+                    options.ListenAnyIP(5002, o => o.Protocols = HttpProtocols.Http1);
+                    options.ListenAnyIP(5012, o => o.Protocols = HttpProtocols.Http2);
+                }).ConfigureServices(services =>
                 {
                     services.AddControllers();
 
                     services.TryAddSingleton(new JsonSerializerFactory().GetSerializer());
-
+                    services.AddGrpc();
+                    
                     services
                         .AddConvey()
                         .AddInfrastructure()
                         .AddApplication();
 
-                    services.AddTransient<IPetRepository<ShelterPet>, ShelterPetRepository>();
-                    services.AddTransient<IPetRepository<UserPet>, UserPetRepository>();
-                    services.AddTransient<IPetRepository<LostPet>, LostPetRepository>();
-                    services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
-                    
                     AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
                     
                     services.AddSwaggerGen(c =>
@@ -109,6 +111,7 @@ namespace Lapka.Pets.Api
                         })
                         .UseEndpoints(e =>
                         {
+                            e.MapGrpcService<GrpcPetController>();
                             e.MapControllers();
                             e.Map("ping", async ctx => { await ctx.Response.WriteAsync("Alive"); });
                         });

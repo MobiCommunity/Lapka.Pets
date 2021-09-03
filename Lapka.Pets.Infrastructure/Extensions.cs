@@ -13,6 +13,11 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Options;
+using Lapka.Pets.Infrastructure.PetServices;
+using Lapka.Pets.Infrastructure.PetServices.Likes;
+using Lapka.Pets.Infrastructure.PetServices.Lost;
+using Lapka.Pets.Infrastructure.PetServices.Shelter;
+using Lapka.Pets.Infrastructure.PetServices.User;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,9 +42,10 @@ namespace Lapka.Pets.Infrastructure
                 // .AddRabbitMq()
                 .AddJwt()
                 .AddMongo()
-                .AddMongoRepository<PetShelterDocument, Guid>("petsshelter")
-                .AddMongoRepository<PetUserDocument, Guid>("petsuser")
+                .AddMongoRepository<ShelterPetDocument, Guid>("petsshelter")
+                .AddMongoRepository<UserPetDocument, Guid>("petsuser")
                 .AddMongoRepository<LostPetDocument, Guid>("lostpets")
+                .AddMongoRepository<LikePetDocument, Guid>("likedpets")
                 // .AddConsul()
                 // .AddFabio()
                 // .AddMessageOutbox()
@@ -60,25 +66,30 @@ namespace Lapka.Pets.Infrastructure
 
             FilesMicroserviceOptions filesMicroserviceOptions = new FilesMicroserviceOptions();
             configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
-            
-            IdentityMicroserviceOptions identityMicroserviceOptions = new IdentityMicroserviceOptions();
-            configuration.GetSection("identityMicroservice").Bind(identityMicroserviceOptions);
-
             services.AddSingleton(filesMicroserviceOptions);
-            services.AddSingleton(identityMicroserviceOptions);
 
             services.AddGrpcClient<Photo.PhotoClient>(o =>
             {
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
             });
             
-            services.AddGrpcClient<PetGrpc.PetGrpcClient>(o =>
-            {
-                o.Address = new Uri(identityMicroserviceOptions.UrlHttp2);
-            });
+            services.AddTransient<IPetLikeRepository, PetLikeRepository>();
+            services.AddTransient<IPetLikesService, PetLikesService>();
+                    
+            services.AddTransient<IShelterPetPhotoService, ShelterPetPhotoService>();
+            services.AddTransient<IUserPetPhotoService, UserPetPhotoService>();
+            services.AddTransient<ILostPetPhotoService, LostPetPhotoService>();
+                    
+            services.AddTransient<IShelterPetService, ShelterPetService>();
+            services.AddTransient<IUserPetService, UserPetService>();
+            services.AddTransient<ILostPetService, LostPetService>();
+                    
+            services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
+            services.AddTransient<IUserPetRepository, UserPetRepository>();
+            services.AddTransient<ILostPetRepository, LostPetRepository>();
             
-            services.AddScoped<IGrpcPetService, GrpcPetService>();
-            
+            services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
+
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
 

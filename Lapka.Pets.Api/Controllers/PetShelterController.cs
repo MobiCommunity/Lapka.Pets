@@ -10,6 +10,7 @@ using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
+using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -115,6 +116,51 @@ namespace Lapka.Pets.Api.Controllers
             await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, petUpdate.File.AsPhotoFile(photoId)));
 
             return NoContent();
+        }
+        
+        [HttpPatch("{id:guid}/like")]
+        public async Task<IActionResult> LikePet(Guid id)
+        {
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            await _commandDispatcher.SendAsync(new LikePet(id, userId));
+
+            return NoContent();
+        }
+        
+        [HttpPatch("{id:guid}/dislike")]
+        public async Task<IActionResult> DislikePet(Guid id)
+        {
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            await _commandDispatcher.SendAsync(new DislikePet(id, userId));
+
+            return NoContent();
+        }
+        
+        [HttpGet("like")]
+        public async Task<IActionResult> GetLikedPets(string longitude, string latitude)
+        {
+            Guid userId = await HttpContext.AuthenticateUsingJwtAsync();
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(await _queryDispatcher.QueryAsync(new GetLikedPets
+            {
+                UserId = userId,
+                Longitude = longitude,
+                Latitude = latitude
+            }));
         }
     }
 }
