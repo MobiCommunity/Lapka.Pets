@@ -35,9 +35,10 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             {
                 Guid.NewGuid()
             });
-            
+            Guid userId = Guid.NewGuid();
+
             Guid photoPath = pet.PhotoIds.First();
-            DeleteShelterPetPhoto command = new DeleteShelterPetPhoto(pet.Id.Value, photoPath);
+            DeleteShelterPetPhoto command = new DeleteShelterPetPhoto(pet.Id.Value, userId, photoPath);
 
             _petService.GetAsync(command.PetId).Returns(pet);
 

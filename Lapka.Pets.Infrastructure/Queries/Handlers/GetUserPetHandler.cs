@@ -23,7 +23,7 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
         public async Task<PetDetailsUserDto> HandleAsync(GetUserPet query)
         {
             UserPetDocument pet = await PetHelpers.GetPetFromRepositoryAsync(_repository, query.Id);
-            PetHelpers.ValidIfUserIsOwnerOfPet(query.UserId, pet.UserId);
+            PetHelpers.ValidIfUserIsOwnerOfPet(query.UserId, pet.Id);
 
             return pet.AsDetailsDto();
         }

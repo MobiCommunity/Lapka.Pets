@@ -20,7 +20,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
         public async Task HandleAsync(DeleteLostPet command)
         {
             LostPet pet = await _petService.GetAsync(command.PetId);
-            
+            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
+
             await _petService.DeleteAsync(_logger, pet);
         }
     }

@@ -8,6 +8,7 @@ namespace Lapka.Pets.Infrastructure.Documents
     public abstract class PetDocument : IIdentifiable<Guid>
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public Sex Sex { get; set; }
         public string Race { get; set; }

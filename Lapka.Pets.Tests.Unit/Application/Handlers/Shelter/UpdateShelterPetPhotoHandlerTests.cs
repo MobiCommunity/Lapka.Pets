@@ -33,8 +33,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet pet = Extensions.ArrangePet();
             PhotoFile file = Extensions.ArrangePhotoFile();
-            Guid photoIdBeforeUpdated = pet.MainPhotoId;
-            UpdateShelterPetPhoto command = new UpdateShelterPetPhoto(pet.Id.Value, file);
+            Guid userId = Guid.NewGuid();
+            
+            UpdateShelterPetPhoto command = new UpdateShelterPetPhoto(pet.Id.Value, userId, file);
 
             _petService.GetAsync(command.PetId).Returns(pet);
 

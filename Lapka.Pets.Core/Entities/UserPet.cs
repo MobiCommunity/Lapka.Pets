@@ -9,17 +9,15 @@ namespace Lapka.Pets.Core.Entities
 {
     public class UserPet : AggregatePet
     {
-        public Guid UserId { get; }
         public List<PetEvent> SoonEvents { get; private set; }
         public List<Visit> LastVisits { get; private set; }
         public bool Sterelization { get; private set; }
 
         public UserPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
             DateTime birthDay, string color, double weight, bool sterilization, List<PetEvent> soonEvents,
-            List<Visit> lastVisits, List<Guid> photoIds) : base(id, name, sex, race, species, photoId, birthDay, color,
+            List<Visit> lastVisits, List<Guid> photoIds) : base(id, userId, name, sex, race, species, photoId, birthDay, color,
             weight, photoIds)
         {
-            UserId = userId;
             SoonEvents = soonEvents;
             LastVisits = lastVisits;
             Sterelization = sterilization;

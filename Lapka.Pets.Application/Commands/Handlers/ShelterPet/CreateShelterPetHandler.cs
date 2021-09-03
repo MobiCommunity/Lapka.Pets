@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
@@ -22,12 +23,12 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(CreateShelterPet command)
         {
-            ShelterPet pet = ShelterPet.Create(command.Id, command.Name, command.Sex, command.Race, command.Species,
+            ShelterPet pet = ShelterPet.Create(command.Id, command.UserId, command.Name, command.Sex, command.Race, command.Species,
                 command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight, command.Sterilization,
                 command.ShelterAddress, command.Description,
                 command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
-            await _petService.AddAsync(_logger, command.MainPhoto, null, pet);
+            await _petService.AddAsync(_logger, command.MainPhoto, command.Photos.ToList(), pet);
         }
     }
 }

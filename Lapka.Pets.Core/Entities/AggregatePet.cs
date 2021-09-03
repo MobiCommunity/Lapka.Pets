@@ -10,6 +10,7 @@ namespace Lapka.Pets.Core.Entities
     {
         private const double MinimumWeight = 0;
 
+        public Guid UserId { get; }
         public string Name { get; private set; }
         public Species Species { get; private set; }
         public Sex Sex { get; private set; }
@@ -20,11 +21,11 @@ namespace Lapka.Pets.Core.Entities
         public string Color { get; private set; }
         public double Weight { get; private set; }
 
-        protected AggregatePet(Guid id, string name, Sex sex, string race, Species species, Guid mainPhotoId,
-            DateTime birthDay,
-            string color, double weight, List<Guid> photoIds)
+        protected AggregatePet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
+            DateTime birthDay, string color, double weight, List<Guid> photoIds)
         {
             Id = new AggregateId(id);
+            UserId = userId;
             Name = name;
             Sex = sex;
             Race = race;

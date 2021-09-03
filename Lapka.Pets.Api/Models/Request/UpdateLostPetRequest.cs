@@ -16,7 +16,7 @@ namespace Lapka.Pets.Api.Models.Request
         [Required]
         public Sex Sex { get; set; }
         [Required]
-        public DateTime BirthDate { get; set; }
+        public int Age { get; set; }
         [Required]
         public DateTime LostDate { get; set; }
         [Required]

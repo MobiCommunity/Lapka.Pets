@@ -9,7 +9,6 @@ namespace Lapka.Pets.Core.Entities
 {
     public class LostPet : AggregatePet
     {
-        public Guid UserId { get; private set; }
         public string OwnerName { get; private set; }
         public string PhoneNumber { get; private set; }
         public DateTime LostDate { get; private set; }
@@ -18,10 +17,9 @@ namespace Lapka.Pets.Core.Entities
 
         public LostPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
             List<Guid> photoIds, DateTime birthDay, string color, double weight, string ownerName,
-            string phoneNumber, DateTime lostDate, Address lostAddress, string description) : base(id, name, sex, race,
+            string phoneNumber, DateTime lostDate, Address lostAddress, string description) : base(id, userId, name, sex, race,
             species, mainPhotoId, birthDay, color, weight, photoIds)
         {
-            UserId = userId;
             OwnerName = ownerName;
             PhoneNumber = phoneNumber;
             LostDate = lostDate;

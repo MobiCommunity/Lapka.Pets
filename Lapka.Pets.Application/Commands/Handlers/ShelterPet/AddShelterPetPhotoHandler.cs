@@ -18,6 +18,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
         public async Task HandleAsync(AddShelterPetPhoto command)
         {
             ShelterPet pet = await _petService.GetAsync(command.PetId);
+            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
 
             await _petPhotoService.AddPetPhotosAsync(command.Photos, pet);
             await _petService.UpdateAsync(pet);

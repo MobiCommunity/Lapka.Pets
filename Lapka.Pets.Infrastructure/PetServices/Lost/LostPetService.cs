@@ -33,6 +33,14 @@ namespace Lapka.Pets.Infrastructure.PetServices.Lost
             return pet;
         }
         
+        public void ValidIfUserIsOwnerOfPet(LostPet pet, Guid userId)
+        {
+            if (pet.UserId != userId)
+            {
+                throw new PetDoesNotBelongToUserException(userId.ToString(), pet.Id.Value.ToString());
+            }
+        }
+        
         public async Task AddAsync<THandler>(ILogger<THandler> logger, PhotoFile mainPhoto, List<PhotoFile> photoFiles, LostPet pet)
         {
             await _petPhotoService.AddPetPhotosAsync(logger, mainPhoto, photoFiles, pet);

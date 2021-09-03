@@ -8,6 +8,5 @@ namespace Lapka.Pets.Application.Services
     public interface IUserPetService : IPetService<UserPet>
     {
         Task<IEnumerable<UserPet>> GetAllUserPets(Guid userId);
-        void ValidIfUserIsOwnerOfPet(UserPet pet, Guid userId);
     }
 }

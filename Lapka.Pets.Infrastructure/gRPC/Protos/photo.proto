@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-service Photo{
+service PhotoProto{
   rpc GetPhotoPath (GetPhotoPathRequest) returns (GetPhotoPathReply);
   rpc UploadPhoto (UploadPhotoRequest) returns (UploadPhotoReply);
   rpc SetExternalPhoto (SetExternalPhotoRequest) returns (SetExternalPhotoReply);

@@ -48,10 +48,11 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
                 Extensions.ArrangePhotoFile()
             };
             PhotoFile mainPhoto = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
             ShelterPet pet = Extensions.ArrangePet(photoId: mainPhoto.Id, photoIds: photos.IdsAsGuidList());
 
-            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, pet.Name, pet.Sex, pet.Race,
+            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, mainPhoto, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, photos);
 
@@ -84,8 +85,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             PhotoFile photo = Extensions.ArrangePhotoFile();
             ShelterPet pet = Extensions.ArrangePet(photoId: photo.Id, photoIds: new List<Guid>());
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, pet.Name, pet.Sex, pet.Race,
+            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, photo, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, null);
 
@@ -118,8 +120,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(name: "");
             PhotoFile mainPhoto = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex,
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
                 arrangePet.Race, arrangePet.Species, mainPhoto, arrangePet.BirthDay, arrangePet.Color,
                 arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
@@ -134,8 +137,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(race: "");
             PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex,
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
                 arrangePet.Race, arrangePet.Species, file, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
@@ -149,8 +153,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
             PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex,
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
                 arrangePet.Race, arrangePet.Species, file, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
@@ -165,8 +170,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(color: "");
             PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name,
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name,
                 arrangePet.Sex, arrangePet.Race, arrangePet.Species, file, arrangePet.BirthDay, arrangePet.Color,
                 arrangePet.Weight, arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
@@ -181,8 +187,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(weight: 0);
             PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
-            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex,
+            CreateShelterPet command = new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex,
                 arrangePet.Race, arrangePet.Species, file, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 
@@ -197,9 +204,10 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         {
             ShelterPet arrangePet = Extensions.ArrangePet(description: "");
             PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid userId = Guid.NewGuid();
 
             Exception exception = await Record.ExceptionAsync(async () => await Act(
-                new CreateShelterPet(arrangePet.Id.Value, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+                new CreateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
                     arrangePet.Species, file, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                     arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null)));
 
