@@ -6,6 +6,7 @@ using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace Lapka.Pets.Application.Commands.Handlers
@@ -13,12 +14,18 @@ namespace Lapka.Pets.Application.Commands.Handlers
     public class CreateShelterPetHandler : ICommandHandler<CreateShelterPet>
     {
         private readonly ILogger<CreateShelterPetHandler> _logger;
-        private readonly IShelterPetService _petService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
 
-        public CreateShelterPetHandler(ILogger<CreateShelterPetHandler> logger, IShelterPetService petService)
+
+        public CreateShelterPetHandler(ILogger<CreateShelterPetHandler> logger, IEventProcessor eventProcessor,
+            IShelterPetRepository repository, IGrpcPhotoService photoService)
         {
             _logger = logger;
-            _petService = petService;
+            _eventProcessor = eventProcessor;
+            _repository = repository;
+            _photoService = photoService;
         }
 
         public async Task HandleAsync(CreateShelterPet command)
@@ -28,7 +35,48 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 command.ShelterAddress, command.Description,
                 command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
-            await _petService.AddAsync(_logger, command.MainPhoto, command.Photos.ToList(), pet);
+            await AddMainPhoto(command, pet);
+            await AddPhotos(command, pet);
+            
+            await _repository.AddAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);        }
+        
+        private async Task AddPhotos(CreateShelterPet command, ShelterPet pet)
+        {
+            if (command.Photos != null)
+            {
+                try
+                {
+                    foreach (PhotoFile photo in command.Photos)
+                    {
+                        await _photoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, ex.Message);
+                    foreach (PhotoFile photo in command.Photos)
+                    {
+                        pet.RemovePhoto(photo.Id);
+                    }
+                }
+            }
+        }
+
+        private async Task AddMainPhoto(CreateShelterPet command, ShelterPet pet)
+        {
+            try
+            {
+                await _photoService.AddAsync(command.MainPhoto.Id, command.MainPhoto.Name, command.MainPhoto.Content,
+                    BucketName.PetPhotos);
+                pet.UpdateMainPhoto(command.MainPhoto.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+
+                pet.UpdateMainPhoto(Guid.Empty);
+            }
         }
     }
 }

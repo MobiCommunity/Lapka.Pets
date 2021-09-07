@@ -15,11 +15,7 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Options;
-using Lapka.Pets.Infrastructure.PetServices;
-using Lapka.Pets.Infrastructure.PetServices.Likes;
-using Lapka.Pets.Infrastructure.PetServices.Lost;
-using Lapka.Pets.Infrastructure.PetServices.Shelter;
-using Lapka.Pets.Infrastructure.PetServices.User;
+using Lapka.Pets.Infrastructure.Pets;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -76,16 +72,7 @@ namespace Lapka.Pets.Infrastructure
             });
             
             services.AddTransient<IPetLikeRepository, PetLikeRepository>();
-            services.AddTransient<IPetLikesService, PetLikesService>();
-                    
-            services.AddTransient<IShelterPetPhotoService, ShelterPetPhotoService>();
-            services.AddTransient<IUserPetPhotoService, UserPetPhotoService>();
-            services.AddTransient<ILostPetPhotoService, LostPetPhotoService>();
-                    
-            services.AddTransient<IShelterPetService, ShelterPetService>();
-            services.AddTransient<IUserPetService, UserPetService>();
-            services.AddTransient<ILostPetService, LostPetService>();
-                    
+
             services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
             services.AddTransient<IUserPetRepository, UserPetRepository>();
             services.AddTransient<ILostPetRepository, LostPetRepository>();

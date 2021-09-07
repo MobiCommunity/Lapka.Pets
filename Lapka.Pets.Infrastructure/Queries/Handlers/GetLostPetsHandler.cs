@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Queries;
 using Convey.Persistence.MongoDB;
-using Lapka.Pets.Application.Dto.PetDtos;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
 

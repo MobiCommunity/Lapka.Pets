@@ -1,6 +1,7 @@
 using System;
 using Convey.CQRS.Queries;
 using Lapka.Pets.Application.Dto;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Queries

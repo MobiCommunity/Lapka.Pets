@@ -11,22 +11,32 @@ namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class UpdateVisitHandler : ICommandHandler<UpdateVisit>
     {
-        private readonly IUserPetService _petService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IUserPetRepository _repository;
 
-        public UpdateVisitHandler(IUserPetService petService)
+        public UpdateVisitHandler(IEventProcessor eventProcessor, IUserPetRepository repository)
         {
-            _petService = petService;
+            _eventProcessor = eventProcessor;
+            _repository = repository;
         }
         public async Task HandleAsync(UpdateVisit command)
         {
-            UserPet pet = await _petService.GetAsync(command.PetId);
-            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
+            UserPet pet = await _repository.GetByIdAsync(command.PetId);
+            if (pet == null)
+            {
+                throw new PetNotFoundException(command.PetId);
+            }
+
+            if (pet.UserId != command.UserId)
+            {
+                throw new PetDoesNotBelongToUserException(command.UserId.ToString(), pet.Id.Value.ToString());
+            }
             
             Visit visitToUpdate = GetVisitToUpdateFromPet(command.UpdatedVisit.Id, pet);
             pet.UpdateLastVisit(visitToUpdate, command.UpdatedVisit);
 
-            await _petService.UpdateAsync(pet);
-        }
+            await _repository.UpdateAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);        }
 
         private static Visit GetVisitToUpdateFromPet(Guid visitId, UserPet pet)
         {

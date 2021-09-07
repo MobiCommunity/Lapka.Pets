@@ -24,14 +24,19 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     public class CreatePetHandlerTests
     {
         private readonly CreateShelterPetHandler _handler;
-        private readonly IShelterPetService _petService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
         private readonly ILogger<CreateShelterPetHandler> _logger;
 
         public CreatePetHandlerTests()
         {
             _logger = Substitute.For<ILogger<CreateShelterPetHandler>>();
-            _petService = Substitute.For<IShelterPetService>();
-            _handler = new CreateShelterPetHandler(_logger, _petService);
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _repository = Substitute.For<IShelterPetRepository>();
+            _photoService = Substitute.For<IGrpcPhotoService>();
+            
+            _handler = new CreateShelterPetHandler(_logger, _eventProcessor, _repository, _photoService);
         }
 
         private Task Act(CreateShelterPet command)
@@ -50,16 +55,16 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             PhotoFile mainPhoto = Extensions.ArrangePhotoFile();
             Guid userId = Guid.NewGuid();
 
-            ShelterPet pet = Extensions.ArrangePet(photoId: mainPhoto.Id, photoIds: photos.IdsAsGuidList());
+            ShelterPet pet = Extensions.ArrangePet(photoId: mainPhoto.Id, photoIds: photos.IdsAsGuidList(), userId: userId);
 
-            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, userId, pet.Name, pet.Sex, pet.Race,
+            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, pet.UserId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, mainPhoto, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, photos);
 
             await Act(command);
 
-            await _petService.Received()
-                .AddAsync(_logger, mainPhoto, null,Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
+            await _repository.Received()
+                .AddAsync(Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value && p.UserId == pet.UserId &&
                                                   p.Name == pet.Name && p.Sex == pet.Sex &&
                                                   p.Race == pet.Race && p.Species == pet.Species &&
                                                   p.BirthDay == pet.BirthDay &&
@@ -78,23 +83,30 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
                                                   p.Description == pet.Description &&
                                                   p.MainPhotoId == pet.MainPhotoId &&
                                                   p.PhotoIds.SequenceEqual(pet.PhotoIds)));
+            await _photoService.Received().AddAsync(Arg.Is(mainPhoto.Id), Arg.Is(mainPhoto.Name),
+                Arg.Is(mainPhoto.Content), Arg.Is(BucketName.PetPhotos));
+            foreach (PhotoFile photo in photos)
+            {
+                await _photoService.Received().AddAsync(Arg.Is(photo.Id), Arg.Is(photo.Name),
+                    Arg.Is(photo.Content), Arg.Is(BucketName.PetPhotos));
+            }
         }
 
         [Fact]
         public async Task given_valid_pet_without_photos_should_create()
         {
-            PhotoFile photo = Extensions.ArrangePhotoFile();
-            ShelterPet pet = Extensions.ArrangePet(photoId: photo.Id, photoIds: new List<Guid>());
             Guid userId = Guid.NewGuid();
+            PhotoFile photo = Extensions.ArrangePhotoFile();
+            ShelterPet pet = Extensions.ArrangePet(photoId: photo.Id, photoIds: new List<Guid>(), userId: userId);
 
-            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, userId, pet.Name, pet.Sex, pet.Race,
+            CreateShelterPet command = new CreateShelterPet(pet.Id.Value, pet.UserId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, photo, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
                 pet.Description, null);
 
             await Act(command);
 
-            await _petService.Received()
-                .AddAsync(Arg.Is(_logger), Arg.Is(photo), null,Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value &&
+            await _repository.Received()
+                .AddAsync(Arg.Is<ShelterPet>(p => p.Id.Value == pet.Id.Value && p.UserId == pet.UserId && 
                                                                                p.Name == pet.Name && p.Sex == pet.Sex &&
                                                                                p.Race == pet.Race && p.Species == pet.Species &&
                                                                                p.BirthDay == pet.BirthDay &&

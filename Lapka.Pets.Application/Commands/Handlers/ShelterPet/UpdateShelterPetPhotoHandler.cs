@@ -1,29 +1,76 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers
 {
     public class UpdateShelterPetPhotoHandler : ICommandHandler<UpdateShelterPetPhoto>
     {
-        private readonly IShelterPetService _petService;
-        private readonly IShelterPetPhotoService _petPhotoService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
 
-        public UpdateShelterPetPhotoHandler(IShelterPetService petService, IShelterPetPhotoService petPhotoService)
+
+        public UpdateShelterPetPhotoHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
+            IGrpcPhotoService photoService)
         {
-            _petService = petService;
-            _petPhotoService = petPhotoService;
+            _eventProcessor = eventProcessor;
+            _repository = repository;
+            _photoService = photoService;
         }
 
         public async Task HandleAsync(UpdateShelterPetPhoto command)
         {
-            ShelterPet pet = await _petService.GetAsync(command.PetId);
-            _petService.ValidIfUserIsOwnerOfPet(pet, command.UserId);
+            ShelterPet pet = await _repository.GetByIdAsync(command.PetId);
+            if (pet == null)
+            {
+                throw new PetNotFoundException(command.PetId);
+            }
 
-            await _petPhotoService.UpdatePetPhotosAsync(pet.MainPhotoId, command.Photo, pet);
-            
-            await _petService.UpdateAsync(pet);
+            if (pet.UserId != command.UserId)
+            {
+                throw new PetDoesNotBelongToUserException(command.UserId.ToString(), pet.Id.Value.ToString());
+            }
+
+            await DeleteCurrentPhoto(pet);
+            await AddPhoto(command);
+
+            pet.UpdateMainPhoto(command.Photo.Id);
+
+            await _repository.UpdateAsync(pet);
+            await _eventProcessor.ProcessAsync(pet.Events);
+        }
+        
+        private async Task AddPhoto(UpdateShelterPetPhoto command)
+        {
+            try
+            {
+                await _photoService.AddAsync(command.Photo.Id, command.Photo.Name, command.Photo.Content,
+                    BucketName.PetPhotos);
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestFilesMicroserviceException(ex);
+            }
+        }
+
+        private async Task DeleteCurrentPhoto(ShelterPet pet)
+        {
+            if (pet.MainPhotoId != Guid.Empty)
+            {
+                try
+                {
+                    await _photoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
+                }
+                catch (Exception ex)
+                {
+                    throw new CannotRequestFilesMicroserviceException(ex);
+                }
+            }
         }
     }
 }
