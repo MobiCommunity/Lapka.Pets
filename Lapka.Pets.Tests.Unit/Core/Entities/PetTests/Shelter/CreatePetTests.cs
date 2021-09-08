@@ -23,10 +23,10 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         [Fact]
         public void given_valid_pet_should_be_created()
         {
-            ShelterPet arrangePet = Extensions.ArrangePet();
             Guid userId = Guid.NewGuid();
+            ShelterPet arrangePet = Extensions.ArrangePet(userId: userId);
 
-            ShelterPet aggregatePet = Act(arrangePet.Id, userId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+            ShelterPet aggregatePet = Act(arrangePet.Id, arrangePet.UserId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
                 arrangePet.Species, arrangePet.MainPhotoId, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
                 arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
 

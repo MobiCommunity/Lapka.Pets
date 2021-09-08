@@ -15,14 +15,19 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     public class DeletePetHandlerTests
     {
         private readonly DeleteShelterPetHandler _handler;
-        private readonly IShelterPetService _petService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
         private readonly ILogger<DeleteShelterPetHandler> _logger;
 
         public DeletePetHandlerTests()
         {          
             _logger = Substitute.For<ILogger<DeleteShelterPetHandler>>();
-            _petService = Substitute.For<IShelterPetService>();
-            _handler = new DeleteShelterPetHandler(_logger, _petService);
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _repository = Substitute.For<IShelterPetRepository>();
+            _photoService = Substitute.For<IGrpcPhotoService>();
+            
+            _handler = new DeleteShelterPetHandler(_logger, _eventProcessor, _repository, _photoService);
         }
 
         private Task Act(DeleteShelterPet command) => _handler.HandleAsync(command);
@@ -30,31 +35,32 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_should_delete()
         {
-            ShelterPet pet = Extensions.ArrangePet();
             Guid userId = Guid.NewGuid();
+            ShelterPet pet = Extensions.ArrangePet(userId: userId);
             
             DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
-            _petService.GetAsync(command.Id).Returns(pet);
+            _repository.GetByIdAsync(command.Id).Returns(pet);
 
             await Act(command);
 
-            await _petService.Received().DeleteAsync(_logger, pet);
+            await _repository.Received().DeleteAsync(pet);
+            await _photoService.Received().DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
         }
         
         [Fact]
         public async Task given_valid_pet_with_multiple_photos_should_delete()
         {
-            ShelterPet pet = Extensions.ArrangePet();       
             Guid userId = Guid.NewGuid();
+            ShelterPet pet = Extensions.ArrangePet(userId: userId);       
             
             DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
-            _petService.GetAsync(command.Id).Returns(pet);
+            _repository.GetByIdAsync(command.Id).Returns(pet);
 
             await Act(command);
 
-            await _petService.Received().DeleteAsync(_logger, pet);
+            await _repository.Received().DeleteAsync(pet);
         }
     }
 }

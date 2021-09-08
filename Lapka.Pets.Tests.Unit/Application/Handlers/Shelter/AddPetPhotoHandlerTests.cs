@@ -17,14 +17,17 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     public class AddPetPhotoHandlerTests
     {
         private readonly AddShelterPetPhotoHandler _handler;
-        private readonly IShelterPetService _petService;
-        private readonly IShelterPetPhotoService _petPhotoService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
 
         public AddPetPhotoHandlerTests()
         {
-            _petPhotoService = Substitute.For<IShelterPetPhotoService>();
-            _petService = Substitute.For<IShelterPetService>();
-            _handler = new AddShelterPetPhotoHandler(_petService, _petPhotoService);
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _repository = Substitute.For<IShelterPetRepository>();
+            _photoService = Substitute.For<IGrpcPhotoService>();
+
+            _handler = new AddShelterPetPhotoHandler(_eventProcessor, _repository, _photoService);
         }
 
         private Task Act(AddShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -33,17 +36,21 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         public async Task given_valid_pet_path_should_add()
         {
             Guid userId = Guid.NewGuid();
-            ShelterPet aggregatePet = Extensions.ArrangePet();
+            ShelterPet aggregatePet = Extensions.ArrangePet(userId: userId);
             List<PhotoFile> files = new List<PhotoFile>();
+            files.Add(Extensions.ArrangePhotoFile());
             files.Add(Extensions.ArrangePhotoFile());
 
             AddShelterPetPhoto command = new AddShelterPetPhoto(aggregatePet.Id.Value, userId, files);
 
-            _petService.GetAsync(command.PetId).Returns(aggregatePet);
+            _repository.GetByIdAsync(command.PetId).Returns(aggregatePet);
 
             await Act(command);
 
-            await _petPhotoService.Received().AddPetPhotosAsync(files, aggregatePet);
+            foreach (PhotoFile photo in files)
+            {
+                await _photoService.Received().AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Convey.CQRS.Queries;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;

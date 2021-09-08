@@ -8,6 +8,7 @@ using Lapka.Pets.Api.Helpers;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure;

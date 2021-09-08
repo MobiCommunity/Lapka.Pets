@@ -4,7 +4,7 @@ using GeoCoordinatePortable;
 using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
-using Lapka.Pets.Application.Dto.PetDtos;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Exceptions;
 using Lapka.Pets.Core.ValueObjects;

@@ -13,14 +13,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Lapka.Pets.Api.Attributes;
-using Lapka.Pets.Api.gRPC.Controllers;
 using Lapka.Pets.Application;
-using Lapka.Pets.Application.Services;
-using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure;
-using Lapka.Pets.Infrastructure.Services;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Lapka.Pets.Api
 {
@@ -32,11 +26,7 @@ namespace Lapka.Pets.Api
         }
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args).ConfigureKestrel(options =>
-                {
-                    options.ListenAnyIP(5002, o => o.Protocols = HttpProtocols.Http1);
-                    options.ListenAnyIP(5012, o => o.Protocols = HttpProtocols.Http2);
-                }).ConfigureServices(services =>
+            WebHost.CreateDefaultBuilder(args).ConfigureServices(services =>
                 {
                     services.AddControllers();
 
@@ -111,7 +101,6 @@ namespace Lapka.Pets.Api
                         })
                         .UseEndpoints(e =>
                         {
-                            e.MapGrpcService<GrpcPetController>();
                             e.MapControllers();
                             e.Map("ping", async ctx => { await ctx.Response.WriteAsync("Alive"); });
                         });

@@ -16,14 +16,17 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     public class DeletePetPhotoHandlerTests
     {
         private readonly DeleteShelterPetPhotoHandler _handler;
-        private readonly IShelterPetService _petService;
-        private readonly IShelterPetPhotoService _petPhotoService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
 
         public DeletePetPhotoHandlerTests()
         {
-            _petPhotoService = Substitute.For<IShelterPetPhotoService>();
-            _petService = Substitute.For<IShelterPetService>();
-            _handler = new DeleteShelterPetPhotoHandler(_petService, _petPhotoService);
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _repository = Substitute.For<IShelterPetRepository>();
+            _photoService = Substitute.For<IGrpcPhotoService>();
+            
+            _handler = new DeleteShelterPetPhotoHandler(_repository, _eventProcessor, _photoService);
         }
 
         private Task Act(DeleteShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -31,20 +34,20 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_photo_path_should_delete()
         {
+            Guid userId = Guid.NewGuid();
             ShelterPet pet = Extensions.ArrangePet(photoIds: new List<Guid>
             {
                 Guid.NewGuid()
-            });
-            Guid userId = Guid.NewGuid();
+            }, userId: userId);
 
             Guid photoPath = pet.PhotoIds.First();
             DeleteShelterPetPhoto command = new DeleteShelterPetPhoto(pet.Id.Value, userId, photoPath);
 
-            _petService.GetAsync(command.PetId).Returns(pet);
+            _repository.GetByIdAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
-            await _petPhotoService.Received().DeletePetPhotoAsync(photoPath, pet);
+            await _photoService.Received().DeleteAsync(photoPath, BucketName.PetPhotos);
         }
     }
 }

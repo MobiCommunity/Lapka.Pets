@@ -16,14 +16,17 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
     public class UpdateShelterPetPhotoHandlerTests
     {
         private readonly UpdateShelterPetPhotoHandler _handler;
-        private readonly IShelterPetService _petService;
-        private readonly IShelterPetPhotoService _petPhotoService;
+        private readonly IEventProcessor _eventProcessor;
+        private readonly IShelterPetRepository _repository;
+        private readonly IGrpcPhotoService _photoService;
 
         public UpdateShelterPetPhotoHandlerTests()
         {
-            _petPhotoService = Substitute.For<IShelterPetPhotoService>();
-            _petService = Substitute.For<IShelterPetService>();
-            _handler = new UpdateShelterPetPhotoHandler(_petService, _petPhotoService);
+            _eventProcessor = Substitute.For<IEventProcessor>();
+            _repository = Substitute.For<IShelterPetRepository>();
+            _photoService = Substitute.For<IGrpcPhotoService>();
+            
+            _handler = new UpdateShelterPetPhotoHandler(_eventProcessor, _repository, _photoService);
         }
 
         private Task Act(UpdateShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -31,17 +34,20 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_valid_pet_photo_should_update()
         {
-            ShelterPet pet = Extensions.ArrangePet();
-            PhotoFile file = Extensions.ArrangePhotoFile();
             Guid userId = Guid.NewGuid();
+            ShelterPet pet = Extensions.ArrangePet(userId: userId);
+            PhotoFile file = Extensions.ArrangePhotoFile();
+            Guid oldPhotoId = pet.MainPhotoId;
             
             UpdateShelterPetPhoto command = new UpdateShelterPetPhoto(pet.Id.Value, userId, file);
 
-            _petService.GetAsync(command.PetId).Returns(pet);
+            _repository.GetByIdAsync(command.PetId).Returns(pet);
 
             await Act(command);
 
-            await _petService.Received().UpdateAsync(pet);
+            await _repository.Received().UpdateAsync(pet);
+            await _photoService.Received().DeleteAsync(oldPhotoId, BucketName.PetPhotos);
+            await _photoService.Received().AddAsync(file.Id, file.Name, file.Content, BucketName.PetPhotos);
         }
     }
 }
