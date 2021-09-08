@@ -4,6 +4,7 @@ using System.Linq;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
 using Lapka.Pets.Core.Events.Concrete;
+using Lapka.Pets.Core.Events.Concrete.Pets.Shelters;
 using Lapka.Pets.Core.ValueObjects;
 using Shouldly;
 using Xunit;
@@ -40,7 +41,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Description.ShouldBe(pet.Description);
             pet.Events.Count().ShouldBe(1);
             IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<PetPhotoDeleted<ShelterPet>>();
+            @event.ShouldBeOfType<ShelterPetPhotoDeleted>();
         }
     }
 }

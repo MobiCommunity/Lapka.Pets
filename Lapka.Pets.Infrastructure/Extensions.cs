@@ -66,12 +66,22 @@ namespace Lapka.Pets.Infrastructure
             configuration.GetSection("filesMicroservice").Bind(filesMicroserviceOptions);
             services.AddSingleton(filesMicroserviceOptions);
 
+            IdentityMicroserviceOptions identityMicroserviceOptions = new IdentityMicroserviceOptions();
+            configuration.GetSection("identityMicroservice").Bind(identityMicroserviceOptions);
+            services.AddSingleton(identityMicroserviceOptions);
+            
             services.AddGrpcClient<PhotoProto.PhotoProtoClient>(o =>
             {
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
             });
             
+            services.AddGrpcClient<IdentityProto.IdentityProtoClient>(o =>
+            {
+                o.Address = new Uri(identityMicroserviceOptions.UrlHttp2);
+            });
+            
             services.AddTransient<IPetLikeRepository, PetLikeRepository>();
+            services.AddTransient<IGrpcIdentityService, GrpcIdentityService>();
 
             services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
             services.AddTransient<IUserPetRepository, UserPetRepository>();

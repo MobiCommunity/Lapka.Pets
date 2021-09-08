@@ -12,7 +12,7 @@ namespace Lapka.Pets.Tests.Unit
         public static ShelterPet ArrangePet(AggregateId id = null, Guid? userId = null, string name = null,
             Sex? sex = null, string race = null, Species? species = null, Guid? photoId = null,
             DateTime? birthDay = null, string color = null, double? weight = null, bool? sterilization = null,
-            Address shelterAddress = null, string description = null, List<Guid> photoIds = null)
+            Guid? shelterId = null, Address shelterAddress = null, string description = null, List<Guid> photoIds = null)
         {
             AggregateId validId = id ?? new AggregateId();
             Guid validUserId = userId ?? Guid.NewGuid();
@@ -26,6 +26,7 @@ namespace Lapka.Pets.Tests.Unit
             double validWeight = weight ?? 152;
             bool validSterilization = sterilization ?? true;
             string validDescription = description ?? "Dlugi opis nie do przeczytania.";
+            Guid validShelterId = shelterId ?? Guid.NewGuid();
             Address validShelterAddress = shelterAddress ?? ArrangeShelterAddress();
             List<Guid> validPhotoIds = photoIds ?? new List<Guid>
             {
@@ -35,7 +36,7 @@ namespace Lapka.Pets.Tests.Unit
 
             ShelterPet aggregatePet = new ShelterPet(validId.Value, validUserId, validName, validSex, validRace,
                 validSpecies, validPhotoId, validBirthDate, validColor, validWeight, validSterilization,
-                validShelterAddress, validDescription, validPhotoIds);
+                validShelterId, validShelterAddress, validDescription, validPhotoIds);
 
             return aggregatePet;
         }

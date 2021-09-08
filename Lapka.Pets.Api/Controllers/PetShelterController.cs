@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using Lapka.Identity.Api.Models;
-using Lapka.Pets.Api.Helpers;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
-using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Core.ValueObjects;
@@ -52,22 +50,15 @@ namespace Lapka.Pets.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
         {
-            string userRole = await HttpContext.AuthenticateUsingJwtGetUserRoleAsync();
-            if (string.IsNullOrEmpty(userRole) || userRole != "shelter")
-            {
-                return Unauthorized();
-            }
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
-            
             Guid id = Guid.NewGuid();
             Guid mainPhotoId = Guid.NewGuid();
-            
-            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(pet.Photos);
 
-            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
-                pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                pet.ShelterAddress.AsValueObject(), pet.Description, photos));
+            await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, pet.Name, pet.Sex, pet.Race,
+                pet.Species, pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight,
+                pet.Sterilization, pet.ShelterId, pet.ShelterAddress.AsValueObject(), pet.Description,
+                pet.Photos.CreatePhotoFiles()));
 
             return Created($"api/pet/shelter/{id}", null);
         }
@@ -83,11 +74,12 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
+
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
             await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, userId, photo.Id));
 
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -101,13 +93,31 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
+
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
-            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(request.Photos);
-            
-            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id, userId, photos));
+            await _commandDispatcher.SendAsync(new AddShelterPetPhoto(id, userId, request.Photos.CreatePhotoFiles()));
 
-            return Ok();
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Adds multiple photos to pet
+        /// </summary>
+        [HttpPost("stray")]
+        public async Task<IActionResult> ReportStrayPet([FromForm] ReportStrayPetRequest request)
+        {
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+            if (Guid.Empty == userId)
+            {
+                return Unauthorized();
+            }
+
+            await _commandDispatcher.SendAsync(new ReportStrayPet(userId, request.Location.AsValueObject(),
+                request.Photos.CreatePhotoFiles(), request.Description, request.ReporterName,
+                request.ReporterPhoneNumber));
+
+            return NoContent();
         }
 
         [HttpDelete("{id:guid}")]
@@ -118,6 +128,7 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
+
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
             await _commandDispatcher.SendAsync(new DeleteShelterPet(id, userId));
@@ -133,6 +144,7 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
+
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
             await _commandDispatcher.SendAsync(new UpdateShelterPet(id, userId, pet.Name, pet.Race, pet.Species,
@@ -153,58 +165,14 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
-            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             Guid photoId = Guid.NewGuid();
 
-            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, userId, petUpdate.File.AsPhotoFile(photoId)));
+            await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, userId,
+                petUpdate.File.AsPhotoFile(photoId)));
 
             return NoContent();
-        }
-        
-        [HttpPatch("{id:guid}/like")]
-        public async Task<IActionResult> LikePet(Guid id)
-        {
-            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized();
-            }
-
-            await _commandDispatcher.SendAsync(new LikePet(id, userId));
-
-            return NoContent();
-        }
-        
-        [HttpPatch("{id:guid}/dislike")]
-        public async Task<IActionResult> DislikePet(Guid id)
-        {
-            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized();
-            }
-
-            await _commandDispatcher.SendAsync(new DislikePet(id, userId));
-
-            return NoContent();
-        }
-        
-        [HttpGet("like")]
-        public async Task<IActionResult> GetLikedPets(string longitude, string latitude)
-        {
-            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
-            if (userId == Guid.Empty)
-            {
-                return Unauthorized();
-            }
-
-            return Ok(await _queryDispatcher.QueryAsync(new GetLikedPets
-            {
-                UserId = userId,
-                Longitude = longitude,
-                Latitude = latitude
-            }));
         }
     }
 }

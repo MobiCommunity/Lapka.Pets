@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Lapka.Pets.Core.Events.Concrete;
+using Lapka.Pets.Core.Events.Concrete.Pets.Users;
 using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Core.Entities
@@ -11,7 +12,7 @@ namespace Lapka.Pets.Core.Entities
     {
         public List<PetEvent> SoonEvents { get; private set; }
         public List<Visit> LastVisits { get; private set; }
-        public bool Sterelization { get; private set; }
+        public bool Sterilization { get; private set; }
 
         public UserPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
             DateTime birthDay, string color, double weight, bool sterilization, List<PetEvent> soonEvents,
@@ -20,7 +21,7 @@ namespace Lapka.Pets.Core.Entities
         {
             SoonEvents = soonEvents;
             LastVisits = lastVisits;
-            Sterelization = sterilization;
+            Sterilization = sterilization;
         }
 
         public static UserPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species,
@@ -31,7 +32,7 @@ namespace Lapka.Pets.Core.Entities
             UserPet pet = new UserPet(id, userId, name, sex, race, species, photoId, birthDay, color, weight,
                 sterilization, new List<PetEvent>(), new List<Visit>(), photoIds);
 
-            pet.AddEvent(new PetCreated<UserPet>(pet));
+            pet.AddEvent(new UserPetCreated(pet));
             return pet;
         }
 
@@ -39,17 +40,17 @@ namespace Lapka.Pets.Core.Entities
             bool sterilization, double weight, string color)
         {
             base.Update(name, race, species, sex, birthDay, weight, color);
-            Sterelization = sterilization;
+            Sterilization = sterilization;
 
             Validate(name, race, birthDay, color, weight);
 
-            AddEvent(new PetUpdated<UserPet>(this));
+            AddEvent(new UserPetUpdated(this));
         }
 
         public void AddLastVisit(Visit visit)
         {
             LastVisits.Add(visit);
-            AddEvent(new PetUpdated<UserPet>(this));
+            AddEvent(new UserPetUpdated(this));
         }
 
         public void UpdateLastVisit(Visit visitToUpdate, Visit updatedVisit)
@@ -57,18 +58,50 @@ namespace Lapka.Pets.Core.Entities
             visitToUpdate.Update(updatedVisit.LocationName, updatedVisit.IsVisitDone, updatedVisit.VisitDate,
                 updatedVisit.Description, updatedVisit.Weight, updatedVisit.MedicalTreatments);
 
-            AddEvent(new PetUpdated<UserPet>(this));
+            AddEvent(new UserPetUpdated(this));
         }
 
         public void AddSoonEvent(PetEvent soonEvent)
         {
             SoonEvents.Add(soonEvent);
-            AddEvent(new PetUpdated<UserPet>(this));
+            AddEvent(new UserPetUpdated(this));
+        }
+
+        public void Update(string name, string race, Species species, Sex sex, DateTime birthDay, double weight, string color, bool sterilization)
+        {
+            base.Update(name, race, species, sex, birthDay, weight, color);
+
+            Sterilization = sterilization;
+            AddEvent(new UserPetUpdated(this));
+        }
+
+        public override void AddPhotos(List<Guid> photoIds)
+        {
+            base.AddPhotos(photoIds);
+            
+            AddEvent(new UserPetPhotosAdded(this, photoIds));
+
+        }
+
+        public override void RemovePhoto(Guid photoId)
+        {
+            base.RemovePhoto(photoId);
+            
+            AddEvent(new UserPetPhotoDeleted(this, photoId));
+
+        }
+
+        public override void UpdateMainPhoto(Guid mainPhotoId)
+        {
+            base.UpdateMainPhoto(mainPhotoId);
+            
+            AddEvent(new UserPetUpdated(this));
+
         }
 
         public override void Delete()
         {
-            AddEvent(new PetDeleted<UserPet>(this));
+            AddEvent(new UserPetDeleted(this));
         }
     }
 }

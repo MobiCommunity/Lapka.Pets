@@ -91,6 +91,7 @@ namespace Lapka.Pets.Infrastructure.Documents
                 Sterilization = pet.Sterilization,
                 Weight = pet.Weight,
                 Species = pet.Species,
+                ShelterId = pet.ShelterId,
                 ShelterAddress = pet.ShelterAddress.AsDocument(),
                 PhotoIds = pet.PhotoIds,
                 Description = pet.Description
@@ -349,10 +350,9 @@ namespace Lapka.Pets.Infrastructure.Documents
         public static ShelterPet AsBusiness(this ShelterPetDocument shelterPet)
         {
             return new ShelterPet(shelterPet.Id, shelterPet.UserId, shelterPet.Name, shelterPet.Sex, shelterPet.Race,
-                shelterPet.Species, shelterPet.MainPhotoId, shelterPet.BirthDay,
-                shelterPet.Color, shelterPet.Weight, shelterPet.Sterilization, shelterPet.ShelterAddress.AsBusiness(),
-                shelterPet.Description,
-                shelterPet.PhotoIds);
+                shelterPet.Species, shelterPet.MainPhotoId, shelterPet.BirthDay, shelterPet.Color, shelterPet.Weight,
+                shelterPet.Sterilization, shelterPet.ShelterId, shelterPet.ShelterAddress.AsBusiness(),
+                shelterPet.Description, shelterPet.PhotoIds);
         }
 
         public static UserLikedPets AsBusiness(this LikePetDocument likePets)

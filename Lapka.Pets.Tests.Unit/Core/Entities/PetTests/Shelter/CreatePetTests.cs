@@ -4,6 +4,7 @@ using System.Linq;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
 using Lapka.Pets.Core.Events.Concrete;
+using Lapka.Pets.Core.Events.Concrete.Pets.Shelters;
 using Lapka.Pets.Core.Exceptions;
 using Lapka.Pets.Core.Exceptions.Location;
 using Lapka.Pets.Core.Exceptions.Pet;
@@ -15,10 +16,12 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 {
     public class CreatePetTests
     {
-        private ShelterPet Act(AggregateId id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
-            DateTime birthDay, string color, double weight, bool sterilization, Address shelterAddress,
-            string description, List<Guid> photoIds) => ShelterPet.Create(id.Value, userId, name, sex, race, species, photoId,
-            birthDay, color, weight, sterilization, shelterAddress, description, photoIds);
+        private ShelterPet Act(AggregateId id, Guid userId, string name, Sex sex, string race, Species species,
+            Guid photoId,
+            DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId, Address shelterAddress,
+            string description, List<Guid> photoIds) => ShelterPet.Create(id.Value, userId, name, sex, race, species,
+            photoId,
+            birthDay, color, weight, sterilization, shelterId, shelterAddress, description, photoIds);
 
         [Fact]
         public void given_valid_pet_should_be_created()
@@ -26,9 +29,11 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             Guid userId = Guid.NewGuid();
             ShelterPet arrangePet = Extensions.ArrangePet(userId: userId);
 
-            ShelterPet aggregatePet = Act(arrangePet.Id, arrangePet.UserId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
+            ShelterPet aggregatePet = Act(arrangePet.Id, arrangePet.UserId, arrangePet.Name, arrangePet.Sex,
+                arrangePet.Race,
                 arrangePet.Species, arrangePet.MainPhotoId, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
-                arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, null);
+                arrangePet.Sterilization, arrangePet.ShelterId, arrangePet.ShelterAddress, arrangePet.Description,
+                null);
 
             aggregatePet.ShouldNotBeNull();
             aggregatePet.Id.ShouldBe(arrangePet.Id);
@@ -46,7 +51,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             aggregatePet.Description.ShouldBe(arrangePet.Description);
             aggregatePet.Events.Count().ShouldBe(1);
             IDomainEvent @event = aggregatePet.Events.Single();
-            @event.ShouldBeOfType<PetCreated<ShelterPet>>();
+            @event.ShouldBeOfType<ShelterPetCreated>();
         }
 
         [Fact]
@@ -57,7 +62,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                pet.ShelterAddress, pet.Description, null));
+                pet.ShelterId, pet.ShelterAddress, pet.Description, null));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidPetNameException>();
@@ -71,7 +76,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                pet.ShelterAddress, pet.Description, null));
+                pet.ShelterId, pet.ShelterAddress, pet.Description, null));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<InvalidRaceValueException>();
@@ -84,7 +89,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             Guid userId = Guid.NewGuid();
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
-                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
+                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterId,
+                pet.ShelterAddress,
                 pet.Description, null));
 
             exception.ShouldNotBeNull();
@@ -98,7 +104,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             Guid userId = Guid.NewGuid();
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
-                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
+                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterId,
+                pet.ShelterAddress,
                 pet.Description, null));
 
             exception.ShouldNotBeNull();
@@ -113,7 +120,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race,
                 pet.Species, pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                pet.ShelterAddress, pet.Description, null));
+                pet.ShelterId, pet.ShelterAddress, pet.Description, null));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<WeightBelowMinimumValueException>();
@@ -186,7 +193,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         public void given_too_low_shelter_address_location_longitude_should_throw_an_exception()
         {
             Exception exception = Record.Exception(() => Extensions.ArrangePet(shelterAddress:
-                Extensions.ArrangeShelterAddress(location: Extensions.ArrangeShelterAddressLocation(longitude: "-180"))));
+                Extensions.ArrangeShelterAddress(
+                    location: Extensions.ArrangeShelterAddressLocation(longitude: "-180"))));
 
             exception.ShouldNotBeNull();
             exception.ShouldBeOfType<LongitudeTooLowException>();
@@ -199,7 +207,8 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             Guid userId = Guid.NewGuid();
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
-                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterAddress,
+                pet.MainPhotoId, pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization, pet.ShelterId,
+                pet.ShelterAddress,
                 pet.Description, null));
 
             exception.ShouldNotBeNull();

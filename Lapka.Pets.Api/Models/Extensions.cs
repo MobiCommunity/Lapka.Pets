@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Core.ValueObjects;
@@ -37,5 +39,16 @@ namespace Lapka.Identity.Api.Models
 
         public static PhotoFile AsPhotoFile(this IFormFile file, Guid id) =>
             new PhotoFile(id, file.FileName, file.OpenReadStream(), file.ContentType);
+        
+        public static List<PhotoFile> CreatePhotoFiles(this List<IFormFile> photos)
+        {
+            List<PhotoFile> photoFiles = new List<PhotoFile>();
+
+            if (photos == null) return photoFiles;
+
+            photoFiles.AddRange(photos.Select(photo => photo.AsPhotoFile(Guid.NewGuid())));
+
+            return photoFiles;
+        }
     }
 }

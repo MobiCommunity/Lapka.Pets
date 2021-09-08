@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
 
-namespace Lapka.Pets.Core.Events.Concrete
+namespace Lapka.Pets.Core.Events.Concrete.Pets.Users
 {
-    public class PetPhotosAdded<T> : IDomainEvent where T : AggregatePet
+    public class UserPetPhotosAdded : IDomainEvent
     {     
-        public T Pet { get; }
+        public UserPet Pet { get; }
         public List<Guid> AddedPhotoIds { get; }
 
-        public PetPhotosAdded(T pet, List<Guid> addedPhotoIds)
+        public UserPetPhotosAdded(UserPet pet, List<Guid> addedPhotoIds)
         {
             Pet = pet;
             AddedPhotoIds = addedPhotoIds;

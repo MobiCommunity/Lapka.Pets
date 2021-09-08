@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Dto;
+using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
@@ -17,22 +18,30 @@ namespace Lapka.Pets.Application.Commands.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
+        private readonly IGrpcIdentityService _grpcIdentityService;
 
 
         public CreateShelterPetHandler(ILogger<CreateShelterPetHandler> logger, IEventProcessor eventProcessor,
-            IShelterPetRepository repository, IGrpcPhotoService photoService)
+            IShelterPetRepository repository, IGrpcPhotoService photoService, IGrpcIdentityService grpcIdentityService)
         {
             _logger = logger;
             _eventProcessor = eventProcessor;
             _repository = repository;
             _photoService = photoService;
+            _grpcIdentityService = grpcIdentityService;
         }
 
         public async Task HandleAsync(CreateShelterPet command)
         {
+            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(command.ShelterId, command.UserId);
+            if (!isOwner)
+            {
+                throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
+            }
+            
             ShelterPet pet = ShelterPet.Create(command.Id, command.UserId, command.Name, command.Sex, command.Race, command.Species,
                 command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight, command.Sterilization,
-                command.ShelterAddress, command.Description,
+                 command.ShelterId, command.ShelterAddress, command.Description,
                 command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList());
 
             await AddMainPhoto(command, pet);

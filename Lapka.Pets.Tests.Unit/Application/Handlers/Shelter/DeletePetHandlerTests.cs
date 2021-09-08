@@ -18,6 +18,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
+        private readonly IGrpcIdentityService _grpcIdentity;
         private readonly ILogger<DeleteShelterPetHandler> _logger;
 
         public DeletePetHandlerTests()
@@ -26,8 +27,9 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             _eventProcessor = Substitute.For<IEventProcessor>();
             _repository = Substitute.For<IShelterPetRepository>();
             _photoService = Substitute.For<IGrpcPhotoService>();
-            
-            _handler = new DeleteShelterPetHandler(_logger, _eventProcessor, _repository, _photoService);
+            _grpcIdentity = Substitute.For<IGrpcIdentityService>();
+
+            _handler = new DeleteShelterPetHandler(_logger, _eventProcessor, _repository, _photoService, _grpcIdentity);
         }
 
         private Task Act(DeleteShelterPet command) => _handler.HandleAsync(command);
@@ -41,6 +43,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
             _repository.GetByIdAsync(command.Id).Returns(pet);
+            _grpcIdentity.IsUserOwnerOfShelter(pet.ShelterId, command.UserId).Returns(true);
 
             await Act(command);
 
@@ -57,6 +60,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             DeleteShelterPet command = new DeleteShelterPet(pet.Id.Value, userId);
 
             _repository.GetByIdAsync(command.Id).Returns(pet);
+            _grpcIdentity.IsUserOwnerOfShelter(pet.ShelterId, command.UserId).Returns(true);
 
             await Act(command);
 
