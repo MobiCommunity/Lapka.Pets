@@ -17,13 +17,15 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
+        private readonly IGrpcIdentityService _grpcIdentity;
         public UpdateShelterPetHandlerTests()
         {          
             _eventProcessor = Substitute.For<IEventProcessor>();
             _repository = Substitute.For<IShelterPetRepository>();
             _photoService = Substitute.For<IGrpcPhotoService>();
-            
-            _handler = new UpdateShelterPetHandler(_eventProcessor, _repository);
+            _grpcIdentity = Substitute.For<IGrpcIdentityService>();
+
+            _handler = new UpdateShelterPetHandler(_eventProcessor, _repository, _grpcIdentity);
         }
 
         private Task Act(UpdateShelterPet command)
@@ -39,7 +41,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
 
             ShelterPet pet = ShelterPet.Create(arrangePet.Id.Value, arrangePet.UserId, arrangePet.Name, arrangePet.Sex, arrangePet.Race,
                 arrangePet.Species, arrangePet.MainPhotoId, arrangePet.BirthDay, arrangePet.Color, arrangePet.Weight,
-                arrangePet.Sterilization, arrangePet.ShelterAddress, arrangePet.Description, arrangePet.PhotoIds);
+                arrangePet.Sterilization, arrangePet.ShelterId, arrangePet.ShelterAddress, arrangePet.Description, arrangePet.PhotoIds);
 
             UpdateShelterPet command = new UpdateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name, arrangePet.Race,
                 arrangePet.Species,
@@ -47,6 +49,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
                 arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
 
             _repository.GetByIdAsync(command.Id).Returns(pet);
+            _grpcIdentity.IsUserOwnerOfShelter(pet.ShelterId, command.UserId).Returns(true);
 
             await Act(command);
 

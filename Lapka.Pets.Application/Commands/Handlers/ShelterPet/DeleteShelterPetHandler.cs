@@ -15,14 +15,16 @@ namespace Lapka.Pets.Application.Commands.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly IGrpcIdentityService _grpcIdentityService;
 
         public DeleteShelterPetHandler(ILogger<DeleteShelterPetHandler> logger, IEventProcessor eventProcessor,
-            IShelterPetRepository repository, IGrpcPhotoService grpcPhotoService)
+            IShelterPetRepository repository, IGrpcPhotoService grpcPhotoService, IGrpcIdentityService grpcIdentityService)
         {
             _logger = logger;
             _eventProcessor = eventProcessor;
             _repository = repository;
             _grpcPhotoService = grpcPhotoService;
+            _grpcIdentityService = grpcIdentityService;
         }
 
         public async Task HandleAsync(DeleteShelterPet command)
@@ -33,9 +35,10 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.Id);
             }
 
-            if (pet.UserId != command.UserId)
+            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
+            if (!isOwner)
             {
-                throw new PetDoesNotBelongToUserException(command.UserId.ToString(), pet.Id.Value.ToString());
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
 
             await DeletePhotos(pet);

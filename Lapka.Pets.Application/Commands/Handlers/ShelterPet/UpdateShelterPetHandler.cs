@@ -11,11 +11,14 @@ namespace Lapka.Pets.Application.Commands.Handlers
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
+        private readonly IGrpcIdentityService _grpcIdentityService;
 
-        public UpdateShelterPetHandler(IEventProcessor eventProcessor, IShelterPetRepository repository)
+        public UpdateShelterPetHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
+            IGrpcIdentityService grpcIdentityService)
         {
             _eventProcessor = eventProcessor;
             _repository = repository;
+            _grpcIdentityService = grpcIdentityService;
         }
 
         public async Task HandleAsync(UpdateShelterPet command)
@@ -25,9 +28,11 @@ namespace Lapka.Pets.Application.Commands.Handlers
             {
                 throw new PetNotFoundException(command.Id);
             }
-            if (pet.UserId != command.UserId)
+
+            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
+            if (!isOwner)
             {
-                throw new PetDoesNotBelongToUserException(command.UserId.ToString(), pet.Id.Value.ToString());
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
 
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,

@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using Lapka.Identity.Api.Models;
-using Lapka.Pets.Api.Helpers;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
-using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
-using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,9 +26,6 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
         
-        /// <summary>
-        /// Gets user pet by ID (auth required)
-        /// </summary>
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -48,10 +41,7 @@ namespace Lapka.Pets.Api.Controllers
                 UserId = userId
             }));
         }
-
-        /// <summary>
-        /// Gets all user pets (auth required)
-        /// </summary>
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
         {
@@ -66,10 +56,7 @@ namespace Lapka.Pets.Api.Controllers
                 UserId = userId
             }));
         }
-
-        /// <summary>
-        /// Add user's pet (auth required)
-        /// </summary>
+        
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
         {
@@ -81,18 +68,14 @@ namespace Lapka.Pets.Api.Controllers
             
             Guid id = Guid.NewGuid();
             Guid mainPhotoId = Guid.NewGuid();
-            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(pet.Photos);
 
             await _commandDispatcher.SendAsync(new CreateUserPet(id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,
                 pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight, pet.Sterilization,
-                photos));
+                pet.Photos.CreatePhotoFiles()));
 
             return Created($"api/pet/{id}", null);
         }
-
-        /// <summary>
-        /// Add visit for the user's pet (auth required)
-        /// </summary>
+        
         [HttpPost("{id:guid}/visit")]
         public async Task<IActionResult> AddVisit(Guid id, [FromBody] AddVisitRequest request)
         {
@@ -108,11 +91,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
-        /// <summary>
-        /// Updates a visit for the user's pet (auth required)
-        /// </summary>
-        
+
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
         public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, [FromBody] UpdateVisitRequest request)
         {
@@ -126,10 +105,6 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
-        /// <summary>
-        /// Adds event for the user's pet (auth required)
-        /// </summary>
 
         [HttpPost("{id:guid}/soonEvent")]
         public async Task<IActionResult> AddSoonEvent(Guid id, [FromBody] AddSoonEventRequest request)
@@ -147,10 +122,6 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
-        /// <summary>
-        /// Deletes user's pet (auth required)
-        /// </summary>
-
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -164,10 +135,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
-        /// <summary>
-        /// Deletes photo from pet's photos list(not a main photo)(auth required)
-        /// </summary>
+        
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
@@ -179,12 +147,9 @@ namespace Lapka.Pets.Api.Controllers
             
             await _commandDispatcher.SendAsync(new DeleteUserPetPhoto(id, userId, photo.Id));
 
-            return Ok();
+            return NoContent();
         }
         
-        /// <summary>
-        /// Adds multiple photos to the pet(auth required)
-        /// </summary>
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
@@ -194,16 +159,11 @@ namespace Lapka.Pets.Api.Controllers
                 return Unauthorized();
             }
             
-            List<PhotoFile> photos = PetControllerHelpers.CreatePhotoFiles(request.Photos);
-            
-            await _commandDispatcher.SendAsync(new AddUserPetPhoto(id, userId, photos));
+            await _commandDispatcher.SendAsync(new AddUserPetPhoto(id, userId, request.Photos.CreatePhotoFiles()));
 
-            return Ok();
+            return NoContent();
         }
-
-        /// <summary>
-        /// Updates only pet's main photo(auth required)
-        /// </summary>
+        
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
@@ -219,10 +179,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
-        /// <summary>
-        /// Updates the user's pet (auth required)
-        /// </summary>
+        
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
         {

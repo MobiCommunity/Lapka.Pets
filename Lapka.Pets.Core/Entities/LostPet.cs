@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Lapka.Pets.Core.Events.Concrete;
+using Lapka.Pets.Core.Events.Concrete.Pets.Losts;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
 
@@ -35,7 +36,7 @@ namespace Lapka.Pets.Core.Entities
             LostPet pet = new LostPet(id, userId, name, sex, race, species, photoId, photoIds, birthDay, color, weight,
                 ownerName, phoneNumber, lostDate, lostAddress, description);
 
-            pet.AddEvent(new PetCreated<LostPet>(pet));
+            pet.AddEvent(new LostPetCreated(pet));
             return pet;
         }
 
@@ -50,33 +51,33 @@ namespace Lapka.Pets.Core.Entities
             LostAddress = lostAddress;
             Description = description;
 
-            AddEvent(new PetUpdated<LostPet>(this));
+            AddEvent(new LostPetUpdated(this));
         }
 
         public override void AddPhotos(List<Guid> photoIds)
         {
             base.AddPhotos(photoIds);
 
-            AddEvent(new PetPhotosAdded<LostPet>(this, photoIds));
+            AddEvent(new LostPetPhotosAdded(this, photoIds));
         }
 
         public override void RemovePhoto(Guid photoId)
         {
             base.RemovePhoto(photoId);
 
-            AddEvent(new PetPhotoDeleted<LostPet>(this, photoId));
+            AddEvent(new LostPetPhotoDeleted(this, photoId));
         }
 
         public override void UpdateMainPhoto(Guid photoId)
         {
             base.UpdateMainPhoto(photoId);
 
-            AddEvent(new PetUpdated<LostPet>(this));
+            AddEvent(new LostPetUpdated(this));
         }
-
+        
         public override void Delete()
         {
-            AddEvent(new PetDeleted<LostPet>(this));
+            AddEvent(new LostPetDeleted(this));
         }
 
         private static void Validate(string name, string race, DateTime birthDay, string color, double weight,

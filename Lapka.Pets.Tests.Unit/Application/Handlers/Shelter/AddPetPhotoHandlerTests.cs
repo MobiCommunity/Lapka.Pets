@@ -20,14 +20,16 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
+        private readonly IGrpcIdentityService _grpcIdentity;
 
         public AddPetPhotoHandlerTests()
         {
             _eventProcessor = Substitute.For<IEventProcessor>();
             _repository = Substitute.For<IShelterPetRepository>();
             _photoService = Substitute.For<IGrpcPhotoService>();
+            _grpcIdentity = Substitute.For<IGrpcIdentityService>();
 
-            _handler = new AddShelterPetPhotoHandler(_eventProcessor, _repository, _photoService);
+            _handler = new AddShelterPetPhotoHandler(_eventProcessor, _repository, _photoService, _grpcIdentity);
         }
 
         private Task Act(AddShelterPetPhoto command) => _handler.HandleAsync(command);
@@ -44,6 +46,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
             AddShelterPetPhoto command = new AddShelterPetPhoto(aggregatePet.Id.Value, userId, files);
 
             _repository.GetByIdAsync(command.PetId).Returns(aggregatePet);
+            _grpcIdentity.IsUserOwnerOfShelter(aggregatePet.ShelterId, command.UserId).Returns(true);
 
             await Act(command);
 
