@@ -33,12 +33,8 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(CreateShelterPet command)
         {
-            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(command.ShelterId, command.UserId);
-            if (!isOwner)
-            {
-                throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
-            }
-            
+            await ValidIfUserOwnShelter(command);
+
             ShelterPet pet = ShelterPet.Create(command.Id, command.UserId, command.Name, command.Sex, command.Race, command.Species,
                 command.MainPhoto.Id, command.BirthDay, command.Color, command.Weight, command.Sterilization,
                  command.ShelterId, command.ShelterAddress, command.Description,
@@ -50,6 +46,22 @@ namespace Lapka.Pets.Application.Commands.Handlers
             await _repository.AddAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
             
+        }
+        
+        private async Task ValidIfUserOwnShelter(CreateShelterPet command)
+        {
+            try
+            {
+                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(command.ShelterId, command.UserId);
+                if (!isOwner)
+                {
+                    throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestIdentityMicroserviceException(ex);
+            }
         }
         
         private async Task AddPhotos(CreateShelterPet command, ShelterPet pet)

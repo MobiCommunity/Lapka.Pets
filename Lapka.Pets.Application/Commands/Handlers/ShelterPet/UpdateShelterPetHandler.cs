@@ -29,17 +29,29 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.Id);
             }
 
-            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-            if (!isOwner)
-            {
-                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-            }
-
+            await ValidIfUserOwnShelter(command, pet);
+            
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
                 command.Sterilization, command.Weight, command.Color, command.ShelterAddress, command.Description);
 
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+        }
+        
+        private async Task ValidIfUserOwnShelter(UpdateShelterPet command, ShelterPet pet)
+        {
+            try
+            {
+                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
+                if (!isOwner)
+                {
+                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestIdentityMicroserviceException(ex);
+            }
         }
     }
 }

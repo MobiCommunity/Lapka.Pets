@@ -34,20 +34,32 @@ namespace Lapka.Pets.Application.Commands.Handlers
             {
                 throw new PetNotFoundException(command.PetId);
             }
-            
-            bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-            if (!isOwner)
-            {
-                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-            }
 
+            await ValidIfUserOwnShelter(command, pet);
+            
             await AddPhotos(command);
             pet.AddPhotos(command.Photos.IdsAsGuidList());
             
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
-        
+
+        private async Task ValidIfUserOwnShelter(AddShelterPetPhoto command, ShelterPet pet)
+        {
+            try
+            {
+                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
+                if (!isOwner)
+                {
+                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestIdentityMicroserviceException(ex);
+            }
+        }
+
         private async Task AddPhotos(AddShelterPetPhoto command)
         {
             try
