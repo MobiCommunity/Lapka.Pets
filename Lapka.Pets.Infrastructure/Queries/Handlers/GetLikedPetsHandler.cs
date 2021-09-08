@@ -33,12 +33,15 @@ namespace Lapka.Pets.Infrastructure.Queries.Handlers
             IMongoQueryable<ShelterPetDocument> queryable = _shelterRepository.Collection.AsQueryable();
             LikePetDocument likedPets = await _likeRepository.GetAsync(x => x.Id == query.UserId);
 
-            foreach (Guid petId in likedPets.LikedPets)
+            if (likedPets != null)
             {
-                ShelterPetDocument pet = await queryable.FirstOrDefaultAsync(x => x.Id == petId);
-                pets.Add(pet.AsBasicDto(query.Latitude, query.Longitude));
+                foreach (Guid petId in likedPets.LikedPets)
+                {
+                    ShelterPetDocument pet = await queryable.FirstOrDefaultAsync(x => x.Id == petId);
+                    pets.Add(pet.AsBasicDto(query.Latitude, query.Longitude));
+                }
             }
-
+            
             return pets;
         }
     }

@@ -48,7 +48,9 @@ namespace Lapka.Pets.Application.Commands.Handlers
             await AddPhotos(command, pet);
             
             await _repository.AddAsync(pet);
-            await _eventProcessor.ProcessAsync(pet.Events);        }
+            await _eventProcessor.ProcessAsync(pet.Events);
+            
+        }
         
         private async Task AddPhotos(CreateShelterPet command, ShelterPet pet)
         {

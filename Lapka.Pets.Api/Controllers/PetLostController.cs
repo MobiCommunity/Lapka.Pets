@@ -19,13 +19,13 @@ namespace Lapka.Pets.Api.Controllers
     {
         private readonly ICommandDispatcher _commandDispatcher;
         private readonly IQueryDispatcher _queryDispatcher;
-
+        
         public PetLostController(ICommandDispatcher commandDispatcher, IQueryDispatcher queryDispatcher)
         {
             _commandDispatcher = commandDispatcher;
             _queryDispatcher = queryDispatcher;
         }
-
+        
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetLostPet

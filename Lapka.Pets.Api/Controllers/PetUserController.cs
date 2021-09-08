@@ -26,9 +26,6 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
         
-        /// <summary>
-        /// Gets user pet by ID (auth required)
-        /// </summary>
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -44,10 +41,7 @@ namespace Lapka.Pets.Api.Controllers
                 UserId = userId
             }));
         }
-
-        /// <summary>
-        /// Gets all user pets (auth required)
-        /// </summary>
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
         {
@@ -62,10 +56,7 @@ namespace Lapka.Pets.Api.Controllers
                 UserId = userId
             }));
         }
-
-        /// <summary>
-        /// Add user's pet (auth required)
-        /// </summary>
+        
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
         {
@@ -84,10 +75,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return Created($"api/pet/{id}", null);
         }
-
-        /// <summary>
-        /// Add visit for the user's pet (auth required)
-        /// </summary>
+        
         [HttpPost("{id:guid}/visit")]
         public async Task<IActionResult> AddVisit(Guid id, [FromBody] AddVisitRequest request)
         {
@@ -103,11 +91,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
-        /// <summary>
-        /// Updates a visit for the user's pet (auth required)
-        /// </summary>
-        
+
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
         public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, [FromBody] UpdateVisitRequest request)
         {
@@ -121,10 +105,6 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-        
-        /// <summary>
-        /// Adds event for the user's pet (auth required)
-        /// </summary>
 
         [HttpPost("{id:guid}/soonEvent")]
         public async Task<IActionResult> AddSoonEvent(Guid id, [FromBody] AddSoonEventRequest request)
@@ -142,10 +122,6 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
-        /// <summary>
-        /// Deletes user's pet (auth required)
-        /// </summary>
-
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -159,10 +135,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
-        /// <summary>
-        /// Deletes photo from pet's photos list(not a main photo)(auth required)
-        /// </summary>
+        
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
@@ -177,9 +150,6 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
-        /// <summary>
-        /// Adds multiple photos to the pet(auth required)
-        /// </summary>
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
@@ -193,10 +163,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
-        /// <summary>
-        /// Updates only pet's main photo(auth required)
-        /// </summary>
+        
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
@@ -212,10 +179,7 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
-        /// <summary>
-        /// Updates the user's pet (auth required)
-        /// </summary>
+        
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
         {
