@@ -6,6 +6,6 @@ namespace Lapka.Pets.Application.Services
     public interface IGrpcIdentityService
     {
         Task<bool> IsUserOwnerOfShelter(Guid shelterId, Guid userId);
-        Task<Guid> ClosetShelter(string longitude, string latitude);
+        Task<Guid> ClosestShelter(string longitude, string latitude);
     }
 }

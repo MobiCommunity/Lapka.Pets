@@ -24,7 +24,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
 
         public async Task HandleAsync(ReportStrayPet command)
         {
-            Guid shelter = await _grpcIdentityService.ClosetShelter(command.Location.Longitude.Value,
+            Guid shelter = await _grpcIdentityService.ClosestShelter(command.Location.Longitude.Value,
                     command.Location.Latitude.Value);
 
             //TODO: Send message to closest shelter
