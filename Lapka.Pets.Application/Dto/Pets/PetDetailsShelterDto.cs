@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Lapka.Identity.Application.Dto;
 
 namespace Lapka.Pets.Application.Dto.Pets
@@ -7,6 +8,8 @@ namespace Lapka.Pets.Application.Dto.Pets
     {
         [Required]
         public string Description { get; set; }
+        [Required]
+        public Guid Shelterid { get; set; }
         [Required]
         public AddressDto ShelterAddress { get; set; }
         [Required] 

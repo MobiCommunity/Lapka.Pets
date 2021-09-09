@@ -147,6 +147,7 @@ namespace Lapka.Pets.Infrastructure.Documents
                 BirthDay = shelterPet.BirthDay,
                 MainPhotoId = shelterPet.MainPhotoId,
                 Description = shelterPet.Description,
+                Shelterid = shelterPet.ShelterId,
                 ShelterAddress = shelterPet.ShelterAddress.AsDto(),
                 Sterilization = shelterPet.Sterilization,
                 Weight = shelterPet.Weight,

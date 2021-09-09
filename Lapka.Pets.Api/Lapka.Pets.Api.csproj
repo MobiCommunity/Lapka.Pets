@@ -30,8 +30,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Helpers" />
       <Folder Include="Models\Response\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Grpc\Protos\pet.proto" GrpcServices="Server" />
     </ItemGroup>
 
 </Project>
