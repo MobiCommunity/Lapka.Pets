@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Lapka.Pets.Api.Controllers
 {
     [ApiController]
-    [Route("api/shelter/pet")]
+    [Route("api/shelter")]
     public class PetShelterController : ControllerBase
     {
         private readonly ICommandDispatcher _commandDispatcher;
@@ -27,7 +27,7 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("pet/{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetShelterPet
             {
@@ -36,7 +36,7 @@ namespace Lapka.Pets.Api.Controllers
                 Longitude = longitude
             }));
 
-        [HttpGet]
+        [HttpGet("pet")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
             string latitude, string longitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetShelterPets
@@ -46,8 +46,15 @@ namespace Lapka.Pets.Api.Controllers
                 Name = name,
                 Race = race
             }));
+        
+        [HttpGet("{id:guid}/pet")]
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAllShelterPets(Guid id)
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterOwnPets
+            {
+                ShelterId = id
+            }));
 
-        [HttpPost]
+        [HttpPost("pet")]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -66,7 +73,7 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Deletes photo from Photos list (not a main photo)
         /// </summary>
-        [HttpDelete("{id:guid}/photo")]
+        [HttpDelete("pet/{id:guid}/photo")]
         public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -83,7 +90,7 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds multiple photos to pet
         /// </summary>
-        [HttpPost("{id:guid}/photo")]
+        [HttpPost("pet/{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -100,7 +107,7 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds multiple photos to pet
         /// </summary>
-        [HttpPost("stray")]
+        [HttpPost("pet/stray")]
         public async Task<IActionResult> ReportStrayPet([FromForm] ReportStrayPetRequest request)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -116,7 +123,7 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("pet/{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -130,7 +137,7 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:guid}")]
+        [HttpPatch("pet/{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateShelterPetRequest pet)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
@@ -149,7 +156,7 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Updates only main pet photo
         /// </summary>
-        [HttpPatch("{id:guid}/photo")]
+        [HttpPatch("pet/{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
