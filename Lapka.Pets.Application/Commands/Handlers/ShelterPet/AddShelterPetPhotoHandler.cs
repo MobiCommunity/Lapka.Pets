@@ -35,16 +35,16 @@ namespace Lapka.Pets.Application.Commands.Handlers
                 throw new PetNotFoundException(command.PetId);
             }
 
-            await ValidIfUserOwnShelter(command, pet);
+            await ValidIfUserOwnShelterAsync(command, pet);
             
-            await AddPhotos(command);
+            await AddPhotosAsync(command);
             pet.AddPhotos(command.Photos.IdsAsGuidList());
             
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
 
-        private async Task ValidIfUserOwnShelter(AddShelterPetPhoto command, ShelterPet pet)
+        private async Task ValidIfUserOwnShelterAsync(AddShelterPetPhoto command, ShelterPet pet)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace Lapka.Pets.Application.Commands.Handlers
             }
         }
 
-        private async Task AddPhotos(AddShelterPetPhoto command)
+        private async Task AddPhotosAsync(AddShelterPetPhoto command)
         {
             try
             {

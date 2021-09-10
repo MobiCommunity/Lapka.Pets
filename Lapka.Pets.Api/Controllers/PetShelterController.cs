@@ -104,25 +104,6 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Adds multiple photos to pet
-        /// </summary>
-        [HttpPost("pet/stray")]
-        public async Task<IActionResult> ReportStrayPet([FromForm] ReportStrayPetRequest request)
-        {
-            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
-            if (Guid.Empty == userId)
-            {
-                return Unauthorized();
-            }
-
-            await _commandDispatcher.SendAsync(new ReportStrayPet(userId, request.Location.AsValueObject(),
-                request.Photos.CreatePhotoFiles(), request.Description, request.ReporterName,
-                request.ReporterPhoneNumber));
-
-            return NoContent();
-        }
-
         [HttpDelete("pet/{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
