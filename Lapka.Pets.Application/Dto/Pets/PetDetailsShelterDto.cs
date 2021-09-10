@@ -9,7 +9,7 @@ namespace Lapka.Pets.Application.Dto.Pets
         [Required]
         public string Description { get; set; }
         [Required]
-        public Guid Shelterid { get; set; }
+        public Guid ShelterId { get; set; }
         [Required]
         public AddressDto ShelterAddress { get; set; }
         [Required] 

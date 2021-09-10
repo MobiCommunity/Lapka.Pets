@@ -34,22 +34,30 @@ namespace Lapka.Identity.Api.Grpc.Controllers
             };
         }
 
-        public override async Task<DoesPetExistsReply> DoesPetExists(DoesPetExistsRequest request, ServerCallContext context)
+        public override async Task<GetPetsShelterReply> GetPetsShelter(GetPetsShelterRequest request, ServerCallContext context)
         {
             if (!Guid.TryParse(request.PetId, out Guid petId))
             {
                 throw new InvalidPetIdException(request.PetId);
             }
             
-            PetDetailsShelterDto pet = await _queryDispatcher.QueryAsync(new GetShelterPet
+            try
             {
-                Id = petId
-            });
-            
-            return new DoesPetExistsReply
+                PetDetailsShelterDto pet = await _queryDispatcher.QueryAsync(new GetShelterPet
+                {
+                    Id = petId
+                });
+                return new GetPetsShelterReply
+                {
+                    ShelterId = pet.ShelterId.ToString()
+                };
+            }
+            catch{ }
+
+            return new GetPetsShelterReply
             {
-                DoesExists = pet is { }
-            };
+                ShelterId = string.Empty
+            };        
         }
     }
 }
