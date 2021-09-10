@@ -16,6 +16,12 @@ namespace Lapka.Pets.Infrastructure.Exceptions
 
                 AppException ex => ex switch
                 {
+                    InvalidPetIdException invalidPetIdException => 
+                        new ExceptionResponse (new
+                        {
+                            code = invalidPetIdException.Code,
+                            reason = invalidPetIdException.Message
+                        },HttpStatusCode.BadRequest),
                     CannotRequestFilesMicroserviceException cannotRequestFilesMicroserviceException => 
                         new ExceptionResponse (new
                         {

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Convey.CQRS.Queries;
 using Grpc.Core;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
 
@@ -30,6 +31,24 @@ namespace Lapka.Identity.Api.Grpc.Controllers
             return new GetShelterPetsCountReply
             {
                 Count = response
+            };
+        }
+
+        public override async Task<DoesPetExistsReply> DoesPetExists(DoesPetExistsRequest request, ServerCallContext context)
+        {
+            if (!Guid.TryParse(request.PetId, out Guid petId))
+            {
+                throw new InvalidPetIdException(request.PetId);
+            }
+            
+            PetDetailsShelterDto pet = await _queryDispatcher.QueryAsync(new GetShelterPet
+            {
+                Id = petId
+            });
+            
+            return new DoesPetExistsReply
+            {
+                DoesExists = pet is { }
             };
         }
     }
