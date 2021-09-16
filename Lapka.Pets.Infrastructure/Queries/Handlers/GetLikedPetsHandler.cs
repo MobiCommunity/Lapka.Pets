@@ -8,41 +8,65 @@ using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Services;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetLikedPetsHandler : IQueryHandler<GetLikedPets, IEnumerable<PetBasicShelterDto>>
     {
-        private readonly IMongoRepository<ShelterPetDocument, Guid> _shelterRepository;
-        private readonly IMongoRepository<LikePetDocument, Guid> _likeRepository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetLikedPetsHandler(IMongoRepository<ShelterPetDocument, Guid> shelterRepository,
-            IMongoRepository<LikePetDocument, Guid> likeRepository)
+        public GetLikedPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _shelterRepository = shelterRepository;
-            _likeRepository = likeRepository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<IEnumerable<PetBasicShelterDto>> HandleAsync(GetLikedPets query)
         {
-            List<PetBasicShelterDto> pets = new List<PetBasicShelterDto>();
-            IMongoQueryable<ShelterPetDocument> queryable = _shelterRepository.Collection.AsQueryable();
-            LikePetDocument likedPets = await _likeRepository.GetAsync(x => x.Id == query.UserId);
+            GetResponse<LikePetDocument> searchLikePets = await _elasticClient.GetAsync(
+                new DocumentPath<LikePetDocument>(new Id(query.UserId.ToString())),
+                x => x.Index(_elasticSearchOptions.Aliases.LikedPets));
 
-            if (likedPets != null)
+            List<Id> petIds = GetPetIdsOutOfLikedPetsList(searchLikePets);
+
+            if (petIds.Count() == 0)
             {
-                foreach (Guid petId in likedPets.LikedPets)
-                {
-                    ShelterPetDocument pet = await queryable.FirstOrDefaultAsync(x => x.Id == petId);
-                    pets.Add(pet.AsBasicDto(query.Latitude, query.Longitude));
-                }
+                return new List<PetBasicShelterDto>();
             }
             
-            return pets;
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
+            {
+                Query = new IdsQuery
+                {
+                    Values = petIds
+                }
+            };
+
+            ISearchResponse<ShelterPetDocument> searchShelterPets = await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
+
+            return searchShelterPets?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
+        }
+
+        private static List<Id> GetPetIdsOutOfLikedPetsList(GetResponse<LikePetDocument> searchLikePets)
+        {
+            List<Id> petIds = new List<Id>();
+            if (searchLikePets?.Source.LikedPets is { })
+            {
+                foreach (Guid petId in searchLikePets?.Source.LikedPets)
+                {
+                    petIds.Add(petId);
+                }
+            }
+
+            return petIds;
         }
     }
 }

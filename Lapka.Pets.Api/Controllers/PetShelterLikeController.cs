@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using Lapka.Pets.Application.Commands;
+using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Mvc;

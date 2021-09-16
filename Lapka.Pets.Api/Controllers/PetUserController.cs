@@ -6,6 +6,7 @@ using Convey.CQRS.Queries;
 using Lapka.Identity.Api.Models;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
+using Lapka.Pets.Application.Commands.UserPets;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure;
@@ -77,7 +78,7 @@ namespace Lapka.Pets.Api.Controllers
         }
         
         [HttpPost("{id:guid}/visit")]
-        public async Task<IActionResult> AddVisit(Guid id, [FromBody] AddVisitRequest request)
+        public async Task<IActionResult> AddVisit(Guid id, AddVisitRequest request)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
@@ -93,7 +94,7 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
-        public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, [FromBody] UpdateVisitRequest request)
+        public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, UpdateVisitRequest request)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
@@ -107,7 +108,7 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpPost("{id:guid}/soonEvent")]
-        public async Task<IActionResult> AddSoonEvent(Guid id, [FromBody] AddSoonEventRequest request)
+        public async Task<IActionResult> AddSoonEvent(Guid id, AddSoonEventRequest request)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
@@ -181,7 +182,7 @@ namespace Lapka.Pets.Api.Controllers
         }
         
         [HttpPatch("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateUserPetRequest pet)
+        public async Task<IActionResult> Update(Guid id, UpdateUserPetRequest pet)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)

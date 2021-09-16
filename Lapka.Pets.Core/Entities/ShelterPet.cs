@@ -53,14 +53,14 @@ namespace Lapka.Pets.Core.Entities
         {
             base.AddPhotos(photoIds);
 
-            AddEvent(new ShelterPetPhotosAdded(this, photoIds));
+            AddEvent(new ShelterPetUpdated(this));
         }
 
         public override void RemovePhoto(Guid photoId)
         {
             base.RemovePhoto(photoId);
             
-            AddEvent(new ShelterPetPhotoDeleted(this, photoId));
+            AddEvent(new ShelterPetUpdated(this));
         }
         
         public override void UpdateMainPhoto(Guid photoId)

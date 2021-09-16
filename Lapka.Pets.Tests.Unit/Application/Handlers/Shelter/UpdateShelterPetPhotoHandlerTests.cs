@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
+using Lapka.Pets.Application.Commands.Handlers.ShelterPets;
+using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;

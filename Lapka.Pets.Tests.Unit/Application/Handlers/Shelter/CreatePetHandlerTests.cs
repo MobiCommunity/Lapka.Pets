@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.Handlers;
+using Lapka.Pets.Application.Commands.Handlers.ShelterPets;
+using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
@@ -179,7 +181,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers
         [Fact]
         public async Task given_invalid_pet_birth_date_should_throw_an_exception()
         {
-            ShelterPet arrangePet = Extensions.ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
+            ShelterPet arrangePet = Extensions.ArrangePet(birthDay: DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
             PhotoFile file = Extensions.ArrangePhotoFile();
             Guid userId = Guid.NewGuid();
 

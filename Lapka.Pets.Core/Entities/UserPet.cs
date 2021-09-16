@@ -79,7 +79,7 @@ namespace Lapka.Pets.Core.Entities
         {
             base.AddPhotos(photoIds);
             
-            AddEvent(new UserPetPhotosAdded(this, photoIds));
+            AddEvent(new UserPetUpdated(this));
 
         }
 
@@ -87,7 +87,7 @@ namespace Lapka.Pets.Core.Entities
         {
             base.RemovePhoto(photoId);
             
-            AddEvent(new UserPetPhotoDeleted(this, photoId));
+            AddEvent(new UserPetUpdated(this));
 
         }
 

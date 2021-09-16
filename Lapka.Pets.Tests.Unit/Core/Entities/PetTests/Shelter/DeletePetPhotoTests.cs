@@ -41,7 +41,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
             pet.Description.ShouldBe(pet.Description);
             pet.Events.Count().ShouldBe(1);
             IDomainEvent @event = pet.Events.Single();
-            @event.ShouldBeOfType<ShelterPetPhotoDeleted>();
+            @event.ShouldBeOfType<ShelterPetUpdated>();
         }
     }
 }

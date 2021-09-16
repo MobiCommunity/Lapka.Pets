@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 
@@ -20,7 +21,7 @@ namespace Lapka.Pets.Infrastructure.Pets
         {
             LikePetDocument likedPets = await _repository.GetAsync(x => x.Id == userId);
 
-            return likedPets.AsBusiness();
+            return likedPets?.AsBusiness();
         }
 
         public async Task UpdateLikesAsync(UserLikedPets likedPets)

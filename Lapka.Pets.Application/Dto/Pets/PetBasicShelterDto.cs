@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Lapka.Identity.Application.Dto;
 
 namespace Lapka.Pets.Application.Dto.Pets
 {
