@@ -6,6 +6,7 @@ using Convey.CQRS.Queries;
 using Lapka.Identity.Api.Models;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
+using Lapka.Pets.Application.Commands.LostPets;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure;
@@ -112,7 +113,7 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateLostPetRequest pet)
+        public async Task<IActionResult> Update(Guid id, UpdateLostPetRequest pet)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)

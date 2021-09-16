@@ -7,21 +7,29 @@ using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetLostPetHandler : IQueryHandler<GetLostPet, PetDetailsLostDto>
     {
-        private readonly IMongoRepository<LostPetDocument, Guid> _repository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetLostPetHandler(IMongoRepository<LostPetDocument, Guid> repository)
+        public GetLostPetHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _repository = repository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<PetDetailsLostDto> HandleAsync(GetLostPet query)
         {
-            LostPetDocument pet = await _repository.GetAsync(query.Id);
+            GetResponse<LostPetDocument> response = await _elasticClient.GetAsync(
+                new DocumentPath<LostPetDocument>(new Id(query.Id.ToString())),
+                x => x.Index(_elasticSearchOptions.Aliases.LostPets));
+
+            LostPetDocument pet = response?.Source;
             if (pet == null)
             {
                 throw new PetNotFoundException(query.Id);

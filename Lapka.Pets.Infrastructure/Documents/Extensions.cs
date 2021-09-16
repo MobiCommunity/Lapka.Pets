@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using GeoCoordinatePortable;
-using Lapka.Identity.Application.Dto;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Dto.Pets;

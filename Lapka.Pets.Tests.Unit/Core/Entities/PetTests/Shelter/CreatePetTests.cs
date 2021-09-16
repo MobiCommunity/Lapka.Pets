@@ -85,7 +85,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests
         [Fact]
         public void given_invalid_pet_birth_date_should_throw_an_exception()
         {
-            ShelterPet pet = Extensions.ArrangePet(birthDay: DateTime.Now.Add(TimeSpan.FromMinutes(1)));
+            ShelterPet pet = Extensions.ArrangePet(birthDay: DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
             Guid userId = Guid.NewGuid();
 
             Exception exception = Record.Exception(() => Act(pet.Id, userId, pet.Name, pet.Sex, pet.Race, pet.Species,

@@ -94,7 +94,7 @@ namespace Lapka.Pets.Core.Entities
 
         private static void ValidateBirthDay(DateTime birthDate)
         {
-            if (birthDate >= DateTime.Now)
+            if (birthDate >= DateTime.UtcNow)
                 throw new InvalidBirthDayValueException(birthDate);
         }
 

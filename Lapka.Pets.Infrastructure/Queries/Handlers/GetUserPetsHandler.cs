@@ -9,25 +9,39 @@ using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetUserPetsHandler : IQueryHandler<GetUserPets, IEnumerable<PetBasicUserDto>>
     {
-        private readonly IMongoRepository<UserPetDocument, Guid> _repository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetUserPetsHandler(IMongoRepository<UserPetDocument, Guid> repository)
+        public GetUserPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _repository = repository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<IEnumerable<PetBasicUserDto>> HandleAsync(GetUserPets query)
         {
-            IReadOnlyList<UserPetDocument> pets = await _repository.FindAsync(x => x.UserId == query.UserId);
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.UsersPets)
+            {
+                Query = new MatchQuery
+                {
+                    Query = query.UserId.ToString(),
+                    Field = Infer.Field<UserPetDocument>(p => p.UserId == query.UserId)
+                }
+            };
 
-            return pets.Select(x => x.AsBasicDto());
+            ISearchResponse<UserPetDocument> search =
+                await _elasticClient.SearchAsync<UserPetDocument>(searchRequest);
+            
+            return search?.Documents.Select(x => x.AsBasicDto());
         }
     }
 }

@@ -16,6 +16,12 @@ namespace Lapka.Pets.Infrastructure.Exceptions
 
                 AppException ex => ex switch
                 {
+                    CannotConvertShelterPetCountIntoIntException cannotConvertShelterPetCountIntoIntException => 
+                        new ExceptionResponse (new
+                        {
+                            code = cannotConvertShelterPetCountIntoIntException.Code,
+                            reason = cannotConvertShelterPetCountIntoIntException.Message
+                        },HttpStatusCode.InternalServerError),
                     InvalidPetIdException invalidPetIdException => 
                         new ExceptionResponse (new
                         {

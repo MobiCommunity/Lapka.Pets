@@ -58,14 +58,14 @@ namespace Lapka.Pets.Core.Entities
         {
             base.AddPhotos(photoIds);
 
-            AddEvent(new LostPetPhotosAdded(this, photoIds));
+            AddEvent(new LostPetUpdated(this));
         }
 
         public override void RemovePhoto(Guid photoId)
         {
             base.RemovePhoto(photoId);
 
-            AddEvent(new LostPetPhotoDeleted(this, photoId));
+            AddEvent(new LostPetUpdated(this));
         }
 
         public override void UpdateMainPhoto(Guid photoId)
@@ -110,7 +110,7 @@ namespace Lapka.Pets.Core.Entities
 
         private static void ValidateLostDate(DateTime lostDate)
         {
-            if (lostDate > DateTime.Now)
+            if (lostDate > DateTime.UtcNow)
             {
                 throw new InvalidLostDateValueException(lostDate);
             }

@@ -8,37 +8,52 @@ using Lapka.Pets.Application.Dto;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetShelterPetsHandler : IQueryHandler<GetShelterPets, IEnumerable<PetBasicShelterDto>>
     {
-        private readonly IMongoRepository<ShelterPetDocument, Guid> _mongoRepository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetShelterPetsHandler(IMongoRepository<ShelterPetDocument, Guid> mongoRepository)
+        public GetShelterPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _mongoRepository = mongoRepository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<IEnumerable<PetBasicShelterDto>> HandleAsync(GetShelterPets query)
         {
-            IMongoQueryable<ShelterPetDocument> queryable = _mongoRepository.Collection.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(query.Name))
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
             {
-                queryable = queryable.Where(x => x.Name.Contains(query.Name));
-            }
+                Query = new QueryContainer(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        new QueryContainer(new FuzzyQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Race),
+                            Value = query.Race,
+                            Fuzziness = Fuzziness.AutoLength(3, 4)
+                        }),
+                        new QueryContainer(new FuzzyQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Name),
+                            Value = query.Name,
+                            Fuzziness = Fuzziness.AutoLength(3, 4)
+                        })
+                    }
+                }),
+            };
 
-            if (!string.IsNullOrWhiteSpace(query.Race))
-            {
-                queryable = queryable.Where(x => x.Race.Contains(query.Race));
-            }
+            ISearchResponse<ShelterPetDocument> search =
+                await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
 
-            IList<ShelterPetDocument> search = await queryable.ToListAsync();
-
-            return search.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
+            return search?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
         }
     }
 }

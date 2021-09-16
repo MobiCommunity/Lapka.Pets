@@ -21,7 +21,7 @@ namespace Lapka.Pets.Tests.Unit
             string validRace = race ?? "mops";
             Species validSpecies = species ?? Species.Dog;
             Guid validPhotoId = photoId ?? Guid.NewGuid();
-            DateTime validBirthDate = birthDay ?? DateTime.Now.Subtract(TimeSpan.FromDays(180));
+            DateTime validBirthDate = birthDay ?? DateTime.UtcNow.Subtract(TimeSpan.FromDays(180));
             string validColor = color ?? "red";
             double validWeight = weight ?? 152;
             bool validSterilization = sterilization ?? true;

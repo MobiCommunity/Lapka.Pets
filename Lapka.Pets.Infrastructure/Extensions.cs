@@ -12,6 +12,7 @@ using Convey.WebApi;
 using Convey.WebApi.Exceptions;
 using Lapka.Pets.Application.Events.Abstract;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Application.Services.Pets;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Options;
@@ -24,6 +25,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure
 {
@@ -49,16 +51,16 @@ namespace Lapka.Pets.Infrastructure
                 // .AddMessageOutbox()
                 // .AddMetrics()
                 ;
-            
+
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            
+
             builder.Services.Configure<KestrelServerOptions>
                 (o => o.AllowSynchronousIO = true);
 
             builder.Services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true);
 
             IServiceCollection services = builder.Services;
-            
+
             ServiceProvider provider = services.BuildServiceProvider();
             IConfiguration configuration = provider.GetService<IConfiguration>();
 
@@ -69,31 +71,39 @@ namespace Lapka.Pets.Infrastructure
             IdentityMicroserviceOptions identityMicroserviceOptions = new IdentityMicroserviceOptions();
             configuration.GetSection("identityMicroservice").Bind(identityMicroserviceOptions);
             services.AddSingleton(identityMicroserviceOptions);
-            
+
+            ElasticSearchOptions elasticSearchOptions = new ElasticSearchOptions();
+            configuration.GetSection("elasticSearch").Bind(elasticSearchOptions);
+            services.AddSingleton(elasticSearchOptions);
+            ConnectionSettings elasticConnectionSettings = new ConnectionSettings(new Uri(elasticSearchOptions.Url));
+
             services.AddGrpcClient<PhotoProto.PhotoProtoClient>(o =>
             {
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
             });
-            
+
             services.AddGrpcClient<IdentityProto.IdentityProtoClient>(o =>
             {
                 o.Address = new Uri(identityMicroserviceOptions.UrlHttp2);
             });
-            
-            services.AddTransient<IPetLikeRepository, PetLikeRepository>();
-            services.AddTransient<IGrpcIdentityService, GrpcIdentityService>();
 
-            services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
-            services.AddTransient<IUserPetRepository, UserPetRepository>();
-            services.AddTransient<ILostPetRepository, LostPetRepository>();
-            
-            services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
+            services.AddHostedService<ElasticSearchSeeder>();
 
             services.AddSingleton<IExceptionToResponseMapper, ExceptionToResponseMapper>();
             services.AddSingleton<IDomainToIntegrationEventMapper, DomainToIntegrationEventMapper>();
+            services.AddSingleton<IElasticClient>(new ElasticClient(elasticConnectionSettings));
 
+            services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
+
+            services.AddTransient<ILostPetElasticsearchUpdater, LostPetElasticsearchUpdater>();
+            services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
+            services.AddTransient<IUserPetRepository, UserPetRepository>();
+            services.AddTransient<ILostPetRepository, LostPetRepository>();
+            services.AddTransient<IPetLikeRepository, PetLikeRepository>();
+            services.AddTransient<IGrpcIdentityService, GrpcIdentityService>();
             services.AddTransient<IEventProcessor, EventProcessor>();
             services.AddTransient<IMessageBroker, DummyMessageBroker>();
+
 
             builder.Services.Scan(s => s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
                 .AddClasses(c => c.AssignableTo(typeof(IDomainEventHandler<>)))
@@ -115,7 +125,7 @@ namespace Lapka.Pets.Infrastructure
 
             return app;
         }
-        
+
         public static async Task<Guid> AuthenticateUsingJwtGetUserIdAsync(this HttpContext context)
         {
             AuthenticateResult authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);

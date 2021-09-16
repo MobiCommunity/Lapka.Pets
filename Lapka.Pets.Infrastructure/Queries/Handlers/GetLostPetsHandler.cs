@@ -7,23 +7,29 @@ using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetLostPetsHandler : IQueryHandler<GetLostPets, IEnumerable<PetBasicLostDto>>
     {
-        private readonly IMongoRepository<LostPetDocument, Guid> _repository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetLostPetsHandler(IMongoRepository<LostPetDocument, Guid> repository)
+        public GetLostPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _repository = repository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<IEnumerable<PetBasicLostDto>> HandleAsync(GetLostPets query)
         {
-            IReadOnlyList<LostPetDocument> pets = await _repository.FindAsync(_ => true);
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.LostPets);
 
-            return pets.Select(x => x.AsBasicDto(query.Latitude, query.Longitude)).OrderBy(x => x.Distance);
+            ISearchResponse<LostPetDocument> search = await _elasticClient.SearchAsync<LostPetDocument>(searchRequest);
+
+            return search?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude)).OrderBy(x => x.Distance);
         }
     }
 }

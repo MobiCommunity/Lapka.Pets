@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Lapka.Identity.Application.Dto
+namespace Lapka.Pets.Application.Dto
 {
     public class LocationDto
     {

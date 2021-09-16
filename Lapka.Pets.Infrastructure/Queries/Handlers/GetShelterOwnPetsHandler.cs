@@ -7,22 +7,36 @@ using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Options;
+using Nest;
 
 namespace Lapka.Pets.Infrastructure.Queries.Handlers
 {
     public class GetShelterOwnPetsHandler : IQueryHandler<GetShelterOwnPets, IEnumerable<PetBasicShelterDto>>
     {      
-        private readonly IMongoRepository<ShelterPetDocument, Guid> _mongoRepository;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetShelterOwnPetsHandler(IMongoRepository<ShelterPetDocument, Guid> mongoRepository)
+        public GetShelterOwnPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
         {
-            _mongoRepository = mongoRepository;
+            _elasticClient = elasticClient;
+            _elasticSearchOptions = elasticSearchOptions;
         }
+        
         public async Task<IEnumerable<PetBasicShelterDto>> HandleAsync(GetShelterOwnPets query)
         {
-            IReadOnlyList<ShelterPetDocument> pets = await _mongoRepository.FindAsync(x => x.ShelterId == query.ShelterId);
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
+            {
+                Query = new MatchQuery
+                {
+                    Query = query.ShelterId.ToString(),
+                    Field = Infer.Field<ShelterPetDocument>(p => p.ShelterId)
+                }
+            };
+            
+            ISearchResponse<ShelterPetDocument> search = await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
 
-            return pets.Select(x => x.AsBasicDto(null, null));
+            return search?.Documents.Select(x => x.AsBasicDto(null, null));
         }
     }
 }
