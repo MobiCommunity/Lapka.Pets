@@ -50,17 +50,19 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
         
         private async Task ValidIfUserOwnShelter(CreateShelterPet command)
         {
+            bool isOwner = false;
             try
             {
-                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(command.ShelterId, command.UserId);
-                if (!isOwner)
-                {
-                    throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
-                }
+                isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(command.ShelterId, command.UserId);
             }
             catch (Exception ex)
             {
                 throw new CannotRequestIdentityMicroserviceException(ex);
+            }
+            
+            if (!isOwner)
+            {
+                throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
             }
         }
         
