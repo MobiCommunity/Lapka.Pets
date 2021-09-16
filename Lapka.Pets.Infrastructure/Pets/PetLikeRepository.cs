@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Convey.Persistence.MongoDB;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 

@@ -96,6 +96,8 @@ namespace Lapka.Pets.Infrastructure
             services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
 
             services.AddTransient<ILostPetElasticsearchUpdater, LostPetElasticsearchUpdater>();
+            services.AddTransient<IShelterPetElasticsearchUpdater, ShelterPetElasticsearchUpdater>();
+            services.AddTransient<IUserPetElasticsearchUpdater, UserPetElasticsearchUpdater>();
             services.AddTransient<IShelterPetRepository, ShelterPetRepository>();
             services.AddTransient<IUserPetRepository, UserPetRepository>();
             services.AddTransient<ILostPetRepository, LostPetRepository>();

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Application.Services.Pets;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Options;

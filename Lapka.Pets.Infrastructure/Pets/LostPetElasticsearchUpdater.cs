@@ -40,7 +40,7 @@ namespace Lapka.Pets.Infrastructure.Pets
         
         public async Task DeleteDataAsync(Guid petId)
         {
-            DeleteResponse response = await _elasticClient.DeleteAsync<LostPet>(petId,
+            DeleteResponse response = await _elasticClient.DeleteAsync<LostPetDocument>(petId,
                 x => x.Index(_elasticSearchOptions.Aliases.LostPets));
 
             if (!response.IsValid)

@@ -1,4 +1,5 @@
 ﻿using System;
+using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Abstract;
 using Lapka.Pets.Core.ValueObjects;
 

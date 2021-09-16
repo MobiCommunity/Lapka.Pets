@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.Events.Concrete.Pets.Like;
 
-namespace Lapka.Pets.Core.ValueObjects
+namespace Lapka.Pets.Core.Entities
 {
     public class UserLikedPets : AggregateRoot
     {
@@ -15,6 +14,13 @@ namespace Lapka.Pets.Core.ValueObjects
             Id = new AggregateId(userId);
             UserId = userId;
             LikedPets = likedPets;
+        }
+
+        public static UserLikedPets Create(Guid userId, List<Guid> likedPets)
+        {
+            UserLikedPets userLikedPets = new UserLikedPets(userId, likedPets);
+            userLikedPets.AddEvent(new CreatedUserLikedPets(userLikedPets));
+            return userLikedPets;
         }
 
         public void RemoveLike(Guid petId)

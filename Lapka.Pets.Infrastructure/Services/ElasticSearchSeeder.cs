@@ -42,36 +42,54 @@ namespace Lapka.Pets.Infrastructure.Services
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await SeedShelterPetsAsync();
+            await SeedUserPetsAsync();
+            await SeedLostPetsAsync();
+            await SeedLikedPetsAsync();
+        }
+        
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return default;
+        }
 
-            IReadOnlyList<UserPetDocument> usersPets = await _userPetsRepository.FindAsync(_ => true);
-            IReadOnlyList<LostPetDocument> lostPets = await _lostPetRepository.FindAsync(_ => true);
+        private async Task SeedLikedPetsAsync()
+        {
             IReadOnlyList<LikePetDocument> likedPets = await _likedPetDocumentRepository.FindAsync(_ => true);
-
-
-            BulkAllObservable<UserPetDocument> bulkUsersPets =
-                _client.BulkAll(usersPets, b => b.Index(_elasticOptions.Aliases.UsersPets));
-            BulkAllObservable<LostPetDocument> bulkLostPets =
-                _client.BulkAll(lostPets, b => b.Index(_elasticOptions.Aliases.LostPets));
+            
             BulkAllObservable<LikePetDocument> bulkLikedPets =
                 _client.BulkAll(likedPets, b => b.Index(_elasticOptions.Aliases.LikedPets));
-
-
-            bulkUsersPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Users pets indexed"));
-            bulkLostPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Lost pets indexed"));
+            
             bulkLikedPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Liked pets indexed"));
+        }
+
+        private async Task SeedLostPetsAsync()
+        {
+            IReadOnlyList<LostPetDocument> lostPets = await _lostPetRepository.FindAsync(_ => true);
+            
+            BulkAllObservable<LostPetDocument> bulkLostPets =
+                _client.BulkAll(lostPets, b => b.Index(_elasticOptions.Aliases.LostPets));
+            
+            bulkLostPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Lost pets indexed"));
+        }
+
+        private async Task SeedUserPetsAsync()
+        {
+            IReadOnlyList<UserPetDocument> usersPets = await _userPetsRepository.FindAsync(_ => true);
+            
+            BulkAllObservable<UserPetDocument> bulkUsersPets =
+                _client.BulkAll(usersPets, b => b.Index(_elasticOptions.Aliases.UsersPets));
+            
+            bulkUsersPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Users pets indexed"));
         }
 
         private async Task SeedShelterPetsAsync()
         {
             IReadOnlyList<ShelterPetDocument> shelterPets = await _shelterPetRepository.FindAsync(_ => true);
+            
             BulkAllObservable<ShelterPetDocument> bulkShelterPets =
                 _client.BulkAll(shelterPets, b => b.Index(_elasticOptions.Aliases.ShelterPets));
+            
             bulkShelterPets.Wait(TimeSpan.FromMinutes(5), x => _logger.LogInformation("Shelter pets indexed"));
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return default;
         }
     }
 }

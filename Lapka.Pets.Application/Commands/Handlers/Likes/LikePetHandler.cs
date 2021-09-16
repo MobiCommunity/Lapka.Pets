@@ -12,22 +12,27 @@ namespace Lapka.Pets.Application.Commands.Handlers.Likes
 {
     public class LikePetHandler : ICommandHandler<LikePet>
     {
+        private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _shelterPetRepository;
         private readonly IPetLikeRepository _likeRepository;
 
-        public LikePetHandler(IShelterPetRepository shelterPetRepository, IPetLikeRepository likeRepository)
+        public LikePetHandler(IEventProcessor eventProcessor, IShelterPetRepository shelterPetRepository,
+            IPetLikeRepository likeRepository)
         {
+            _eventProcessor = eventProcessor;
             _shelterPetRepository = shelterPetRepository;
             _likeRepository = likeRepository;
         }
+
         public async Task HandleAsync(LikePet command)
         {
             ShelterPet pet = await GetShelterPetAsync(command);
             UserLikedPets likedPets = await GetUserLikedPetsAsync(command);
-            
+
             likedPets.AddLike(pet.Id.Value);
-            
+
             await _likeRepository.UpdateLikesAsync(likedPets);
+            await _eventProcessor.ProcessAsync(likedPets.Events);
         }
 
         private async Task<UserLikedPets> GetUserLikedPetsAsync(LikePet command)
@@ -35,7 +40,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.Likes
             UserLikedPets likedPets = await _likeRepository.GetLikedPetsAsync(command.UserId);
             if (likedPets == null)
             {
-                await _likeRepository.AddUserPetListAsync(new UserLikedPets(command.UserId, new List<Guid>()));
+                await _likeRepository.AddUserPetListAsync(UserLikedPets.Create(command.UserId, new List<Guid>()));
                 likedPets = await _likeRepository.GetLikedPetsAsync(command.UserId);
             }
 
