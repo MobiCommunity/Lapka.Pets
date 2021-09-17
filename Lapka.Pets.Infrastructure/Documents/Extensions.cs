@@ -22,6 +22,19 @@ namespace Lapka.Pets.Infrastructure.Documents
                 GeoLocation = address.GeoLocation.AsDocument()
             };
         }
+        
+        public static ShelterDocument AsDocument(this Shelter shelter)
+        {
+            return new ShelterDocument
+            {
+                Id = shelter.Id.Value,
+                Owners = shelter.Owners
+            };
+        }       
+        public static Shelter AsBusiness(this ShelterDocument shelter)
+        {
+            return new Shelter(shelter.Id, shelter.Owners);
+        }
 
         public static LocationDocument AsDocument(this Location location)
         {

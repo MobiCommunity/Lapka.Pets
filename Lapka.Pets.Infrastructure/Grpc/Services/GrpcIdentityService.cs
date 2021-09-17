@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Services;
 
-namespace Lapka.Pets.Infrastructure.Services
+namespace Lapka.Pets.Infrastructure.Grpc.Services
 {
     public class GrpcIdentityService : IGrpcIdentityService
     {
@@ -21,22 +21,6 @@ namespace Lapka.Pets.Infrastructure.Services
             });
 
             return response.IsOwner;
-        }
-
-        public async Task<Guid> ClosestShelter(string longitude, string latitude)
-        {
-            GetClosestShelterReply response = await _client.GetClosestShelterAsync(new GetClosestShelterRequest
-            {
-                Longitude = longitude,
-                Latitude = latitude
-            });
-            
-            if(!Guid.TryParse(response.ShelterId, out Guid shelterId))
-            {
-                return Guid.Empty;
-            }
-
-            return shelterId;
         }
     }
 }

@@ -15,6 +15,7 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Application.Services.Pets;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Exceptions;
+using Lapka.Pets.Infrastructure.Grpc.Services;
 using Lapka.Pets.Infrastructure.Options;
 using Lapka.Pets.Infrastructure.Pets;
 using Lapka.Pets.Infrastructure.Services;
@@ -39,7 +40,7 @@ namespace Lapka.Pets.Infrastructure
                 .AddHttpClient()
                 .AddErrorHandler<ExceptionToResponseMapper>()
                 .AddExceptionToMessageMapper<ExceptionToMessageMapper>()
-                // .AddRabbitMq()
+                .AddRabbitMq()
                 .AddJwt()
                 .AddMongo()
                 .AddMongoRepository<ShelterPetDocument, Guid>("petsshelter")
@@ -111,6 +112,8 @@ namespace Lapka.Pets.Infrastructure
                 .AddClasses(c => c.AssignableTo(typeof(IDomainEventHandler<>)))
                 .AsImplementedInterfaces().WithTransientLifetime());
 
+            builder.Build();
+            
             return builder;
         }
 
@@ -120,8 +123,8 @@ namespace Lapka.Pets.Infrastructure
                 .UseErrorHandler()
                 .UseConvey()
                 .UseAuthentication()
+                .UseRabbitMq()
                 //.UseMetrics()
-                //.UseRabbitMq()
                 ;
 
 
@@ -134,14 +137,6 @@ namespace Lapka.Pets.Infrastructure
 
             return authentication.Succeeded ? Guid.Parse(authentication.Principal.Identity.Name) : Guid.Empty;
         }
-
-        public static async Task<string> AuthenticateUsingJwtGetUserRoleAsync(this HttpContext context)
-        {
-            AuthenticateResult authentication = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
-
-            return authentication.Succeeded
-                ? authentication.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value
-                : string.Empty;
-        }
+        
     }
 }

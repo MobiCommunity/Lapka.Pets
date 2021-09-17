@@ -6,7 +6,7 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 
-namespace Lapka.Pets.Infrastructure.Services
+namespace Lapka.Pets.Infrastructure.Grpc.Services
 {
     public class GrpcPhotoService : IGrpcPhotoService
     {
