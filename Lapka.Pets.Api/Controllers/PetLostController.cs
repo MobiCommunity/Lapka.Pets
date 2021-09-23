@@ -11,6 +11,7 @@ using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Application.Queries.LostPets;
 using Lapka.Pets.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -28,6 +29,13 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
         
+        /// <summary>
+        /// Gets lost pet by ID.
+        /// </summary>
+        /// <returns>Get lost pet</returns>
+        /// <response code="200">If successfully got lost pet</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(PetDetailsLostDto), StatusCodes.Status200OK)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetLostPetElastic
@@ -37,6 +45,12 @@ namespace Lapka.Pets.Api.Controllers
                 Longitude = longitude
             }));
 
+        /// <summary>
+        /// Gets lost pets.
+        /// </summary>
+        /// <returns>Get lost pets</returns>
+        /// <response code="200">If successfully got lost pets</response>
+        [ProducesResponseType(typeof(IEnumerable<PetBasicLostDto>), StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string latitude, string longitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetLostPets
@@ -45,6 +59,14 @@ namespace Lapka.Pets.Api.Controllers
                 Longitude = longitude
             }));
 
+        /// <summary>
+        /// Adds lost pet. User has to be logged
+        /// </summary>
+        /// <returns>URL to added pet</returns>
+        /// <response code="200">If successfully added lost pet</response>
+        /// <response code="400">If given properties were invalid</response>
+        /// <response code="401">If user is not logged</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateLostPetRequest pet)
         {
@@ -63,12 +85,18 @@ namespace Lapka.Pets.Api.Controllers
 
             return Created($"api/pet/lost/{id}", null);
         }
-
+        
         /// <summary>
-        /// Deletes photo from Photos list (not a main photo)
+        /// Deletes photos from lost pet photos list. User has to be logged and owner of pet.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="200">If successfully deleted photos</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of pet</response>
+        /// <response code="404">If pet or photo is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpDelete("{id:guid}/photo")]
-        public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
+        public async Task<IActionResult> DeletePhotos(Guid id, DeletePetPhotoRequest photo)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (userId == Guid.Empty)
@@ -82,8 +110,13 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// Adds multiple photos to pet
+        /// Adds photos to lost pet photos list. User has to be logged and be owner of pet.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="200">If successfully added photos</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
@@ -98,6 +131,15 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Soft deletes pet. User has to be logged and owner of pet.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully deleted pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of pet</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -111,7 +153,16 @@ namespace Lapka.Pets.Api.Controllers
 
             return NoContent();
         }
-
+        
+        /// <summary>
+        /// Updates a lost pet. User has to be logged and be owner of pet.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully updated pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of pet</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, UpdateLostPetRequest pet)
         {
@@ -130,8 +181,14 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// Updates only main pet photo
+        /// Updates main photo. User has to be logged and be owner of pet.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully updated pet photo</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of pet</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {

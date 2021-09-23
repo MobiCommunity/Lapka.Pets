@@ -12,6 +12,7 @@ using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Application.Queries.ShelterPets;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -29,6 +30,13 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
 
+        /// <summary>
+        /// Gets shelter pet by ID.
+        /// </summary>
+        /// <returns>Get shelter pet</returns>
+        /// <response code="200">If successfully got shelter pet</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(PetDetailsShelterDto), StatusCodes.Status200OK)]
         [HttpGet("pet/{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
             => Ok(await _queryDispatcher.QueryAsync(new GetShelterPetElastic
@@ -38,6 +46,13 @@ namespace Lapka.Pets.Api.Controllers
                 Longitude = longitude
             }));
 
+        
+        /// <summary>
+        /// Gets shelter pets.
+        /// </summary>
+        /// <returns>Get shelter pets</returns>
+        /// <response code="200">If successfully got shelter pets</response>
+        [ProducesResponseType(typeof(IEnumerable<PetBasicShelterDto>), StatusCodes.Status200OK)]
         [HttpGet("pet")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
             string latitude, string longitude)
@@ -49,6 +64,12 @@ namespace Lapka.Pets.Api.Controllers
                 Race = race
             }));
         
+        /// <summary>
+        /// Gets all pets belong to given shelter.
+        /// </summary>
+        /// <returns>Gets all pets which belong to given shelter</returns>
+        /// <response code="200">If successfully got shelter own pets</response>
+        [ProducesResponseType(typeof(IEnumerable<PetBasicDto>), StatusCodes.Status200OK)]
         [HttpGet("{id:guid}/pet")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAllShelterPets(Guid id)
             => Ok(await _queryDispatcher.QueryAsync(new GetShelterOwnPets
@@ -56,6 +77,12 @@ namespace Lapka.Pets.Api.Controllers
                 ShelterId = id
             }));
         
+        /// <summary>
+        /// Gets total pet count belong to given shelter.
+        /// </summary>
+        /// <returns>Gets total count of pets that belong to given shelter</returns>
+        /// <response code="200">If successfully got shelter pet count</response>
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [HttpGet("{id:guid}/pet/count")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetShelterPetCount(Guid id)
             => Ok(await _queryDispatcher.QueryAsync(new GetShelterOwnPetsCount
@@ -63,6 +90,15 @@ namespace Lapka.Pets.Api.Controllers
                 ShelterId = id
             }));
 
+        /// <summary>
+        /// Adds shelter pet. User has to be logged, and owner of shelter to which want add a pet.
+        /// </summary>
+        /// <returns>URL to added pet</returns>
+        /// <response code="200">If successfully added shelter pet</response>
+        /// <response code="400">If given properties were invalid</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
         [HttpPost("pet")]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
         {
@@ -78,8 +114,14 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// Deletes photo from Photos list (not a main photo)
+        /// Deletes photos from shelter pet photos list. User has to be logged and owner of shelter.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="200">If successfully deleted photos</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        /// <response code="404">If pet or photo is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpDelete("pet/{id:guid}/photo")]
         public async Task<IActionResult> DeletePhotos(Guid id, DeletePetPhotoRequest photo)
         {
@@ -95,8 +137,14 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// Adds multiple photos to pet
+        /// Adds photos to shelter pet photos list. User has to be logged and be owner of shelter.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="200">If successfully added photos</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPost("pet/{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
@@ -111,6 +159,15 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Soft deletes pet. User has to be logged and owner of shelter.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully deleted pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpDelete("pet/{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -125,6 +182,15 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Updates a shelter pet. User has to be logged and be owner of shelter.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully updated pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("pet/{id:guid}")]
         public async Task<IActionResult> Update(Guid id, UpdateShelterPetRequest pet)
         {
@@ -142,8 +208,14 @@ namespace Lapka.Pets.Api.Controllers
         }
 
         /// <summary>
-        /// Updates only main pet photo
+        /// Updates main photo. User has to be logged and be owner of shelter.
         /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully updated pet photo</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="403">If user is not owner of shelter</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("pet/{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
