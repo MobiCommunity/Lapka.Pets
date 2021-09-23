@@ -17,12 +17,12 @@ namespace Lapka.Pets.Application.Commands.LostPets
         public double Weight { get; }
         public string Color { get; }
         public string OwnerName { get; }
-        public string PhoneNumber { get; }
+        public PhoneNumber PhoneNumber { get; }
         public Address LostAddress { get; }
         public string Description { get; }
 
         public UpdateLostPet(Guid id, Guid userId, string name, string race, Species species, Sex sex,
-            int age, DateTime lostDate, double weight, string color, string ownerName, string phoneNumber,
+            int age, DateTime lostDate, double weight, string color, string ownerName, PhoneNumber phoneNumber,
             Address lostAddress, string description)
         {
             Id = id;

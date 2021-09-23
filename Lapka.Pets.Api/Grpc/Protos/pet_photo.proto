@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+service PetPhotosProto{
+  rpc GetShelterPetPhotos (GetShelterPetPhotosRequest) returns (GetShelterPetPhotosReply);
+  rpc GetLostPetPhotos (GetLostPetPhotosRequest) returns (GetLostPetPhotosReply);
+  rpc GetUserPetPhotos (GetUserPetPhotosRequest) returns (GetUserPetPhotosReply);
+}
+
+message GetShelterPetPhotosRequest{
+  string petId = 1;
+}
+
+message GetLostPetPhotosRequest{
+  string petId = 1;
+}
+
+message GetUserPetPhotosRequest{
+  string petId = 1;
+}
+
+message GetShelterPetPhotosReply{
+  repeated string paths = 1;
+}
+
+message GetLostPetPhotosReply{
+  repeated string paths = 1;
+}
+
+message GetUserPetPhotosReply{
+  repeated string paths = 1;
+}

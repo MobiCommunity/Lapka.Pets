@@ -6,18 +6,28 @@ using Convey;
 using Convey.Auth;
 using Convey.CQRS.Queries;
 using Convey.HTTP;
+using Convey.MessageBrokers.CQRS;
+using Convey.MessageBrokers.Outbox;
 using Convey.MessageBrokers.RabbitMQ;
 using Convey.Persistence.MongoDB;
 using Convey.WebApi;
 using Convey.WebApi.Exceptions;
+using Lapka.Pets.Application.Commands.LostPets;
+using Lapka.Pets.Application.Commands.ShelterPets;
+using Lapka.Pets.Application.Commands.UserPets;
 using Lapka.Pets.Application.Events.Abstract;
+using Lapka.Pets.Application.Events.External;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Application.Services.Pets;
+using Lapka.Pets.Core.Events.Concrete.Pets.Shelters;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Elastic.Options;
+using Lapka.Pets.Infrastructure.Elastic.Services;
 using Lapka.Pets.Infrastructure.Exceptions;
 using Lapka.Pets.Infrastructure.Grpc.Services;
+using Lapka.Pets.Infrastructure.Mongo.Documents;
+using Lapka.Pets.Infrastructure.Mongo.Repositories;
 using Lapka.Pets.Infrastructure.Options;
-using Lapka.Pets.Infrastructure.Pets;
 using Lapka.Pets.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,13 +53,14 @@ namespace Lapka.Pets.Infrastructure
                 .AddRabbitMq()
                 .AddJwt()
                 .AddMongo()
+                .AddMongoRepository<ShelterDocument, Guid>("shelters")
                 .AddMongoRepository<ShelterPetDocument, Guid>("petsshelter")
                 .AddMongoRepository<UserPetDocument, Guid>("petsuser")
                 .AddMongoRepository<LostPetDocument, Guid>("lostpets")
                 .AddMongoRepository<LikePetDocument, Guid>("likedpets")
+                .AddMessageOutbox()
                 // .AddConsul()
                 // .AddFabio()
-                // .AddMessageOutbox()
                 // .AddMetrics()
                 ;
 
@@ -83,7 +94,7 @@ namespace Lapka.Pets.Infrastructure
                 o.Address = new Uri(filesMicroserviceOptions.UrlHttp2);
             });
 
-            services.AddGrpcClient<IdentityProto.IdentityProtoClient>(o =>
+            services.AddGrpcClient<ShelterProto.ShelterProtoClient>(o =>
             {
                 o.Address = new Uri(identityMicroserviceOptions.UrlHttp2);
             });
@@ -96,6 +107,8 @@ namespace Lapka.Pets.Infrastructure
 
             services.AddScoped<IGrpcPhotoService, GrpcPhotoService>();
 
+            services.AddTransient<IShelterRepository, ShelterRepository>();
+            services.AddTransient<IPetLikeElasticsearchUpdater, PetLikeElasticsearchUpdater>();
             services.AddTransient<ILostPetElasticsearchUpdater, LostPetElasticsearchUpdater>();
             services.AddTransient<IShelterPetElasticsearchUpdater, ShelterPetElasticsearchUpdater>();
             services.AddTransient<IUserPetElasticsearchUpdater, UserPetElasticsearchUpdater>();
@@ -105,7 +118,7 @@ namespace Lapka.Pets.Infrastructure
             services.AddTransient<IPetLikeRepository, PetLikeRepository>();
             services.AddTransient<IGrpcIdentityService, GrpcIdentityService>();
             services.AddTransient<IEventProcessor, EventProcessor>();
-            services.AddTransient<IMessageBroker, DummyMessageBroker>();
+            services.AddTransient<IMessageBroker, MessageBroker>();
 
 
             builder.Services.Scan(s => s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
@@ -124,6 +137,17 @@ namespace Lapka.Pets.Infrastructure
                 .UseConvey()
                 .UseAuthentication()
                 .UseRabbitMq()
+                .SubscribeCommand<DeleteShelterPet>()
+                .SubscribeCommand<DeleteLostPet>()
+                .SubscribeCommand<DeleteUserPet>()
+                .SubscribeCommand<DeleteUserPetPhoto>()
+                .SubscribeCommand<DeleteShelterPetPhoto>()
+                .SubscribeCommand<DeleteLostPetPhoto>()
+                .SubscribeEvent<ShelterAdded>()
+                .SubscribeEvent<ShelterRemoved>()
+                .SubscribeEvent<ShelterChanged>()
+                .SubscribeEvent<ShelterOwnerAssigned>()
+                .SubscribeEvent<ShelterOwnerUnassigned>()
                 //.UseMetrics()
                 ;
 

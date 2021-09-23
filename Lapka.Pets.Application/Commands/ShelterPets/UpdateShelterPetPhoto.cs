@@ -8,8 +8,8 @@ namespace Lapka.Pets.Application.Commands.ShelterPets
     {
         public Guid PetId { get; }
         public Guid UserId { get; }
-        public PhotoFile Photo { get; }
-        public UpdateShelterPetPhoto(Guid petId, Guid userId, PhotoFile photo)
+        public File Photo { get; }
+        public UpdateShelterPetPhoto(Guid petId, Guid userId, File photo)
         {
             PetId = petId;
             UserId = userId;

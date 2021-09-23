@@ -1,24 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using Lapka.Pets.Api.Models;
 using Lapka.Pets.Api.Models.Request;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Core.ValueObjects;
 using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic;
 
 namespace Lapka.Identity.Api.Models
 {
     public static class Extensions
     {
         public static Address AsValueObject(this AddressModel address) => new Address(address.Name, address.City,
-            address.Street, address.GeoLocation.AsValueObject());
+            address.Street);
 
-        public static Location AsValueObject(this LocationModel location) =>
-            new Location(location.Latitude, location.Longitude);
+        public static PhoneNumber AsValueObject(this PhoneNumberModel location) =>
+            new PhoneNumber(location.PhoneNumber);
 
         public static Address AsValueObject(this UpdateAddressRequest address) => new Address(address.Name,
-            address.City,
-            address.Street, address.GeoLocation.AsValueObject());
+            address.City, address.Street);
 
         public static Location AsValueObject(this UpdateLocationRequest location) =>
             new Location(location.Latitude, location.Longitude);
@@ -34,19 +36,16 @@ namespace Lapka.Identity.Api.Models
         public static PetEvent AsValueObject(this AddSoonEventRequest soonEvent, Guid id) =>
             new PetEvent(id, soonEvent.DateOfEvent, soonEvent.DescriptionOfEvent);
 
-        public static File AsFile(this IFormFile file) =>
+        public static File AsPhotoFile(this IFormFile file) =>
             new File(file.FileName, file.OpenReadStream(), file.ContentType);
-
-        public static PhotoFile AsPhotoFile(this IFormFile file, Guid id) =>
-            new PhotoFile(id, file.FileName, file.OpenReadStream(), file.ContentType);
         
-        public static List<PhotoFile> CreatePhotoFiles(this List<IFormFile> photos)
+        public static IEnumerable<File> CreatePhotoFiles(this IEnumerable<IFormFile> photos)
         {
-            List<PhotoFile> photoFiles = new List<PhotoFile>();
+            List<File> photoFiles = new List<File>();
 
             if (photos == null) return photoFiles;
 
-            photoFiles.AddRange(photos.Select(photo => photo.AsPhotoFile(Guid.NewGuid())));
+            photoFiles.AddRange(photos.Select(photo => photo.AsPhotoFile()));
 
             return photoFiles;
         }

@@ -154,6 +154,12 @@ namespace Lapka.Pets.Infrastructure.Exceptions
                             code = invalidPetIdException.Code,
                             reason = invalidPetIdException.Message
                         },HttpStatusCode.BadRequest),
+                    ShelterDoesNotExistsException shelterDoesNotExistsException => 
+                        new ExceptionResponse (new
+                        {
+                            code = shelterDoesNotExistsException.Code,
+                            reason = shelterDoesNotExistsException.Message
+                        },HttpStatusCode.NotFound),
                     CannotRequestFilesMicroserviceException cannotRequestFilesMicroserviceException => 
                         new ExceptionResponse (new
                         {

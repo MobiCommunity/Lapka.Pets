@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Lapka.Pets.Application.Commands.LostPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -12,29 +14,31 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
 {
     public class DeleteLostPetHandler : ICommandHandler<DeleteLostPet>
     {
-        private readonly ILogger<DeleteLostPetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
         private readonly ILostPetRepository _repository;
-        private readonly IGrpcPhotoService _grpcPhotoService;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IDomainToIntegrationEventMapper _eventMapper;
 
-        public DeleteLostPetHandler(ILogger<DeleteLostPetHandler> logger, IEventProcessor eventProcessor, ILostPetRepository repository, IGrpcPhotoService grpcPhotoService)
+        public DeleteLostPetHandler(IEventProcessor eventProcessor, ILostPetRepository repository,
+            IMessageBroker messageBroker, IDomainToIntegrationEventMapper eventMapper)
         {
-            _logger = logger;
             _eventProcessor = eventProcessor;
             _repository = repository;
-            _grpcPhotoService = grpcPhotoService;
+            _messageBroker = messageBroker;
+            _eventMapper = eventMapper;
         }
 
         public async Task HandleAsync(DeleteLostPet command)
         {
             LostPet pet = await GetLostPetAsync(command);
             ValidIfUserIsOwnerOfPet(command, pet);
-            
-            await DeletePhotos(pet);
+
             pet.Delete();
-            
-            await _repository.DeleteAsync(pet);
+
+            await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+            IEnumerable<IEvent> events = _eventMapper.MapAll(pet.Events);
+            await _messageBroker.PublishAsync(events);
         }
 
         private static void ValidIfUserIsOwnerOfPet(DeleteLostPet command, LostPet pet)
@@ -54,22 +58,6 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
             }
 
             return pet;
-        }
-
-        private async Task DeletePhotos(LostPet pet)
-        {
-            try
-            {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
-                foreach (Guid photoId in pet.PhotoIds)
-                {
-                    await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-            }
         }
     }
 }

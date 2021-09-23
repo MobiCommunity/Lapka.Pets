@@ -10,7 +10,5 @@ namespace Lapka.Pets.Application.Dto
         public string City { get; set; }
         [Required]
         public string Street { get; set; }
-        [Required]
-        public LocationDto GeoLocation { get; set; }
     }
 }

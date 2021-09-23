@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Convey.CQRS.Commands;
 
 namespace Lapka.Pets.Application.Commands.UserPets
@@ -7,13 +8,13 @@ namespace Lapka.Pets.Application.Commands.UserPets
     {
         public Guid PetId { get; }
         public Guid UserId { get; }
-        public Guid PhotoId { get; }
+        public IEnumerable<string> PhotoPaths { get; }
 
-        public DeleteUserPetPhoto(Guid petId, Guid userId, Guid photoId)
+        public DeleteUserPetPhoto(Guid petId, Guid userId, IEnumerable<string> photoPaths)
         {
             PetId = petId;
             UserId = userId;
-            PhotoId = photoId;
+            PhotoPaths = photoPaths;
         }
     }
 }

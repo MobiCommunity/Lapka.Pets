@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Lapka.Pets.Application.Commands.LostPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -14,24 +16,41 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
     {
         private readonly ILostPetRepository _repository;
         private readonly IEventProcessor _eventProcessor;
-        private readonly IGrpcPhotoService _photoService;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IDomainToIntegrationEventMapper _eventMapper;
 
-        public DeleteLostPetPhotoHandler(ILostPetRepository repository, IEventProcessor eventProcessor, IGrpcPhotoService photoService)
+        public DeleteLostPetPhotoHandler(ILostPetRepository repository, IEventProcessor eventProcessor,
+            IMessageBroker messageBroker, IDomainToIntegrationEventMapper eventMapper)
         {
             _repository = repository;
             _eventProcessor = eventProcessor;
-            _photoService = photoService;
+            _messageBroker = messageBroker;
+            _eventMapper = eventMapper;
         }
+
         public async Task HandleAsync(DeleteLostPetPhoto command)
         {
             LostPet pet = await GetLostPetAsync(command);
             ValidIfUserIsOwnerOfPet(command, pet);
+            ValidIfPhotosExists(command, pet);
 
-            await DeletePhoto(command, pet);
-            pet.RemovePhoto(command.PhotoId);
-            
+            pet.RemovePhotos(command.PhotoPaths);
+
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+            IEnumerable<IEvent> events = _eventMapper.MapAll(pet.Events);
+            await _messageBroker.PublishAsync(events);
+        }
+
+        private static void ValidIfPhotosExists(DeleteLostPetPhoto command, LostPet pet)
+        {
+            foreach (string path in command.PhotoPaths)
+            {
+                if (!pet.PhotoPaths.Contains(path))
+                {
+                    throw new PhotoNotFoundException(path);
+                }
+            }
         }
 
         private static void ValidIfUserIsOwnerOfPet(DeleteLostPetPhoto command, LostPet pet)
@@ -51,24 +70,6 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
             }
 
             return pet;
-        }
-
-        private async Task DeletePhoto(DeleteLostPetPhoto command, LostPet pet)
-        {
-            try
-            {
-                Guid photoIdFromList = pet.PhotoIds.FirstOrDefault(x => x == command.PhotoId);
-                if (photoIdFromList == Guid.Empty)
-                {
-                    throw new PhotoNotFoundException(command.PhotoId.ToString());
-                }
-
-                await _photoService.DeleteAsync(command.PhotoId, BucketName.PetPhotos);
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestFilesMicroserviceException(ex);
-            }
         }
     }
 }

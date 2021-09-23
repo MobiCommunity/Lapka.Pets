@@ -1,62 +1,36 @@
 syntax = "proto3";
 
 service PhotoProto{
-  rpc GetPhotoPath (GetPhotoPathRequest) returns (GetPhotoPathReply);
   rpc UploadPhoto (UploadPhotoRequest) returns (UploadPhotoReply);
-  rpc SetExternalPhoto (SetExternalPhotoRequest) returns (SetExternalPhotoReply);
   rpc DeletePhoto (DeletePhotoRequest) returns (DeletePhotoReply);
 }
 
 message DeletePhotoRequest{
   string id = 1;
+  string userId = 2;
   enum Bucket{
     PetPhotos = 0;
     UserPhotos = 1;
     ShelterPhotos = 2;
   }
-  Bucket bucketName = 2;
+  Bucket bucketName = 3;
 }
 
 message UploadPhotoRequest{
-  string id = 1;
-  string name = 2;
+  string name = 1;
+  string userId = 2;
   bytes photo = 3;
+  bool isPublic = 4;
   enum Bucket{
     PetPhotos = 0;
     UserPhotos = 1;
     ShelterPhotos = 2;
   }
-  Bucket bucketName = 4;
+  Bucket bucketName = 5;
 }
 
-message SetExternalPhotoRequest{
-  string id = 1;
-  string oldName = 2;
-  string newName = 3;
-  enum Bucket{
-    PetPhotos = 0;
-    UserPhotos = 1;
-    ShelterPhotos = 2;
-  }
-  Bucket bucketName = 4;
-}
-
-message GetPhotoPathRequest{
-  string id = 1;
-  enum Bucket{
-    PetPhotos = 0;
-    UserPhotos = 1;
-    ShelterPhotos = 2;
-  }
-  Bucket bucketName = 2;
-}
-
-message GetPhotoPathReply{
+message UploadPhotoReply{
   string path = 1;
 }
-
-message UploadPhotoReply{}
-
-message SetExternalPhotoReply{}
 
 message DeletePhotoReply{}

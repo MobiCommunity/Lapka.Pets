@@ -5,6 +5,7 @@ using Google.Protobuf;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
+using Lapka.Pets.Infrastructure.Mongo.Documents;
 
 namespace Lapka.Pets.Infrastructure.Grpc.Services
 {
@@ -16,25 +17,19 @@ namespace Lapka.Pets.Infrastructure.Grpc.Services
         {
             _client = client;
         }
-        
-        public async Task AddAsync(Guid id, string name, Stream photo, BucketName bucket)
+
+        public async Task<string> AddAsync(string name, Guid userId, bool isPublic, Stream photo, BucketName bucket)
         {
-            await _client.UploadPhotoAsync(new UploadPhotoRequest
+            UploadPhotoReply response = await _client.UploadPhotoAsync(new UploadPhotoRequest
             {
-                Id = id.ToString(),
+                IsPublic = isPublic,
                 Name = name,
+                UserId = userId.ToString(),
                 Photo = await ByteString.FromStreamAsync(photo),
                 BucketName = bucket.AsGrpcUpload()
             });
-        }
 
-        public async Task DeleteAsync(Guid photoId, BucketName bucket)
-        {
-            await _client.DeletePhotoAsync(new DeletePhotoRequest
-            {
-                Id = photoId.ToString(),
-                BucketName = bucket.AsGrpcDelete()
-            });
+            return response.Path;
         }
     }
 }

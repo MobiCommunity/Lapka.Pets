@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Infrastructure.Grpc.Services
 {
     public class GrpcIdentityService : IGrpcIdentityService
     {
-        private readonly IdentityProto.IdentityProtoClient _client;
+        private readonly ShelterProto.ShelterProtoClient _client;
 
-        public GrpcIdentityService(IdentityProto.IdentityProtoClient client)
+        public GrpcIdentityService(ShelterProto.ShelterProtoClient client)
         {
             _client = client;
         }
-        public async Task<bool> IsUserOwnerOfShelter(Guid shelterId, Guid userId)
-        {
-            IsUserOwnerOfShelterReply response = await _client.IsUserOwnerOfShelterAsync(new IsUserOwnerOfShelterRequest
-            {
-                ShelterId = shelterId.ToString(),
-                UserId = userId.ToString()
-            });
 
-            return response.IsOwner;
+        public async Task<ShelterBasicInfo> GetShelterBasicInfo(Guid shelterId)
+        {
+            GetShelterBasicInfoReply response = await _client.GetShelterBasicInfoAsync(new GetShelterBasicInfoRequest
+            {
+                ShelterId = shelterId.ToString()
+            });
+            
+            return new ShelterBasicInfo(response.Name, new Location(response.Latitude, response.Longitude),
+                new Address(response.Name, response.City, response.Street));
         }
     }
 }

@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using Lapka.Identity.Api.Grpc.Controllers;
+using Lapka.Pets.Api.Grpc.Controllers;
 using Lapka.Pets.Application;
 using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -109,6 +109,7 @@ namespace Lapka.Pets.Api
                         {
                             e.MapControllers();
                             e.MapGrpcService<GrpcPetController>();
+                            e.MapGrpcService<GrpcPetPhotoController>();
                             e.Map("ping", async ctx => { await ctx.Response.WriteAsync("Alive"); });
                         });
                 })

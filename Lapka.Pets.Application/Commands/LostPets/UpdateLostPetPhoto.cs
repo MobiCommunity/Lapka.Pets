@@ -8,9 +8,9 @@ namespace Lapka.Pets.Application.Commands.LostPets
     {
         public Guid Id { get; }
         public Guid UserId { get; }
-        public PhotoFile Photo { get; }
+        public File Photo { get; }
 
-        public UpdateLostPetPhoto(Guid id, Guid userId, PhotoFile photo)
+        public UpdateLostPetPhoto(Guid id, Guid userId, File photo)
         {
             Id = id;
             UserId = userId;

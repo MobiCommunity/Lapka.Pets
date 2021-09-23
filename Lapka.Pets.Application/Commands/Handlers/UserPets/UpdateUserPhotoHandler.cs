@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Lapka.Pets.Application.Commands.UserPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -14,27 +16,33 @@ namespace Lapka.Pets.Application.Commands.Handlers.UserPets
         private readonly IEventProcessor _eventProcessor;
         private readonly IUserPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IDomainToIntegrationEventMapper _eventMapper;
 
         public UpdateUserPhotoHandler(IEventProcessor eventProcessor, IUserPetRepository repository,
-            IGrpcPhotoService photoService)
+            IGrpcPhotoService photoService, IMessageBroker messageBroker, IDomainToIntegrationEventMapper eventMapper)
         {
             _eventProcessor = eventProcessor;
             _repository = repository;
             _photoService = photoService;
+            _messageBroker = messageBroker;
+            _eventMapper = eventMapper;
         }
 
         public async Task HandleAsync(UpdateUserPetPhoto command)
         {
             UserPet pet = await GetUserPetAsync(command);
             ValidIfUserIsOwnerOfPet(command, pet);
+            string oldPhotoPath = pet.MainPhotoPath;
 
-            await DeleteCurrentPhoto(pet);
-            await AddPhoto(command);
+            string path = await AddPhotoToMinioAsync(command);
 
-            pet.UpdateMainPhoto(command.Photo.Id);
+            pet.UpdateMainPhoto(path, oldPhotoPath);
 
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+            IEnumerable<IEvent> events = _eventMapper.MapAll(pet.Events);
+            await _messageBroker.PublishAsync(events);
         }
 
         private static void ValidIfUserIsOwnerOfPet(UpdateUserPetPhoto command, UserPet pet)
@@ -56,32 +64,20 @@ namespace Lapka.Pets.Application.Commands.Handlers.UserPets
             return pet;
         }
 
-        private async Task AddPhoto(UpdateUserPetPhoto command)
+        private async Task<string> AddPhotoToMinioAsync(UpdateUserPetPhoto command)
         {
+            string path;
             try
             {
-                await _photoService.AddAsync(command.Photo.Id, command.Photo.Name, command.Photo.Content,
+                path = await _photoService.AddAsync(command.Photo.Name, command.UserId, false, command.Photo.Content,
                     BucketName.PetPhotos);
             }
             catch (Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
-        }
 
-        private async Task DeleteCurrentPhoto(UserPet pet)
-        {
-            if (pet.MainPhotoId != Guid.Empty)
-            {
-                try
-                {
-                    await _photoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
-                }
-                catch (Exception ex)
-                {
-                    throw new CannotRequestFilesMicroserviceException(ex);
-                }
-            }
+            return path;
         }
     }
 }

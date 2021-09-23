@@ -12,8 +12,8 @@ namespace Lapka.Pets.Application.Dto.Pets
         public Sex Sex { get; set; }
         public Species Species { get; set; }
         public string Race { get; set; }
-        public Guid MainPhotoId { get; set; }
-        public List<Guid> PhotoIds { get; set; }
+        public string MainPhotoPath { get; set; }
+        public IEnumerable<string> PhotoPaths { get; set; }
         public DateTime BirthDay { get; set; }
         public string Color { get; set; }
         public double Weight { get; set; }

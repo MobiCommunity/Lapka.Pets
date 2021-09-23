@@ -1,25 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.Events.Concrete.Pets.Losts;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
+using Microsoft.VisualBasic;
 
 namespace Lapka.Pets.Core.Entities
 {
     public class LostPet : AggregatePet
     {
         public string OwnerName { get; private set; }
-        public string PhoneNumber { get; private set; }
+        public PhoneNumber PhoneNumber { get; private set; }
         public DateTime LostDate { get; private set; }
         public Address LostAddress { get; private set; }
         public string Description { get; private set; }
 
-        public LostPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
-            List<Guid> photoIds, DateTime birthDay, string color, double weight, string ownerName,
-            string phoneNumber, DateTime lostDate, Address lostAddress, string description) : base(id, userId, name, sex, race,
-            species, mainPhotoId, birthDay, color, weight, photoIds)
+
+        public LostPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, string mainPhotoPath,
+            DateTime birthDay, string color, double weight, string ownerName, PhoneNumber phoneNumber, DateTime lostDate,
+            Address lostAddress, string description, bool isDeleted = false, IEnumerable<string> photoPaths = null) : base(id, userId,
+            name, sex, race, species, mainPhotoPath, birthDay, color, weight, isDeleted, photoPaths)
         {
             OwnerName = ownerName;
             PhoneNumber = phoneNumber;
@@ -29,19 +33,19 @@ namespace Lapka.Pets.Core.Entities
         }
 
         public static LostPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species,
-            Guid photoId, List<Guid> photoIds, DateTime birthDay, string color, double weight, string ownerName,
-            string phoneNumber, DateTime lostDate, Address lostAddress, string description)
+            string photoId, DateTime birthDay, string color, double weight, string ownerName, PhoneNumber phoneNumber,
+            DateTime lostDate, Address lostAddress, string description, IEnumerable<string> photoIds = null)
         {
-            Validate(name, race, birthDay, color, weight, ownerName, phoneNumber, lostDate, description);
-            LostPet pet = new LostPet(id, userId, name, sex, race, species, photoId, photoIds, birthDay, color, weight,
-                ownerName, phoneNumber, lostDate, lostAddress, description);
+            Validate(name, race, birthDay, color, weight, ownerName, lostDate, description);
+            LostPet pet = new LostPet(id, userId, name, sex, race, species, photoId, birthDay, color, weight,
+                ownerName, phoneNumber, lostDate, lostAddress, description, false, photoIds);
 
             pet.AddEvent(new LostPetCreated(pet));
             return pet;
         }
 
         public void Update(string name, string race, Species species, Sex sex, DateTime birthDay, double weight,
-            string color, string ownerName, string phoneNumber, DateTime lostDate, Address lostAddress,
+            string color, string ownerName, PhoneNumber phoneNumber, DateTime lostDate, Address lostAddress,
             string description)
         {
             base.Update(name, race, species, sex, birthDay, weight, color);
@@ -54,40 +58,42 @@ namespace Lapka.Pets.Core.Entities
             AddEvent(new LostPetUpdated(this));
         }
 
-        public override void AddPhotos(List<Guid> photoIds)
+        public override void AddPhotos(IEnumerable<string> photoPaths)
         {
-            base.AddPhotos(photoIds);
+            base.AddPhotos(photoPaths);
 
             AddEvent(new LostPetUpdated(this));
         }
 
-        public override void RemovePhoto(Guid photoId)
+        public override void RemovePhotos(IEnumerable<string> photoPaths)
         {
-            base.RemovePhoto(photoId);
+            IEnumerable<string> deletedPhotoPaths = photoPaths as string[] ?? photoPaths.ToArray();
+            
+            base.RemovePhotos(deletedPhotoPaths);
 
-            AddEvent(new LostPetUpdated(this));
+            AddEvent(new LostPetPhotosDeleted(this, deletedPhotoPaths));
         }
 
-        public override void UpdateMainPhoto(Guid photoId)
+        public void UpdateMainPhoto(string photoId, string oldPhotoPath)
         {
             base.UpdateMainPhoto(photoId);
 
-            AddEvent(new LostPetUpdated(this));
+            AddEvent(new LostPetPhotosDeleted(this, new Collection<string>{oldPhotoPath}));
         }
-        
+
         public override void Delete()
         {
+            base.Delete();
+            
             AddEvent(new LostPetDeleted(this));
         }
 
         private static void Validate(string name, string race, DateTime birthDay, string color, double weight,
-            string ownerName,
-            string phoneNumber, DateTime lostDate, string description)
+            string ownerName, DateTime lostDate, string description)
         {
             Validate(name, race, birthDay, color, weight);
 
             ValidateOwnerName(ownerName);
-            ValidatePhoneNumber(phoneNumber);
             ValidateLostDate(lostDate);
             ValidateDescription(description);
         }
@@ -97,14 +103,6 @@ namespace Lapka.Pets.Core.Entities
             if (string.IsNullOrWhiteSpace(ownerName))
             {
                 throw new InvalidOwnerNameValueException(ownerName);
-            }
-        }
-
-        private static void ValidatePhoneNumber(string phoneNumber)
-        {
-            if (!PhoneNumberRegex.IsMatch(phoneNumber))
-            {
-                throw new InvalidPhoneNumberException(phoneNumber);
             }
         }
 
@@ -128,9 +126,5 @@ namespace Lapka.Pets.Core.Entities
                 throw new DescriptionTooShortException(description);
             }
         }
-
-        private static readonly Regex PhoneNumberRegex =
-            new Regex(@"(?<!\w)(\(?(\+|00)?48\)?)?[ -]?\d{3}[ -]?\d{3}[ -]?\d{3}(?!\w)",
-                RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
     }
 }

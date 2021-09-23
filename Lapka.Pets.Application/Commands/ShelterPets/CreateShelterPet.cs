@@ -9,18 +9,16 @@ namespace Lapka.Pets.Application.Commands.ShelterPets
     {
         public Guid UserId { get; }
         public Guid ShelterId { get; }
-        public Address ShelterAddress { get; }
         public string Description { get; }
         public bool Sterilization { get; }
 
-        public CreateShelterPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, PhotoFile photo,
-            DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId, Address shelterAddress,
-            string description, IEnumerable<PhotoFile> photos) : base(id, name, sex, race, species, photo,
-            birthDay, color, weight, photos)
+        public CreateShelterPet(Guid id, Guid userId, string name, Sex sex, string race, Species species,
+            File photo, DateTime birthDay, string color, double weight, bool sterilization, string description,
+            Guid shelterId, IEnumerable<File> photos = null) : base(id, name, sex, race, species, photo, birthDay, color,
+            weight, photos)
         {
             UserId = userId;
             Sterilization = sterilization;
-            ShelterAddress = shelterAddress;
             Description = description;
             ShelterId = shelterId;
         }

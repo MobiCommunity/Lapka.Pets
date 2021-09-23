@@ -5,8 +5,9 @@ using Grpc.Core;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Application.Queries.ShelterPets;
 
-namespace Lapka.Identity.Api.Grpc.Controllers
+namespace Lapka.Pets.Api.Grpc.Controllers
 {
     public class GrpcPetController : PetProto.PetProtoBase
     {
@@ -43,7 +44,7 @@ namespace Lapka.Identity.Api.Grpc.Controllers
             
             try
             {
-                PetDetailsShelterDto pet = await _queryDispatcher.QueryAsync(new GetShelterPet
+                PetDetailsShelterDto pet = await _queryDispatcher.QueryAsync(new GetShelterPetMongo
                 {
                     Id = petId
                 });

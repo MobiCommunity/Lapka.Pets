@@ -7,7 +7,6 @@ namespace Lapka.Pets.Application.Services
 {
     public interface IGrpcPhotoService
     {
-        public Task AddAsync(Guid id, string name, Stream photo, BucketName bucket);
-        public Task DeleteAsync(Guid photoId, BucketName bucket);
+        public Task<string> AddAsync(string name, Guid userId, bool isPublic, Stream photo, BucketName bucket);
     }
 }
