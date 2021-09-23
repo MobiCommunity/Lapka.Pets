@@ -12,14 +12,14 @@ namespace Lapka.Pets.Application.Commands.Abstract
         public Sex Sex { get; }
         public string Race { get; }
         public Species Species { get; }
-        public PhotoFile MainPhoto { get; }
-        public IEnumerable<PhotoFile> Photos { get; }
+        public File MainPhoto { get; }
+        public IEnumerable<File> Photos { get; }
         public DateTime BirthDay { get; }
         public string Color { get; }
         public double Weight { get; }
 
-        protected CreatePet(Guid id, string name, Sex sex, string race, Species species, PhotoFile photo,
-            DateTime birthDay, string color, double weight, IEnumerable<PhotoFile> photoPaths)
+        protected CreatePet(Guid id, string name, Sex sex, string race, Species species, File photo,
+            DateTime birthDay, string color, double weight, IEnumerable<File> photoPaths = null)
         {
             Id = id;
             Name = name;

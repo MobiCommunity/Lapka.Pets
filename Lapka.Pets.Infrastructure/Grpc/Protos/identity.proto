@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+service ShelterProto{
+  rpc GetShelterLocation (GetShelterLocationRequest) returns (GetShelterLocationReply);
+  rpc GetShelterBasicInfo (GetShelterBasicInfoRequest) returns (GetShelterBasicInfoReply);
+}
+
+message GetShelterLocationRequest{
+  string shelterId = 1;
+}
+
+message GetShelterBasicInfoRequest{
+  string shelterId = 1;
+}
+
+message GetShelterLocationReply{
+  string longitude = 1;
+  string latitude = 2;
+}
+
+message GetShelterBasicInfoReply{
+  string name = 1;
+  string longitude = 2;
+  string latitude = 3;
+  string Street = 4;
+  string ZipCode = 5;
+  string City = 6;
+}

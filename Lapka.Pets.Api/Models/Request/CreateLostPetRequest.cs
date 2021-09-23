@@ -29,14 +29,13 @@ namespace Lapka.Pets.Api.Models.Request
         public string Color { get; set; }
         [Required]
         public string OwnerName { get; set; }
-        [Required]
-        public string PhoneNumber { get; set; }
+        public PhoneNumberModel PhoneNumber { get; set; }
         [Required]
         public AddressModel LostAddress { get; set; }
         [Required]
         public string Description { get; set; }
         [Required]
         public IFormFile MainPhoto { get; set; }
-        public List<IFormFile> Photos { get; set; }
+        public IEnumerable<IFormFile> Photos { get; set; }
     }
 }

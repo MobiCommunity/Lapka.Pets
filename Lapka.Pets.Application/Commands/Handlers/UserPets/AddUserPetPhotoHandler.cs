@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.UserPets;
@@ -29,8 +31,8 @@ namespace Lapka.Pets.Application.Commands.Handlers.UserPets
             UserPet pet = await GetUserPetAsync(command);
             ValidIfUserIsOwnerOfPet(command, pet);
 
-            await AddPhotos(command);
-            pet.AddPhotos(command.Photos.IdsAsGuidList());
+            ICollection<string> paths = await AddPhotosToMinioAsync(command);
+            pet.AddPhotos(paths);
             
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
@@ -55,19 +57,24 @@ namespace Lapka.Pets.Application.Commands.Handlers.UserPets
             return pet;
         }
 
-        private async Task AddPhotos(AddUserPetPhoto command)
+        private async Task<ICollection<string>> AddPhotosToMinioAsync(AddUserPetPhoto command)
         {
+            Collection<string> paths = new Collection<string>();
+
             try
             {
-                foreach (PhotoFile photo in command.Photos)
+                foreach (File photo in command.Photos)
                 {
-                    await _photoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+                    paths.Add(await _photoService.AddAsync(photo.Name, command.UserId, false, photo.Content,
+                        BucketName.PetPhotos));
                 }
             }
             catch (Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
+
+            return paths;
         }
     }
 }

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+service PhotoProto{
+  rpc UploadPhoto (UploadPhotoRequest) returns (UploadPhotoReply);
+  rpc DeletePhoto (DeletePhotoRequest) returns (DeletePhotoReply);
+}
+
+message DeletePhotoRequest{
+  string id = 1;
+  string userId = 2;
+  enum Bucket{
+    PetPhotos = 0;
+    UserPhotos = 1;
+    ShelterPhotos = 2;
+  }
+  Bucket bucketName = 3;
+}
+
+message UploadPhotoRequest{
+  string name = 1;
+  string userId = 2;
+  bytes photo = 3;
+  bool isPublic = 4;
+  enum Bucket{
+    PetPhotos = 0;
+    UserPhotos = 1;
+    ShelterPhotos = 2;
+  }
+  Bucket bucketName = 5;
+}
+
+message UploadPhotoReply{
+  string path = 1;
+}
+
+message DeletePhotoReply{}

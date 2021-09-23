@@ -9,9 +9,9 @@ namespace Lapka.Pets.Application.Commands.UserPets
     {
         public Guid PetId { get; }
         public Guid UserId { get; }
-        public List<PhotoFile> Photos { get; }
+        public IEnumerable<File> Photos { get; }
 
-        public AddUserPetPhoto(Guid petId, Guid userId, List<PhotoFile> photos)
+        public AddUserPetPhoto(Guid petId, Guid userId, IEnumerable<File> photos)
         {
             PetId = petId;
             UserId = userId;

@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -12,32 +15,34 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 {
     public class DeleteShelterPetHandler : ICommandHandler<DeleteShelterPet>
     {
-        private readonly ILogger<DeleteShelterPetHandler> _logger;
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
-        private readonly IGrpcPhotoService _grpcPhotoService;
-        private readonly IGrpcIdentityService _grpcIdentityService;
+        private readonly IShelterRepository _shelterRepository;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IDomainToIntegrationEventMapper _eventMapper;
 
-        public DeleteShelterPetHandler(ILogger<DeleteShelterPetHandler> logger, IEventProcessor eventProcessor,
-            IShelterPetRepository repository, IGrpcPhotoService grpcPhotoService, IGrpcIdentityService grpcIdentityService)
+        public DeleteShelterPetHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
+            IShelterRepository shelterRepository, IMessageBroker messageBroker,
+            IDomainToIntegrationEventMapper eventMapper)
         {
-            _logger = logger;
             _eventProcessor = eventProcessor;
             _repository = repository;
-            _grpcPhotoService = grpcPhotoService;
-            _grpcIdentityService = grpcIdentityService;
+            _shelterRepository = shelterRepository;
+            _messageBroker = messageBroker;
+            _eventMapper = eventMapper;
         }
 
         public async Task HandleAsync(DeleteShelterPet command)
         {
             ShelterPet pet = await GetShelterPetAsync(command);
             await ValidIfUserOwnShelter(command, pet);
-            
-            await DeletePhotos(pet);
+
             pet.Delete();
 
-            await _repository.DeleteAsync(pet);
+            await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+            IEnumerable<IEvent> events = _eventMapper.MapAll(pet.Events);
+            await _messageBroker.PublishAsync(events);
         }
 
         private async Task<ShelterPet> GetShelterPetAsync(DeleteShelterPet command)
@@ -53,33 +58,10 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 
         private async Task ValidIfUserOwnShelter(DeleteShelterPet command, ShelterPet pet)
         {
-            try
+            Shelter shelter = await _shelterRepository.GetAsync(pet.ShelterId);
+            if (shelter.Owners.Any(x => x != command.UserId))
             {
-                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-                if (!isOwner)
-                {
-                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestIdentityMicroserviceException(ex);
-            }
-        }
-
-        private async Task DeletePhotos(ShelterPet pet)
-        {
-            try
-            {
-                await _grpcPhotoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
-                foreach (Guid photoId in pet.PhotoIds)
-                {
-                    await _grpcPhotoService.DeleteAsync(photoId, BucketName.PetPhotos);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
         }
     }

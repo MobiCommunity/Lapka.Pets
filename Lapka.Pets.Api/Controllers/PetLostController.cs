@@ -9,6 +9,7 @@ using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.LostPets;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Application.Queries.LostPets;
 using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,7 @@ namespace Lapka.Pets.Api.Controllers
         
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
-            => Ok(await _queryDispatcher.QueryAsync(new GetLostPet
+            => Ok(await _queryDispatcher.QueryAsync(new GetLostPetElastic
             {
                 Id = id,
                 Latitude = latitude,
@@ -54,12 +55,11 @@ namespace Lapka.Pets.Api.Controllers
             }
 
             Guid id = Guid.NewGuid();
-            Guid mainPhotoId = Guid.NewGuid();
 
             await _commandDispatcher.SendAsync(new CreateLostPet(id, userId, pet.Name, pet.Race, pet.Species,
                 pet.Sex, pet.Age, pet.LostDate, pet.Sterilization, pet.Weight, pet.Color, pet.OwnerName,
-                pet.PhoneNumber, pet.LostAddress.AsValueObject(), pet.Description,
-                pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.Photos.CreatePhotoFiles()));
+                pet.PhoneNumber.AsValueObject(), pet.LostAddress.AsValueObject(), pet.Description,
+                pet.MainPhoto.AsPhotoFile(), pet.Photos.CreatePhotoFiles()));
 
             return Created($"api/pet/lost/{id}", null);
         }
@@ -76,7 +76,7 @@ namespace Lapka.Pets.Api.Controllers
                 return Unauthorized();
             }
 
-            await _commandDispatcher.SendAsync(new DeleteLostPetPhoto(id, userId, photo.Id));
+            await _commandDispatcher.SendAsync(new DeleteLostPetPhoto(id, userId, photo.Path));
 
             return NoContent();
         }
@@ -122,7 +122,7 @@ namespace Lapka.Pets.Api.Controllers
             }
 
             await _commandDispatcher.SendAsync(new UpdateLostPet(id, userId, pet.Name, pet.Race, pet.Species, pet.Sex,
-                pet.Age, pet.LostDate, pet.Weight, pet.Color, pet.OwnerName, pet.PhoneNumber,
+                pet.Age, pet.LostDate, pet.Weight, pet.Color, pet.OwnerName, pet.PhoneNumber.AsValueObject(),
                 pet.LostAddress.AsValueObject(),
                 pet.Description));
 
@@ -140,10 +140,8 @@ namespace Lapka.Pets.Api.Controllers
             {
                 return Unauthorized();
             }
-
-            Guid photoId = Guid.NewGuid();
-
-            await _commandDispatcher.SendAsync(new UpdateLostPetPhoto(id, userId, petUpdate.File.AsPhotoFile(photoId)));
+            
+            await _commandDispatcher.SendAsync(new UpdateLostPetPhoto(id, userId, petUpdate.File.AsPhotoFile()));
 
             return NoContent();
         }

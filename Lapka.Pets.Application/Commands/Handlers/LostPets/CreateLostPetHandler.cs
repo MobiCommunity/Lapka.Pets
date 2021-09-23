@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.LostPets;
@@ -8,6 +10,7 @@ using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 
 namespace Lapka.Pets.Application.Commands.Handlers.LostPets
 {
@@ -30,53 +33,51 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
         public async Task HandleAsync(CreateLostPet command)
         {
             LostPet pet = LostPet.Create(command.Id, command.UserId, command.Name, command.Sex, command.Race,
-                command.Species, command.MainPhoto.Id,
-                command.Photos == null ? new List<Guid>() : command.Photos.IdsAsGuidList(),
-                DateTime.UtcNow.Subtract(TimeSpan.FromDays(365 * command.Age)), command.Color, command.Weight,
-                command.OwnerName, command.PhoneNumber, command.LostDate, command.LostAddress, command.Description);
+                command.Species, string.Empty, DateTime.UtcNow.Subtract(TimeSpan.FromDays(365 * command.Age)),
+                command.Color, command.Weight, command.OwnerName, command.PhoneNumber, command.LostDate,
+                command.LostAddress, command.Description);
 
-            await AddMainPhoto(command, pet);
-            await AddPhotos(command, pet);
-            
+            await AddMainPhotoToMinioAsync(command, pet);
+            await AddPhotosToMinioAsync(command, pet);
+
             await _repository.AddAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
         }
 
-        private async Task AddPhotos(CreateLostPet command, LostPet pet)
+        private async Task AddPhotosToMinioAsync(CreateLostPet command, LostPet pet)
         {
             if (command.Photos != null)
             {
+                ICollection<string> photos = new Collection<string>();
+
                 try
                 {
-                    foreach (PhotoFile photo in command.Photos)
+                    foreach (File photo in command.Photos)
                     {
-                        await _photoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+                        photos.Add(await _photoService.AddAsync(photo.Name, command.UserId, true, photo.Content,
+                            BucketName.PetPhotos));
                     }
+
+                    pet.SetPhotos(photos);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, ex.Message);
-                    foreach (PhotoFile photo in command.Photos)
-                    {
-                        pet.RemovePhoto(photo.Id);
-                    }
                 }
             }
         }
 
-        private async Task AddMainPhoto(CreateLostPet command, LostPet pet)
+        private async Task AddMainPhotoToMinioAsync(CreateLostPet command, LostPet pet)
         {
             try
             {
-                await _photoService.AddAsync(command.MainPhoto.Id, command.MainPhoto.Name, command.MainPhoto.Content,
-                    BucketName.PetPhotos);
-                pet.UpdateMainPhoto(command.MainPhoto.Id);
+                string path = await _photoService.AddAsync(command.MainPhoto.Name, command.UserId, true,
+                    command.MainPhoto.Content, BucketName.PetPhotos);
+                pet.UpdateMainPhoto(path, string.Empty);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-
-                pet.UpdateMainPhoto(Guid.Empty);
             }
         }
     }

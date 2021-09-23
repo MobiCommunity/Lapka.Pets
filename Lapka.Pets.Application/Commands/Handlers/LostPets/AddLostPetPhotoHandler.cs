@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.LostPets;
@@ -29,11 +31,31 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
             LostPet pet = await GetLostPetAsync(command);
             ValidIfUserIsOwnerOfPet(command, pet);
 
-            await AddPhotos(command);
-            pet.AddPhotos(command.Photos.IdsAsGuidList());
-            
+            ICollection<string> paths = await AddPhotosToMinioAsync(command);
+            pet.AddPhotos(paths);
+
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+        }
+
+        private async Task<ICollection<string>> AddPhotosToMinioAsync(AddLostPetPhoto command)
+        {
+            Collection<string> paths = new Collection<string>();
+
+            try
+            {
+                foreach (File photo in command.Photos)
+                {
+                    paths.Add(await _photoService.AddAsync(photo.Name, command.UserId, true, photo.Content,
+                        BucketName.PetPhotos));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CannotRequestFilesMicroserviceException(ex);
+            }
+
+            return paths;
         }
 
         private static void ValidIfUserIsOwnerOfPet(AddLostPetPhoto command, LostPet pet)
@@ -53,21 +75,6 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
             }
 
             return pet;
-        }
-
-        private async Task AddPhotos(AddLostPetPhoto command)
-        {
-            try
-            {
-                foreach (PhotoFile photo in command.Photos)
-                {
-                    await _photoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestFilesMicroserviceException(ex);
-            }
         }
     }
 }

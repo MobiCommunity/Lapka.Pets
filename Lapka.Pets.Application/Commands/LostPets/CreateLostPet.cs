@@ -19,15 +19,15 @@ namespace Lapka.Pets.Application.Commands.LostPets
         public double Weight { get; }
         public string Color { get; }
         public string OwnerName { get; }
-        public string PhoneNumber { get; }
+        public PhoneNumber PhoneNumber { get; }
         public Address LostAddress { get; }
         public string Description { get; }
-        public PhotoFile MainPhoto { get; }
-        public List<PhotoFile> Photos { get; }
+        public File MainPhoto { get; }
+        public IEnumerable<File> Photos { get; }
 
         public CreateLostPet(Guid id, Guid userId, string name, string race, Species species, Sex sex,
             int age, DateTime lostDate, bool sterilization, double weight, string color, string ownerName,
-            string phoneNumber, Address lostAddress, string description, PhotoFile mainPhoto, List<PhotoFile> photos)
+            PhoneNumber phoneNumber, Address lostAddress, string description, File mainPhoto, IEnumerable<File> photos)
         {
             Id = id;
             UserId = userId;

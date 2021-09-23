@@ -12,6 +12,7 @@
         <PackageReference Include="Convey.CQRS.Commands" Version="0.4.360" />
         <PackageReference Include="Convey.CQRS.Events" Version="0.4.360" />
         <PackageReference Include="Convey.CQRS.Queries" Version="0.4.360" />
+        <PackageReference Include="Convey.MessageBrokers" Version="0.4.360" />
         <PackageReference Include="GeoCoordinate.NetCore" Version="1.0.0.1" />
     </ItemGroup>
 

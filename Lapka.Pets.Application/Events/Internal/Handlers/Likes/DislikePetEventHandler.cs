@@ -17,7 +17,7 @@ namespace Lapka.Pets.Application.Events.Internal.Handlers.Likes
 
         public async Task HandleAsync(RemovedPetLike @event)
         {
-            await _elasticsearchUpdater.DeleteDataAsync(@event.LikedPets);
+            await _elasticsearchUpdater.InsertAndUpdateDataAsync(@event.LikedPets);
         }
     }
 }

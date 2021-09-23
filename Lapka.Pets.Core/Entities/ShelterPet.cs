@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Lapka.Pets.Core.Events.Concrete;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Lapka.Pets.Core.Events.Concrete.Pets.Shelters;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
@@ -9,29 +10,37 @@ namespace Lapka.Pets.Core.Entities
 {
     public class ShelterPet : AggregatePet
     {
-        public Guid ShelterId { get; private set; }
+        public Guid ShelterId { get; }
+        public string ShelterName { get; }
         public Address ShelterAddress { get; private set; }
+        public Location ShelterGeoLocation { get; }
         public string Description { get; private set; }
         public bool Sterilization { get; private set; }
-        
-        public ShelterPet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
-            DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId, Address shelterAddress,
-            string description, List<Guid> photoIds) : base(id, userId, name, sex, race, species, mainPhotoId, birthDay,
-            color, weight, photoIds)
+
+        public ShelterPet(Guid id, Guid userId, string name, Sex sex, string race, Species species,
+            string mainPhotoPath,
+            DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId, string shelterName,
+            Address shelterAddress, Location shelterGeoLocation, string description, bool isDeleted = false,
+            IEnumerable<string> photoPaths = null) : base(id, userId, name, sex, race, species, mainPhotoPath, birthDay,
+            color, weight, isDeleted, photoPaths)
         {
+            ShelterId = shelterId;
+            ShelterName = shelterName;
             ShelterAddress = shelterAddress;
+            ShelterGeoLocation = shelterGeoLocation;
             Description = description;
             Sterilization = sterilization;
-            ShelterId = shelterId;
         }
 
-        public static ShelterPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid photoId,
-            DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId, Address shelterAddress,
-            string description, List<Guid> photoIds)
+        public static ShelterPet Create(Guid id, Guid userId, string name, Sex sex, string race, Species species,
+            string mainPhotoId, DateTime birthDay, string color, double weight, bool sterilization, Guid shelterId,
+            string shelterName, Address shelterAddress, Location shelterGeoLocation, string description,
+            IEnumerable<string> photoIds = null)
         {
             Validate(name, race, birthDay, color, weight, description);
-            ShelterPet pet = new ShelterPet(id, userId, name, sex, race, species, photoId, birthDay, color, weight,
-                sterilization, shelterId, shelterAddress, description, photoIds);
+            ShelterPet pet = new ShelterPet(id, userId, name, sex, race, species, mainPhotoId, birthDay, color, weight,
+                sterilization, shelterId, shelterName, shelterAddress, shelterGeoLocation, description, false,
+                photoIds);
 
             pet.AddEvent(new ShelterPetCreated(pet));
             return pet;
@@ -49,29 +58,34 @@ namespace Lapka.Pets.Core.Entities
 
             AddEvent(new ShelterPetUpdated(this));
         }
-        public override void AddPhotos(List<Guid> photoIds)
+
+        public override void AddPhotos(IEnumerable<string> photoPaths)
         {
-            base.AddPhotos(photoIds);
+            base.AddPhotos(photoPaths);
 
             AddEvent(new ShelterPetUpdated(this));
         }
 
-        public override void RemovePhoto(Guid photoId)
+        public override void RemovePhotos(IEnumerable<string> photoPaths)
         {
-            base.RemovePhoto(photoId);
-            
-            AddEvent(new ShelterPetUpdated(this));
+            IEnumerable<string> deletedPhotoPaths = photoPaths as string[] ?? photoPaths.ToArray();
+
+            base.RemovePhotos(deletedPhotoPaths);
+
+            AddEvent(new ShelterPetPhotosDeleted(this, deletedPhotoPaths));
         }
-        
-        public override void UpdateMainPhoto(Guid photoId)
+
+        public void UpdateMainPhoto(string photoId, string oldPhotoPath)
         {
             base.UpdateMainPhoto(photoId);
 
-            AddEvent(new ShelterPetUpdated(this));
+            AddEvent(new ShelterPetPhotosDeleted(this, new Collection<string> {oldPhotoPath}));
         }
 
         public override void Delete()
         {
+            base.Delete();
+
             AddEvent(new ShelterPetDeleted(this));
         }
 

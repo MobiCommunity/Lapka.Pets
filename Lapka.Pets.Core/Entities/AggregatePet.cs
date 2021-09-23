@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lapka.Pets.Core.Events.Concrete;
 using Lapka.Pets.Core.Exceptions.Pet;
 using Lapka.Pets.Core.ValueObjects;
@@ -8,21 +9,28 @@ namespace Lapka.Pets.Core.Entities
 {
     public abstract class AggregatePet : AggregateRoot
     {
-        private const double MinimumWeight = 0;
-
+        private ISet<string> _photoPaths = new HashSet<string>();
         public Guid UserId { get; }
         public string Name { get; private set; }
         public Species Species { get; private set; }
         public Sex Sex { get; private set; }
-        public Guid MainPhotoId { get; private set; }
-        public List<Guid> PhotoIds { get; private set; }
+        public string MainPhotoPath { get; private set; }
         public string Race { get; private set; }
         public DateTime BirthDay { get; private set; }
         public string Color { get; private set; }
         public double Weight { get; private set; }
+        public bool IsDeleted { get; private set;}
 
-        protected AggregatePet(Guid id, Guid userId, string name, Sex sex, string race, Species species, Guid mainPhotoId,
-            DateTime birthDay, string color, double weight, List<Guid> photoIds)
+        
+        public IEnumerable<string> PhotoPaths
+        {
+            get => _photoPaths;
+            private set => _photoPaths = new HashSet<string>(value);
+        }
+
+        protected AggregatePet(Guid id, Guid userId, string name, Sex sex, string race, Species species,
+            string mainPhotoPath, DateTime birthDay, string color, double weight, bool isDeleted = false,
+            IEnumerable<string> photoPaths = null)
         {
             Id = new AggregateId(id);
             UserId = userId;
@@ -30,11 +38,12 @@ namespace Lapka.Pets.Core.Entities
             Sex = sex;
             Race = race;
             Species = species;
-            MainPhotoId = mainPhotoId;
-            PhotoIds = photoIds;
+            MainPhotoPath = mainPhotoPath;
             BirthDay = birthDay;
             Color = color;
             Weight = weight;
+            PhotoPaths = photoPaths ?? Enumerable.Empty<string>();
+            IsDeleted = isDeleted;
         }
 
         public virtual void Update(string name, string race, Species species, Sex sex, DateTime birthDay, double weight,
@@ -51,25 +60,36 @@ namespace Lapka.Pets.Core.Entities
             Color = color;
         }
 
-        public virtual void UpdateMainPhoto(Guid mainPhotoId)
+        protected virtual void UpdateMainPhoto(string mainPhotoId)
         {
-            MainPhotoId = mainPhotoId;
+            MainPhotoPath = mainPhotoId;
         }
 
-        public virtual void AddPhotos(List<Guid> photoIds)
+        public virtual void AddPhotos(IEnumerable<string> photoPaths)
         {
-            foreach (Guid path in photoIds)
+            foreach (string path in photoPaths)
             {
-                PhotoIds.Add(path);
+                _photoPaths.Add(path);
+            }
+        }
+        
+        public virtual void SetPhotos(IEnumerable<string> photoPaths)
+        {
+            _photoPaths = photoPaths.ToHashSet();
+        }
+
+        public virtual void RemovePhotos(IEnumerable<string> photoPaths)
+        {
+            foreach (string path in photoPaths)
+            {
+                _photoPaths.Remove(path);
             }
         }
 
-        public virtual void RemovePhoto(Guid photoId)
+        public virtual void Delete()
         {
-            PhotoIds.Remove(photoId);
+            IsDeleted = true;
         }
-
-        public abstract void Delete();
 
         protected static void Validate(string name, string race, DateTime birthDay, string color, double weight)
         {
@@ -109,5 +129,8 @@ namespace Lapka.Pets.Core.Entities
             if (weight <= MinimumWeight)
                 throw new WeightBelowMinimumValueException(weight);
         }
+        
+        private const double MinimumWeight = 0;
+
     }
 }

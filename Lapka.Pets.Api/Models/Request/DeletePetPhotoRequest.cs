@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Lapka.Pets.Api.Models.Request
@@ -6,6 +7,6 @@ namespace Lapka.Pets.Api.Models.Request
     public class DeletePetPhotoRequest
     {
         [Required]
-        public Guid Id { get; set; }
+        public IEnumerable<string> Path { get; set; }
     }
 }

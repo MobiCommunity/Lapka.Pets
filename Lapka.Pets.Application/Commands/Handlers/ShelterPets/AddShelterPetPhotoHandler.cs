@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.ShelterPets;
@@ -15,24 +18,24 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
-        private readonly IGrpcIdentityService _grpcIdentityService;
+        private readonly IShelterRepository _shelterRepository;
 
 
         public AddShelterPetPhotoHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
-            IGrpcPhotoService photoService, IGrpcIdentityService grpcIdentityService)
+            IGrpcPhotoService photoService, IShelterRepository shelterRepository)
         {
             _eventProcessor = eventProcessor;
             _repository = repository;
             _photoService = photoService;
-            _grpcIdentityService = grpcIdentityService;
+            _shelterRepository = shelterRepository;
         }
         public async Task HandleAsync(AddShelterPetPhoto command)
         {
             ShelterPet pet = await GetShelterPetAsync(command);
             await ValidIfUserOwnShelterAsync(command, pet);
             
-            await AddPhotosAsync(command);
-            pet.AddPhotos(command.Photos.IdsAsGuidList());
+            ICollection<string> paths = await AddPhotosToMinioAsync(command);
+            pet.AddPhotos(paths);
             
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
@@ -51,33 +54,31 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 
         private async Task ValidIfUserOwnShelterAsync(AddShelterPetPhoto command, ShelterPet pet)
         {
-            try
+            Shelter shelter = await _shelterRepository.GetAsync(pet.ShelterId);
+            if (shelter.Owners.Any(x => x != command.UserId))
             {
-                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-                if (!isOwner)
-                {
-                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestIdentityMicroserviceException(ex);
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
         }
 
-        private async Task AddPhotosAsync(AddShelterPetPhoto command)
+        private async Task<ICollection<string>> AddPhotosToMinioAsync(AddShelterPetPhoto command)
         {
+            Collection<string> paths = new Collection<string>();
+
             try
             {
-                foreach (PhotoFile photo in command.Photos)
+                foreach (File photo in command.Photos)
                 {
-                    await _photoService.AddAsync(photo.Id, photo.Name, photo.Content, BucketName.PetPhotos);
+                    paths.Add(await _photoService.AddAsync(photo.Name, command.UserId, true, photo.Content,
+                        BucketName.PetPhotos));
                 }
             }
             catch (Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
+
+            return paths;
         }
     }
 }

@@ -8,9 +8,9 @@ namespace Lapka.Pets.Application.Commands.UserPets
     {
         public Guid Id { get; }
         public Guid UserId { get; }
-        public PhotoFile Photo { get; }
+        public File Photo { get; }
 
-        public UpdateUserPetPhoto(Guid id, Guid userId, PhotoFile photo)
+        public UpdateUserPetPhoto(Guid id, Guid userId, File photo)
         {
             Id = id;
             UserId = userId;

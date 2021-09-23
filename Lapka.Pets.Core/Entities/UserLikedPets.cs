@@ -6,17 +6,23 @@ namespace Lapka.Pets.Core.Entities
 {
     public class UserLikedPets : AggregateRoot
     {
+        private ISet<Guid> _likedPets = new HashSet<Guid>();
         public Guid UserId { get; }
-        public List<Guid> LikedPets { get; }
 
-        public UserLikedPets(Guid userId, List<Guid> likedPets)
+        public IEnumerable<Guid> LikedPets
+        {
+            get => _likedPets;
+            private set => _likedPets = new HashSet<Guid>(value);
+        }
+
+        public UserLikedPets(Guid userId, IEnumerable<Guid> likedPets)
         {
             Id = new AggregateId(userId);
             UserId = userId;
             LikedPets = likedPets;
         }
 
-        public static UserLikedPets Create(Guid userId, List<Guid> likedPets)
+        public static UserLikedPets Create(Guid userId, IEnumerable<Guid> likedPets)
         {
             UserLikedPets userLikedPets = new UserLikedPets(userId, likedPets);
             userLikedPets.AddEvent(new CreatedUserLikedPets(userLikedPets));
@@ -25,13 +31,13 @@ namespace Lapka.Pets.Core.Entities
 
         public void RemoveLike(Guid petId)
         {
-            LikedPets.Remove(petId);
+            _likedPets.Remove(petId);
             AddEvent(new RemovedPetLike(this));
         }
         
         public void AddLike(Guid petId)
         {
-            LikedPets.Add(petId);
+            _likedPets.Add(petId);
             AddEvent(new AddedPetLike(this));
         }
     }

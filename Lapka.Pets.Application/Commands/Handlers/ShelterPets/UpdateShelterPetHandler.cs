@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.ShelterPets;
@@ -12,14 +13,14 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
     {
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
-        private readonly IGrpcIdentityService _grpcIdentityService;
+        private readonly IShelterRepository _shelterRepository;
 
         public UpdateShelterPetHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
-            IGrpcIdentityService grpcIdentityService)
+            IShelterRepository shelterRepository)
         {
             _eventProcessor = eventProcessor;
             _repository = repository;
-            _grpcIdentityService = grpcIdentityService;
+            _shelterRepository = shelterRepository;
         }
 
         public async Task HandleAsync(UpdateShelterPet command)
@@ -47,17 +48,10 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 
         private async Task ValidIfUserOwnShelter(UpdateShelterPet command, ShelterPet pet)
         {
-            try
+            Shelter shelter = await _shelterRepository.GetAsync(pet.ShelterId);
+            if (shelter.Owners.Any(x => x != command.UserId))
             {
-                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-                if (!isOwner)
-                {
-                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestIdentityMicroserviceException(ex);
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
         }
     }

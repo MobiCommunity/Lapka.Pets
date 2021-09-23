@@ -5,6 +5,7 @@ using Convey.CQRS.Commands;
 using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
+using Lapka.Pets.Application.Services.Pets;
 using Lapka.Pets.Core.Entities;
 using Lapka.Pets.Core.ValueObjects;
 

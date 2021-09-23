@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
+using Convey.CQRS.Events;
 using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
@@ -14,30 +17,37 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
         private readonly IEventProcessor _eventProcessor;
         private readonly IShelterPetRepository _repository;
         private readonly IGrpcPhotoService _photoService;
-        private readonly IGrpcIdentityService _grpcIdentityService;
+        private readonly IShelterRepository _shelterRepository;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IDomainToIntegrationEventMapper _eventMapper;
 
 
         public UpdateShelterPetPhotoHandler(IEventProcessor eventProcessor, IShelterPetRepository repository,
-            IGrpcPhotoService photoService, IGrpcIdentityService grpcIdentityService)
+            IGrpcPhotoService photoService, IShelterRepository shelterRepository, IMessageBroker messageBroker,
+            IDomainToIntegrationEventMapper eventMapper)
         {
             _eventProcessor = eventProcessor;
             _repository = repository;
             _photoService = photoService;
-            _grpcIdentityService = grpcIdentityService;
+            _shelterRepository = shelterRepository;
+            _messageBroker = messageBroker;
+            _eventMapper = eventMapper;
         }
 
         public async Task HandleAsync(UpdateShelterPetPhoto command)
         {
             ShelterPet pet = await GetShelterPetAsync(command);
             await ValidIfUserOwnShelter(command, pet);
+            string oldPhotoPath = pet.MainPhotoPath;
 
-            await DeleteCurrentPhoto(pet);
-            await AddPhoto(command);
+            string path = await AddPhotoToMinioAsync(command);
 
-            pet.UpdateMainPhoto(command.Photo.Id);
+            pet.UpdateMainPhoto(path, oldPhotoPath);
 
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);
+            IEnumerable<IEvent> events = _eventMapper.MapAll(pet.Events);
+            await _messageBroker.PublishAsync(events);
         }
 
         private async Task<ShelterPet> GetShelterPetAsync(UpdateShelterPetPhoto command)
@@ -53,46 +63,27 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 
         private async Task ValidIfUserOwnShelter(UpdateShelterPetPhoto command, ShelterPet pet)
         {
-            try
+            Shelter shelter = await _shelterRepository.GetAsync(pet.ShelterId);
+            if (shelter.Owners.Any(x => x != command.UserId))
             {
-                bool isOwner = await _grpcIdentityService.IsUserOwnerOfShelter(pet.ShelterId, command.UserId);
-                if (!isOwner)
-                {
-                    throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new CannotRequestIdentityMicroserviceException(ex);
+                throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }
         }
         
-        private async Task AddPhoto(UpdateShelterPetPhoto command)
+        private async Task<string> AddPhotoToMinioAsync(UpdateShelterPetPhoto command)
         {
+            string path;
             try
             {
-                await _photoService.AddAsync(command.Photo.Id, command.Photo.Name, command.Photo.Content,
+                path = await _photoService.AddAsync(command.Photo.Name, command.UserId, true, command.Photo.Content,
                     BucketName.PetPhotos);
             }
             catch (Exception ex)
             {
                 throw new CannotRequestFilesMicroserviceException(ex);
             }
-        }
 
-        private async Task DeleteCurrentPhoto(ShelterPet pet)
-        {
-            if (pet.MainPhotoId != Guid.Empty)
-            {
-                try
-                {
-                    await _photoService.DeleteAsync(pet.MainPhotoId, BucketName.PetPhotos);
-                }
-                catch (Exception ex)
-                {
-                    throw new CannotRequestFilesMicroserviceException(ex);
-                }
-            }
+            return path;
         }
     }
 }

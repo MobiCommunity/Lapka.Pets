@@ -9,6 +9,7 @@ using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.ShelterPets;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
+using Lapka.Pets.Application.Queries.ShelterPets;
 using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace Lapka.Pets.Api.Controllers
 
         [HttpGet("pet/{id:guid}")]
         public async Task<IActionResult> Get(Guid id, string longitude, string latitude)
-            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPet
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPetElastic
             {
                 Id = id,
                 Latitude = latitude,
@@ -54,6 +55,13 @@ namespace Lapka.Pets.Api.Controllers
             {
                 ShelterId = id
             }));
+        
+        [HttpGet("{id:guid}/pet/count")]
+        public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetShelterPetCount(Guid id)
+            => Ok(await _queryDispatcher.QueryAsync(new GetShelterOwnPetsCount
+            {
+                ShelterId = id
+            }));
 
         [HttpPost("pet")]
         public async Task<IActionResult> Add([FromForm] CreateShelterPetRequest pet)
@@ -61,12 +69,10 @@ namespace Lapka.Pets.Api.Controllers
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
 
             Guid id = Guid.NewGuid();
-            Guid mainPhotoId = Guid.NewGuid();
 
             await _commandDispatcher.SendAsync(new CreateShelterPet(id, userId, pet.Name, pet.Sex, pet.Race,
-                pet.Species, pet.MainPhoto.AsPhotoFile(mainPhotoId), pet.BirthDay, pet.Color, pet.Weight,
-                pet.Sterilization, pet.ShelterId, pet.ShelterAddress.AsValueObject(), pet.Description,
-                pet.Photos.CreatePhotoFiles()));
+                pet.Species, pet.MainPhoto.AsPhotoFile(), pet.BirthDay, pet.Color, pet.Weight,
+                pet.Sterilization, pet.Description, pet.ShelterId, pet.Photos.CreatePhotoFiles()));
 
             return Created($"api/pet/shelter/{id}", null);
         }
@@ -75,7 +81,7 @@ namespace Lapka.Pets.Api.Controllers
         /// Deletes photo from Photos list (not a main photo)
         /// </summary>
         [HttpDelete("pet/{id:guid}/photo")]
-        public async Task<IActionResult> DeletePhoto(Guid id, DeletePetPhotoRequest photo)
+        public async Task<IActionResult> DeletePhotos(Guid id, DeletePetPhotoRequest photo)
         {
             Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
             if (Guid.Empty == userId)
@@ -83,7 +89,7 @@ namespace Lapka.Pets.Api.Controllers
                 return Unauthorized();
             }
             
-            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, userId, photo.Id));
+            await _commandDispatcher.SendAsync(new DeleteShelterPetPhoto(id, userId, photo.Path));
 
             return NoContent();
         }
@@ -150,7 +156,7 @@ namespace Lapka.Pets.Api.Controllers
             Guid photoId = Guid.NewGuid();
 
             await _commandDispatcher.SendAsync(new UpdateShelterPetPhoto(id, userId,
-                petUpdate.File.AsPhotoFile(photoId)));
+                petUpdate.File.AsPhotoFile()));
 
             return NoContent();
         }

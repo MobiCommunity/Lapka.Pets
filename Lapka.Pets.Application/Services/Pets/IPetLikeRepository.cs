@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Core.Entities;
-using Lapka.Pets.Core.ValueObjects;
 
-namespace Lapka.Pets.Application.Services
+namespace Lapka.Pets.Application.Services.Pets
 {
     public interface IPetLikeRepository
     {
         Task<UserLikedPets> GetLikedPetsAsync(Guid userId);
+        Task<IEnumerable<UserLikedPets>> GetUsersLikedPetsContainingGivenPetAsync(Guid petId);
         Task UpdateLikesAsync(UserLikedPets likedPets);
         Task AddUserPetListAsync(UserLikedPets user);
     }

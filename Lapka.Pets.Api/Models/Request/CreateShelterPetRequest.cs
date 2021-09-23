@@ -31,8 +31,6 @@ namespace Lapka.Pets.Api.Models.Request
         [Required]
         public Guid ShelterId { get; set; }
         [Required]
-        public AddressModel ShelterAddress { get; set; }
-        [Required]
         public string Description { get; set; }
     }
 }
