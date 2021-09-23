@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using Lapka.Pets.Application.Commands;
 using Lapka.Pets.Application.Commands.ShelterPets;
+using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lapka.Pets.Api.Controllers
@@ -23,6 +26,14 @@ namespace Lapka.Pets.Api.Controllers
             _queryDispatcher = queryDispatcher;
         }
         
+        /// <summary>
+        /// Likes a shelter pets. User has to be logged.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully liked pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("{id:guid}/like")]
         public async Task<IActionResult> LikePet(Guid id)
         {
@@ -37,6 +48,14 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
+        /// <summary>
+        /// Dislikes a shelter pets. User has to be logged.
+        /// </summary>
+        /// <returns>No content</returns>
+        /// <response code="204">If successfully disliked pet</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         [HttpPatch("{id:guid}/dislike")]
         public async Task<IActionResult> DislikePet(Guid id)
         {
@@ -51,6 +70,14 @@ namespace Lapka.Pets.Api.Controllers
             return NoContent();
         }
         
+        /// <summary>
+        /// Gets all user liked pets. User has to be logged.
+        /// </summary>
+        /// <returns>Liked pets</returns>
+        /// <response code="200">If successfully got liked pets</response>
+        /// <response code="401">If user is not logged</response>
+        /// <response code="404">If pet is not found</response>
+        [ProducesResponseType(typeof(IEnumerable<PetBasicShelterDto>), StatusCodes.Status200OK)]
         [HttpGet("like")]
         public async Task<IActionResult> GetLikedPets(string longitude, string latitude)
         {
