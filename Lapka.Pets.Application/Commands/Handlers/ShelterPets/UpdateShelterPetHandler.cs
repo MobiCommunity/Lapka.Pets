@@ -49,7 +49,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
         private async Task ValidIfUserOwnShelter(UpdateShelterPet command, ShelterPet pet)
         {
             Shelter shelter = await _shelterRepository.GetAsync(pet.ShelterId);
-            if (shelter.Owners.Any(x => x != command.UserId))
+            if (!shelter.Owners.Contains(command.UserId))
             {
                 throw new UserNotOwnerOfShelterException(command.UserId, pet.ShelterId);
             }

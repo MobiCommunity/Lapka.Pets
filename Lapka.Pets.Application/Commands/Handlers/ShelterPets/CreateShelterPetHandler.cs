@@ -52,7 +52,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
 
         private static void ValidIfUserOwnShelter(CreateShelterPet command, Shelter shelter)
         {
-            if (shelter.Owners.Any(x => x != command.UserId))
+            if (!shelter.Owners.Contains(command.UserId))
             {
                 throw new UserNotOwnerOfShelterException(command.UserId, command.ShelterId);
             }
