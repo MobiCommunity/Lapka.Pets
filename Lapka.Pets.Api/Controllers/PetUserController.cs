@@ -32,12 +32,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Gets user pet by ID. User has to be logged.
         /// </summary>
-        /// <returns>Get user pet</returns>
-        /// <response code="200">If successfully got user pet</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If pet does not belong to user</response>
-        /// <response code="404">If pet is not found</response>
         [ProducesResponseType(typeof(PetDetailsUserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
@@ -57,10 +55,8 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Gets user pets. User has to be logged.
         /// </summary>
-        /// <returns>Get all user pets</returns>
-        /// <response code="200">If successfully got lost pets</response>
-        /// <response code="401">If user is not logged</response>
         [ProducesResponseType(typeof(IEnumerable<PetBasicUserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll()
         {
@@ -79,11 +75,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds user pet. User has to be logged.
         /// </summary>
-        /// <returns>URL to added pet</returns>
-        /// <response code="200">If successfully added user pet</response>
-        /// <response code="400">If given properties were invalid</response>
-        /// <response code="401">If user is not logged</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] CreateUserPetRequest pet)
         {
@@ -105,12 +100,11 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds last visit to pet. User has to be logged.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="200">If successfully added last visit to pet</response>
-        /// <response code="400">If given properties were invalid</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If pet does not belong to user</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPost("{id:guid}/visit")]
         public async Task<IActionResult> AddVisit(Guid id, AddVisitRequest request)
         {
@@ -130,12 +124,11 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Updates last visit to pet. User has to be logged.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="200">If successfully updated last visit to pet</response>
-        /// <response code="400">If given properties were invalid</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If pet does not belong to user</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPatch("{id:guid}/visit/{visitId:guid}")]
         public async Task<IActionResult> UpdateVisit(Guid id, Guid visitId, UpdateVisitRequest request)
         {
@@ -153,12 +146,11 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds soon event to pet. User has to be logged.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="200">If successfully added soon event to pet</response>
-        /// <response code="400">If given properties were invalid</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If pet does not belong to user</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPost("{id:guid}/soonEvent")]
         public async Task<IActionResult> AddSoonEvent(Guid id, AddSoonEventRequest request)
         {
@@ -178,12 +170,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Soft deletes pet. User has to be logged and owner of pet.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="204">If successfully deleted pet</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If user is not owner of pet</response>
-        /// <response code="404">If pet is not found</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -201,12 +191,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Deletes photos from user pet photos list. User has to be logged and owner of pet.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="200">If successfully deleted photos</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If user is not owner of pet</response>
-        /// <response code="404">If pet or photo is not found</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpDelete("{id:guid}/photo")]
         public async Task<IActionResult> DeletePhotos(Guid id, DeletePetPhotoRequest photo)
         {
@@ -224,11 +212,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Adds photos to user pet photos list. User has to be logged and be owner of pet.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="200">If successfully added photos</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="404">If pet is not found</response>
-        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPost("{id:guid}/photo")]
         public async Task<IActionResult> AddPhotos(Guid id, [FromForm] AddPetPhotoRequest request)
         {
@@ -246,12 +233,10 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Updates main photo. User has to be logged and be owner of pet.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="204">If successfully updated pet photo</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If user is not owner of pet</response>
-        /// <response code="404">If pet is not found</response>
-        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPatch("{id:guid}/photo")]
         public async Task<IActionResult> UpdatePhoto(Guid id, [FromForm] UpdatePetPhotoRequest petUpdate)
         {
@@ -261,8 +246,6 @@ namespace Lapka.Pets.Api.Controllers
                 return Unauthorized();
             }
             
-            Guid photoId = Guid.NewGuid();
-
             await _commandDispatcher.SendAsync(new UpdateUserPetPhoto(id, userId, petUpdate.File.AsPhotoFile()));
 
             return NoContent();
@@ -271,12 +254,11 @@ namespace Lapka.Pets.Api.Controllers
         /// <summary>
         /// Updates a user pet. User has to be logged and be owner of pet.
         /// </summary>
-        /// <returns>No content</returns>
-        /// <response code="204">If successfully updated pet</response>
-        /// <response code="401">If user is not logged</response>
-        /// <response code="403">If user is not owner of pet</response>
-        /// <response code="404">If pet is not found</response>
-        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, UpdateUserPetRequest pet)
         {
