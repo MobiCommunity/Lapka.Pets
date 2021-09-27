@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Lapka.Pets.Api.Controllers
 {
     [ApiController]
-    [Route("api/user/pet")]
+    [Route("api/pets/user/pet")]
     public class PetUserController : ControllerBase
     {
         private readonly ICommandDispatcher _commandDispatcher;
