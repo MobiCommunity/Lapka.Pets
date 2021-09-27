@@ -29,7 +29,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.ShelterPets
             await ValidIfUserOwnShelter(command, pet);
             
             pet.Update(command.Name, command.Race, command.Species, command.Sex, command.DateOfBirth,
-                command.Sterilization, command.Weight, command.Color, command.ShelterAddress, command.Description);
+                command.Sterilization, command.Weight, command.Color, command.Description);
 
             await _repository.UpdateAsync(pet);
             await _eventProcessor.ProcessAsync(pet.Events);

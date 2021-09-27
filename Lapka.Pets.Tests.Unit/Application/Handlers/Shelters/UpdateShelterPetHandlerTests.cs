@@ -47,7 +47,7 @@ namespace Lapka.Pets.Tests.Unit.Application.Handlers.Shelters
 
             UpdateShelterPet command = new UpdateShelterPet(arrangePet.Id.Value, userId, arrangePet.Name,
                 arrangePet.Race, arrangePet.Species, arrangePet.Sex, arrangePet.BirthDay, arrangePet.Description,
-                arrangePet.ShelterAddress, arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
+                arrangePet.Sterilization, arrangePet.Weight, arrangePet.Color);
 
             _repository.GetByIdAsync(command.Id).Returns(pet);
             _shelterRepository.GetAsync(pet.ShelterId).Returns(shelter);

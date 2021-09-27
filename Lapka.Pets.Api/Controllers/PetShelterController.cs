@@ -201,8 +201,7 @@ namespace Lapka.Pets.Api.Controllers
             }
 
             await _commandDispatcher.SendAsync(new UpdateShelterPet(id, userId, pet.Name, pet.Race, pet.Species,
-                pet.Sex, pet.DateOfBirth, pet.Description, pet.ShelterAddress.AsValueObject(),
-                pet.Sterilization, pet.Weight, pet.Color));
+                pet.Sex, pet.DateOfBirth, pet.Description, pet.Sterilization, pet.Weight, pet.Color));
 
             return NoContent();
         }

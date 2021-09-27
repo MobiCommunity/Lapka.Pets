@@ -15,7 +15,7 @@ namespace Lapka.Pets.Tests.Unit.Core.Entities.PetTests.Shelters
             ShelterPet pet = Extensions.ArrangePet();
             
             pet.Update(pet.Name, pet.Race, pet.Species, pet.Sex, pet.BirthDay,
-                pet.Sterilization, pet.Weight, pet.Color, pet.ShelterAddress, pet.Description);
+                pet.Sterilization, pet.Weight, pet.Color, pet.Description);
 
             pet.ShouldNotBeNull();
             pet.Id.ShouldBe(pet.Id);

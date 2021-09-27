@@ -47,12 +47,11 @@ namespace Lapka.Pets.Core.Entities
         }
 
         public void Update(string name, string race, Species species, Sex sex, DateTime birthDay,
-            bool sterilization, double weight, string color, Address shelterAddress, string description)
+            bool sterilization, double weight, string color, string description)
         {
             Update(name, race, species, sex, birthDay, weight, color);
             Validate(name, race, birthDay, color, weight, description);
 
-            ShelterAddress = shelterAddress;
             Description = description;
             Sterilization = sterilization;
 

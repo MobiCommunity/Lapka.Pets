@@ -19,8 +19,6 @@ namespace Lapka.Pets.Api.Models.Request
         public DateTime DateOfBirth { get; set; }
         public string Description { get; set; }
         [Required]
-        public UpdateAddressRequest ShelterAddress { get; set; }
-        [Required]
         public bool Sterilization { get; set; }
         [Required]
         public double Weight { get; set; }

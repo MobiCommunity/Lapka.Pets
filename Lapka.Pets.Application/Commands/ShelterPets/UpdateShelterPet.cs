@@ -14,13 +14,13 @@ namespace Lapka.Pets.Application.Commands.ShelterPets
         public Sex Sex { get; }
         public DateTime DateOfBirth { get; }
         public string Description { get; }
-        public Address ShelterAddress { get; }
         public bool Sterilization { get; }
         public double Weight { get; }
         public string Color { get; }
 
+
         public UpdateShelterPet(Guid id, Guid userId, string name, string race, Species species, Sex sex, DateTime dateOfBirth,
-            string description, Address shelterAddress, bool sterilization, double weight, string color)
+            string description, bool sterilization, double weight, string color)
         {
             Id = id;
             UserId = userId;
@@ -30,7 +30,6 @@ namespace Lapka.Pets.Application.Commands.ShelterPets
             Sex = sex;
             DateOfBirth = dateOfBirth;
             Description = description;
-            ShelterAddress = shelterAddress;
             Sterilization = sterilization;
             Weight = weight;
             Color = color;
