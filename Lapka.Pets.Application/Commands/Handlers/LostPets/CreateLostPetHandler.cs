@@ -34,7 +34,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
         {
             LostPet pet = LostPet.Create(command.Id, command.UserId, command.Name, command.Sex, command.Race,
                 command.Species, string.Empty, DateTime.UtcNow.Subtract(TimeSpan.FromDays(365 * command.Age)),
-                command.Color, command.Weight, command.OwnerName, command.PhoneNumber, command.LostDate,
+                command.Color, command.Weight, command.OwnerName, new PhoneNumber(command.PhoneNumber), command.LostDate,
                 command.LostAddress, command.Description);
 
             await AddMainPhotoToMinioAsync(command, pet);

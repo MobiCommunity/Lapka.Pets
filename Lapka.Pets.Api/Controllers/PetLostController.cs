@@ -80,7 +80,7 @@ namespace Lapka.Pets.Api.Controllers
 
             await _commandDispatcher.SendAsync(new CreateLostPet(id, userId, pet.Name, pet.Race, pet.Species,
                 pet.Sex, pet.Age, pet.LostDate, pet.Sterilization, pet.Weight, pet.Color, pet.OwnerName,
-                pet.PhoneNumber.AsValueObject(), pet.LostAddress.AsValueObject(), pet.Description,
+                pet.PhoneNumber, pet.LostAddress.AsValueObject(), pet.Description,
                 pet.MainPhoto.AsPhotoFile(), pet.Photos.CreatePhotoFiles()));
 
             return Created($"api/pet/lost/{id}", null);
@@ -173,7 +173,7 @@ namespace Lapka.Pets.Api.Controllers
             }
 
             await _commandDispatcher.SendAsync(new UpdateLostPet(id, userId, pet.Name, pet.Race, pet.Species, pet.Sex,
-                pet.Age, pet.LostDate, pet.Weight, pet.Color, pet.OwnerName, pet.PhoneNumber.AsValueObject(),
+                pet.Age, pet.LostDate, pet.Weight, pet.Color, pet.OwnerName, pet.PhoneNumber,
                 pet.LostAddress.AsValueObject(),
                 pet.Description));
 

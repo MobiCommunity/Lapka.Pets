@@ -29,7 +29,7 @@ namespace Lapka.Pets.Api.Models.Request
         public string Color { get; set; }
         [Required]
         public string OwnerName { get; set; }
-        public PhoneNumberModel PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
         [Required]
         public AddressModel LostAddress { get; set; }
         [Required]

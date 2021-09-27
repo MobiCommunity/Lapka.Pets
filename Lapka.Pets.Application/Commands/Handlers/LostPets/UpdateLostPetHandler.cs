@@ -5,6 +5,7 @@ using Lapka.Pets.Application.Commands.LostPets;
 using Lapka.Pets.Application.Exceptions;
 using Lapka.Pets.Application.Services;
 using Lapka.Pets.Core.Entities;
+using Lapka.Pets.Core.ValueObjects;
 
 namespace Lapka.Pets.Application.Commands.Handlers.LostPets
 {
@@ -26,7 +27,7 @@ namespace Lapka.Pets.Application.Commands.Handlers.LostPets
 
             pet.Update(command.Name, command.Race, command.Species, command.Sex,
                 DateTime.UtcNow.Subtract(TimeSpan.FromDays(365 * command.Age)), command.Weight,
-                command.Color, command.OwnerName, command.PhoneNumber, command.LostDate, command.LostAddress,
+                command.Color, command.OwnerName, new PhoneNumber(command.PhoneNumber), command.LostDate, command.LostAddress,
                 command.Description);
 
             await _repository.UpdateAsync(pet);

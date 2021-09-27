@@ -9,16 +9,16 @@ namespace Lapka.Pets.Core.ValueObjects
 
         public PhoneNumber(string phoneNumber)
         {
-            ValidatePhoneNumber(phoneNumber);
-            
             Value = phoneNumber;
+            
+            Validate();
         }
 
-        private void ValidatePhoneNumber(string phoneNumber)
+        private void Validate()
         {
-            if (!PhoneNumberRegex.IsMatch(phoneNumber))
+            if (!PhoneNumberRegex.IsMatch(Value))
             {
-                throw new InvalidPhoneNumberException(phoneNumber);
+                throw new InvalidPhoneNumberException(Value);
             }
         }
         

@@ -15,10 +15,7 @@ namespace Lapka.Identity.Api.Models
     {
         public static Address AsValueObject(this AddressModel address) => new Address(address.Name, address.City,
             address.Street);
-
-        public static PhoneNumber AsValueObject(this PhoneNumberModel location) =>
-            new PhoneNumber(location.PhoneNumber);
-
+        
         public static Address AsValueObject(this UpdateAddressRequest address) => new Address(address.Name,
             address.City, address.Street);
 
