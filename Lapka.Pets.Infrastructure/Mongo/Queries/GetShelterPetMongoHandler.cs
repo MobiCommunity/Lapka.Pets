@@ -23,10 +23,6 @@ namespace Lapka.Pets.Infrastructure.Mongo.Queries
         public async Task<PetDetailsShelterDto> HandleAsync(GetShelterPetMongo query)
         {
             ShelterPetDocument pet = await _repository.GetAsync(query.Id);
-            if (pet == null)
-            {
-                throw new PetNotFoundException(query.Id);
-            }
 
             return pet.AsDetailDto(query.Latitude, query.Longitude);
         }

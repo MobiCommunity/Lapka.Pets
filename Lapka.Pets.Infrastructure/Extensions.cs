@@ -143,6 +143,7 @@ namespace Lapka.Pets.Infrastructure
                 .SubscribeCommand<DeleteUserPetPhoto>()
                 .SubscribeCommand<DeleteShelterPetPhoto>()
                 .SubscribeCommand<DeleteLostPetPhoto>()
+                .SubscribeCommand<CreateShelterPet>()
                 .SubscribeEvent<ShelterAdded>()
                 .SubscribeEvent<ShelterRemoved>()
                 .SubscribeEvent<ShelterChanged>()

@@ -2,12 +2,24 @@ syntax = "proto3";
 
 service PetProto{
   rpc GetPetsShelter (GetPetsShelterRequest) returns (GetPetsShelterReply);
+  rpc GetShelterPetBasicInfo (GetShelterPetBasicInfoRequest) returns (GetShelterPetBasicInfoReply);
 }
 
 message GetPetsShelterRequest{
   string petId = 1;
 }
 
+message GetShelterPetBasicInfoRequest{
+  string petId = 1;
+}
+
 message GetPetsShelterReply{
   string shelterId = 1;
+}
+
+message GetShelterPetBasicInfoReply{
+  string petName = 1;
+  string race = 2;
+  string birthDate = 3;
+  repeated string photoPaths = 4;
 }

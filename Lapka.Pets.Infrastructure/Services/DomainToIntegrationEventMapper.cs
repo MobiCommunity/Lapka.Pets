@@ -22,6 +22,7 @@ namespace Lapka.Pets.Infrastructure.Services
             LostPetDeleted lostPetDeleted => new LostPetRemoved(lostPetDeleted.Pet.Id.Value),
             ShelterPetDeleted shelterPetDeleted => new ShelterPetRemoved(shelterPetDeleted.Pet.Id.Value),
             UserPetDeleted userPetDeleted => new UserPetRemoved(userPetDeleted.Pet.Id.Value),
+            ShelterPetCreated shelterPetCreated => new ShelterPetMade(shelterPetCreated.Pet.Id.Value),
             _ => null
         };
     }
