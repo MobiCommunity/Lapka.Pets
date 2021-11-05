@@ -53,9 +53,9 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
         private static List<Id> GetPetIdsOutOfLikedPetsList(GetResponse<LikePetDocument> searchLikePets)
         {
             List<Id> petIds = new List<Id>();
-            if (searchLikePets?.Source.LikedPets is { })
+            if (searchLikePets?.Source?.LikedPets is { })
             {
-                foreach (Guid petId in searchLikePets?.Source.LikedPets)
+                foreach (Guid petId in searchLikePets.Source.LikedPets)
                 {
                     petIds.Add(petId);
                 }
