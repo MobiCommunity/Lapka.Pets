@@ -44,21 +44,28 @@ namespace Lapka.Pets.Api.Controllers
                 Longitude = longitude
             }));
 
-        
+
         /// <summary>
         /// Gets shelter pets.
         /// </summary>
         [ProducesResponseType(typeof(IEnumerable<PetBasicShelterDto>), StatusCodes.Status200OK)]
         [HttpGet("pet")]
         public async Task<ActionResult<IEnumerable<PetBasicDto>>> GetAll(string name, string race,
-            string latitude, string longitude)
-            => Ok(await _queryDispatcher.QueryAsync(new GetShelterPets
+            string latitude, string longitude, Species species)
+        {
+            Guid userId = await HttpContext.AuthenticateUsingJwtGetUserIdAsync();
+
+            return Ok(await _queryDispatcher.QueryAsync(new GetShelterPets
             {
+                UserId = userId,
                 Latitude = latitude,
                 Longitude = longitude,
                 Name = name,
-                Race = race
+                Race = race,
+                Species = species
             }));
+        }
+            
         
         /// <summary>
         /// Gets all pets belong to given shelter.

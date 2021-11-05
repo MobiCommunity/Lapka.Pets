@@ -47,7 +47,7 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
 
             ISearchResponse<ShelterPetDocument> searchShelterPets = await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
 
-            return searchShelterPets?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
+            return searchShelterPets?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude, true));
         }
 
         private static List<Id> GetPetIdsOutOfLikedPetsList(GetResponse<LikePetDocument> searchLikePets)

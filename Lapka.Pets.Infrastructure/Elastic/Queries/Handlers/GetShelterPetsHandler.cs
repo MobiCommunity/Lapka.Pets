@@ -15,17 +15,25 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
 {
     public class GetShelterPetsHandler : IQueryHandler<GetShelterPets, IEnumerable<PetBasicShelterDto>>
     {
+        private readonly IQueryDispatcher _queryDispatcher;
         private readonly IElasticClient _elasticClient;
         private readonly ElasticSearchOptions _elasticSearchOptions;
 
-        public GetShelterPetsHandler(IElasticClient elasticClient, ElasticSearchOptions elasticSearchOptions)
+        public GetShelterPetsHandler(IQueryDispatcher queryDispatcher, IElasticClient elasticClient,
+            ElasticSearchOptions elasticSearchOptions)
         {
+            _queryDispatcher = queryDispatcher;
             _elasticClient = elasticClient;
             _elasticSearchOptions = elasticSearchOptions;
         }
 
         public async Task<IEnumerable<PetBasicShelterDto>> HandleAsync(GetShelterPets query)
         {
+            IEnumerable<PetBasicShelterDto> likedPets = await _queryDispatcher.QueryAsync(new GetLikedPets
+            {
+                UserId = query.UserId
+            });
+            
             ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
             {
                 Query = new QueryContainer(new BoolQuery
@@ -44,6 +52,12 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
                             Value = query.Name,
                             Fuzziness = Fuzziness.AutoLength(3, 4)
                         })
+                        ,
+                        new QueryContainer(new TermQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Species),
+                            Value = query.Species
+                        })
                     }
                 }),
             };
@@ -51,7 +65,11 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
             ISearchResponse<ShelterPetDocument> search =
                 await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
 
-            return search?.Documents.Select(x => x.AsBasicDto(query.Latitude, query.Longitude));
+            IEnumerable<ShelterPetDocument> pets = search?.Documents;
+
+            if (pets is null) return null;
+
+            return pets.Select(x => x.AsBasicDto(query.Latitude, query.Longitude, likedPets.Any(p => p.Id == x.Id)));
         }
     }
 }

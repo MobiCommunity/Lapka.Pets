@@ -8,5 +8,7 @@ namespace Lapka.Pets.Application.Dto.Pets
         public AddressDto ShelterAddress { get; set; }
         [Required] 
         public double? Distance { get; set; }
+        [Required]
+        public bool IsLiked { get; set; }
     }
 }

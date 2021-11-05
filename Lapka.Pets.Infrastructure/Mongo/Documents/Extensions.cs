@@ -237,7 +237,7 @@ namespace Lapka.Pets.Infrastructure.Mongo.Documents
         }
 
         public static PetBasicShelterDto AsBasicDto(this ShelterPetDocument shelterPet, string latitude,
-            string longitude)
+            string longitude, bool isLiked)
         {
             double? distance = null;
             if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
@@ -259,7 +259,8 @@ namespace Lapka.Pets.Infrastructure.Mongo.Documents
                 Race = shelterPet.Race,
                 BirthDay = shelterPet.BirthDay,
                 ShelterAddress = shelterPet.ShelterAddress.AsDto(),
-                Distance = distance
+                Distance = distance,
+                IsLiked = isLiked
             };
         }
 
