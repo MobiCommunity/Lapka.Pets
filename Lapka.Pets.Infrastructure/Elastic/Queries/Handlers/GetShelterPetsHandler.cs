@@ -5,6 +5,7 @@ using Convey.CQRS.Queries;
 using Lapka.Pets.Application.Dto.Pets;
 using Lapka.Pets.Application.Queries;
 using Lapka.Pets.Application.Queries.ShelterPets;
+using Lapka.Pets.Core.ValueObjects;
 using Lapka.Pets.Infrastructure.Documents;
 using Lapka.Pets.Infrastructure.Elastic.Options;
 using Lapka.Pets.Infrastructure.Mongo.Documents;
@@ -33,7 +34,53 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
             {
                 UserId = query.UserId
             });
-            
+
+            ISearchRequest searchRequest =
+                query.Species == Species.All ? MakeQuery(query) : MakeSpeciesSpecificQuery(query);
+
+            ISearchResponse<ShelterPetDocument> search =
+                await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
+
+            IEnumerable<ShelterPetDocument> pets = search?.Documents;
+
+            if (pets is null) return null;
+
+            return pets.Select(x => x.AsBasicDto(query.Latitude, query.Longitude, likedPets.Any(p => p.Id == x.Id)));
+        }
+
+        private ISearchRequest MakeSpeciesSpecificQuery(GetShelterPets query)
+        {
+            ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
+            {
+                Query = new QueryContainer(new BoolQuery
+                {
+                    Should = new List<QueryContainer>
+                    {
+                        new QueryContainer(new FuzzyQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Race),
+                            Value = query.Race,
+                            Fuzziness = Fuzziness.AutoLength(3, 4)
+                        }),
+                        new QueryContainer(new FuzzyQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Name),
+                            Value = query.Name,
+                            Fuzziness = Fuzziness.AutoLength(3, 4)
+                        }),
+                        new QueryContainer(new TermQuery
+                        {
+                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Species),
+                            Value = query.Species
+                        })
+                    }
+                }),
+            };
+            return searchRequest;
+        }
+
+        private ISearchRequest MakeQuery(GetShelterPets query)
+        {
             ISearchRequest searchRequest = new SearchRequest(_elasticSearchOptions.Aliases.ShelterPets)
             {
                 Query = new QueryContainer(new BoolQuery
@@ -52,24 +99,10 @@ namespace Lapka.Pets.Infrastructure.Elastic.Queries.Handlers
                             Value = query.Name,
                             Fuzziness = Fuzziness.AutoLength(3, 4)
                         })
-                        ,
-                        new QueryContainer(new TermQuery
-                        {
-                            Field = Infer.Field<ShelterPetDocument>(pet => pet.Species),
-                            Value = query.Species
-                        })
                     }
                 }),
             };
-
-            ISearchResponse<ShelterPetDocument> search =
-                await _elasticClient.SearchAsync<ShelterPetDocument>(searchRequest);
-
-            IEnumerable<ShelterPetDocument> pets = search?.Documents;
-
-            if (pets is null) return null;
-
-            return pets.Select(x => x.AsBasicDto(query.Latitude, query.Longitude, likedPets.Any(p => p.Id == x.Id)));
+            return searchRequest;
         }
     }
 }
